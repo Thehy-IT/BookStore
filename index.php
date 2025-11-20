@@ -168,12 +168,18 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <!-- ================================================================================================================================================ -->
-                <!-- <a class="navbar-brand" href="#" style="padding: 1px;"><img class="img-responsive" alt="BookZ"
-                            src="img/logo.jpg" style="width: 147px;margin: 0px;"></a> -->
+                <a class="navbar-brand" href="index.php" style="padding: 5px;">
+                    <img class="img-responsive" alt="BookZ" src="img/logo.png" style="max-height: 40px;">
+                </a>
             </div>
 
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <form class="navbar-form navbar-left" role="search" method="POST" action="Result.php">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="keyword"
+                            placeholder="Search for a Book , Author Or Category">
+                    </div>
+                </form>
                 <ul class="nav navbar-nav navbar-right">
                     <?php
                     if (!isset($_SESSION['user'])) {
@@ -279,19 +285,6 @@
 
     <!-- ============== top  ==============-->
     <div id="top" style="position: relative;">
-        <!-- <div id="searchbox" class="container-fluid" style="width:112%;margin-left:-6%;margin-right:-6%;"> -->
-        <div id="searchbox" class="container-fluid">
-            <div class="search-container">
-                <button id="category-menu-toggle" type="button">
-                    <span class="glyphicon glyphicon-align-justify"></span>
-                </button>
-                <form role="search" method="POST" action="Result.php" class="search-form">
-                    <input type="text" class="form-control" name="keyword"
-                        placeholder="Search for a Book , Author Or Category">
-                </form>
-            </div>
-
-        </div>
 
         <div id="category">
             <div style="background:#D67B22;color:#fff;font-weight:800;border:none;padding:15px;"> The Book Shop
