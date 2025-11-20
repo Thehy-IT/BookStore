@@ -125,10 +125,12 @@ if (!isset($_SESSION['user']))
     <?php
     include "dbconnect.php";
     $PID = $_GET['ID'];
-    $query = "SELECT * FROM products WHERE PID='$PID'";
-    $result = mysqli_query($con, $query) or die(mysql_error());
+    $stmt = $con->prepare("SELECT * FROM products WHERE PID=?");
+    $stmt->bind_param("s", $PID);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if (mysqli_num_rows($result) > 0) {
+    if ($result->num_rows > 0) {
       while ($row = mysqli_fetch_assoc($result)) {
         $path = "img/books/" . $row['PID'] . ".jpg";
         $target = "cart.php?ID=" . $PID . "&";

@@ -88,25 +88,24 @@ if (!isset($_SESSION['user']))
         }
         $author = $_SESSION['author'];
         if (isset($_POST['sort'])) {
+            $sort_order = '';
             if ($_POST['sort'] == "price") {
-                $query = "SELECT * FROM products WHERE Author='$author' ORDER BY Price";
-                $result = mysqli_query($con, $query) or die(mysqli_error($con));
-            } else
-        if ($_POST['sort'] == "priceh") {
-                $query = "SELECT * FROM products WHERE Author='$author' ORDER BY Price DESC";
-                $result = mysqli_query($con, $query) or die(mysqli_error($con));
-            } else
-        if ($_POST['sort'] == "discount") {
-                $query = "SELECT * FROM products WHERE Author='$author' ORDER BY Discount DESC";
-                $result = mysqli_query($con, $query) or die(mysqli_error($con));
-            } else
-        if ($_POST['sort'] == "discountl") {
-                $query = "SELECT * FROM products WHERE Author='$author' ORDER BY Discount";
-                $result = mysqli_query($con, $query) or die(mysqli_error($con));
+                $sort_order = "ORDER BY Price ASC";
+            } elseif ($_POST['sort'] == "priceh") {
+                $sort_order = "ORDER BY Price DESC";
+            } elseif ($_POST['sort'] == "discount") {
+                $sort_order = "ORDER BY Discount DESC";
+            } elseif ($_POST['sort'] == "discountl") {
+                $sort_order = "ORDER BY Discount ASC";
             }
-        } else
-            $query = "SELECT * FROM products WHERE Author='$author'";
-        $result = mysqli_query($con, $query) or die(mysql_error());
+            $query = "SELECT * FROM products WHERE Author=? $sort_order";
+        } else {
+            $query = "SELECT * FROM products WHERE Author=?";
+        }
+        $stmt = $con->prepare($query);
+        $stmt->bind_param("s", $author);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $i = 0;
         echo '<div class="container-fluid" id="books">
         <div class="row">

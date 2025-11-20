@@ -126,27 +126,33 @@
     if (isset($_POST['submit'])) {
         if ($_POST['submit'] == "login") {
             $username = $_POST['login_username'];
-            $password = $_POST['login_password'];
-            $query = "SELECT * from users where UserName ='$username' AND Password='$password'";
-            $result = mysqli_query($con, $query) or die(mysqli_error($con));
-            if (mysqli_num_rows($result) > 0) {
-                $row = mysqli_fetch_assoc($result);
-                $_SESSION['user'] = $row['UserName'];
-                print_timeout_alert("successfully logged in!!!");
+            $password_input = $_POST['login_password'];
+            $stmt = $con->prepare("SELECT * FROM users WHERE UserName = ?");
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                if (password_verify($password_input, $row['Password'])) {
+                    $_SESSION['user'] = $row['UserName'];
+                    print_timeout_alert("successfully logged in!!!");
+                } else {
+                    print_timeout_alert("Incorrect Username Or Password!!");
+                }
             } else {
                 print_timeout_alert("Incorrect Username Or Password!!");
             }
+            $stmt->close();
         } else if ($_POST['submit'] == "register") {
             $username = $_POST['register_username'];
             $password = $_POST['register_password'];
-            $query = "select * from users where UserName = '$username'";
-            $result = mysqli_query($con, $query) or die(mysqli_error($con));
-            if (mysqli_num_rows($result) > 0) {
-                print_timeout_alert("username is taken");
-            } else {
-                $query = "INSERT INTO users VALUES ('$username','$password')";
-                $result = mysqli_query($con, $query);
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $con->prepare("INSERT INTO users (UserName, Password) VALUES (?, ?)");
+            $stmt->bind_param("ss", $username, $hashed_password);
+            if ($stmt->execute()) {
                 print_timeout_alert("Successfully Registered!!!");
+            } else {
+                print_timeout_alert("username is taken");
             }
         }
     }

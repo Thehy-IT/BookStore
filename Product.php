@@ -57,7 +57,7 @@ if (!isset($_SESSION['user']))
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.php"><img alt="Brand" src="img/logo.jpg" style="width: 118px;margin-top: -7px;margin-left: -10px;"></a>
+                <a class="navbar-brand" href="index.php"><img alt="Brand" src="img/logo.png" style="width: 118px;margin-top: -7px;margin-left: -10px;"></a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -89,31 +89,26 @@ if (!isset($_SESSION['user']))
         }
         $category = $_SESSION['category'];
         if (isset($_POST['sort'])) {
+            $sort_order = '';
             if ($_POST['sort'] == "price") {
-                $query = "SELECT * FROM products WHERE Category='$category' ORDER BY Price";
-                $result = mysqli_query($con, $query) or die(mysqli_error($con));
-        ?>
-                <script type="text/javascript">
-                    document.getElementById('select').Selected = $_POST['sort'];
-                </script>
-        <?php
-            } else
-        if ($_POST['sort'] == "priceh") {
-                $query = "SELECT * FROM products WHERE Category='$category' ORDER BY Price DESC";
-                $result = mysqli_query($con, $query) or die(mysqli_error($con));
-            } else
-        if ($_POST['sort'] == "discount") {
-                $query = "SELECT * FROM products WHERE Category='$category' ORDER BY Discount DESC";
-                $result = mysqli_query($con, $query) or die(mysqli_error($con));
-            } else
-        if ($_POST['sort'] == "discountl") {
-                $query = "SELECT * FROM products WHERE Category='$category' ORDER BY Discount";
-                $result = mysqli_query($con, $query) or die(mysqli_error($con));
+                $sort_order = "ORDER BY Price ASC";
+            } elseif ($_POST['sort'] == "priceh") {
+                $sort_order = "ORDER BY Price DESC";
+            } elseif ($_POST['sort'] == "discount") {
+                $sort_order = "ORDER BY Discount DESC";
+            } elseif ($_POST['sort'] == "discountl") {
+                $sort_order = "ORDER BY Discount ASC";
             }
+            $query = "SELECT * FROM products WHERE Category=? $sort_order";
         } else {
-            $query = "SELECT * FROM products WHERE Category='$category'";
-            $result = mysqli_query($con, $query) or die(mysqli_error($con));
+            $query = "SELECT * FROM products WHERE Category=?";
         }
+
+        $stmt = $con->prepare($query);
+        $stmt->bind_param("s", $category);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
         $i = 0;
         echo '<div class="container-fluid" id="books">
         <div class="row">

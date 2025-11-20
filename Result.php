@@ -159,10 +159,14 @@ if (!isset($_SESSION['user']))
         <div id="top">
             <?php
             include "dbconnect.php";
-            $keyword = $_POST['keyword'];
+            $keyword_post = $_POST['keyword'];
+            $keyword = "%{$keyword_post}%";
 
-            $query = "select * from products  where PID like '%{$keyword}%' OR Title like '%{$keyword}%' OR Author like '%{$keyword}%' OR Publisher like '%{$keyword}%' OR Category like '%{$keyword}%'";
-            $result = mysqli_query($con, $query) or die(mysqli_error($con));;
+            $query = "SELECT * FROM products WHERE PID LIKE ? OR Title LIKE ? OR Author LIKE ? OR Publisher LIKE ? OR Category LIKE ?";
+            $stmt = $con->prepare($query);
+            $stmt->bind_param("sssss", $keyword, $keyword, $keyword, $keyword, $keyword);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
             $i = 0;
             echo '<div class="container-fluid" id="books">

@@ -8,8 +8,9 @@ $customer = $_SESSION['user'];
 <?php
 
 if (isset($_GET['place'])) {
-    $query = "DELETE FROM cart where Customer='$customer'";
-    $result = mysqli_query($con, $query);
+    $stmt = $con->prepare("DELETE FROM cart WHERE Customer=?");
+    $stmt->bind_param("s", $customer);
+    $stmt->execute();
 ?>
     <script type="text/javascript">
         alert("Order SuccessFully Placed!! Kindly Keep the cash Ready. It will be collected on Delivery");
@@ -18,8 +19,9 @@ if (isset($_GET['place'])) {
 }
 if (isset($_GET['remove'])) {
     $product = $_GET['remove'];
-    $query = "DELETE FROM cart where Customer='$customer' AND Product='$product'";
-    $result = mysqli_query($con, $query);
+    $stmt = $con->prepare("DELETE FROM cart WHERE Customer=? AND Product=?");
+    $stmt->bind_param("ss", $customer, $product);
+    $stmt->execute();
 ?>
     <script type="text/javascript">
         alert("Item Successfully Removed");
@@ -79,7 +81,7 @@ if (isset($_GET['remove'])) {
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.php" style="padding: 1px;"><img class="img-responsive" alt="Brand" src="img/logo.jpg" style="width: 147px;margin: 0px;"></a>
+                <a class="navbar-brand" href="index.php" style="padding: 1px;"><img class="img-responsive" alt="Brand" src="img/logo.png" style="width: 147px;margin: 0px;"></a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -199,23 +201,27 @@ if (isset($_GET['remove'])) {
             if (isset($_GET['ID'])) {
                 $product = $_GET['ID'];
                 $quantity = $_GET['quantity'];
-                $query = "SELECT * from cart where Customer='$customer' AND Product='$product'";
-                $result = mysqli_query($con, $query);
-                $row = mysqli_fetch_assoc($result);
-                if (mysqli_num_rows($result) == 0) {
-                    $query = "INSERT INTO cart values('$customer','$product','$quantity')";
-                    $result = mysqli_query($con, $query);
+                $stmt = $con->prepare("SELECT * FROM cart WHERE Customer=? AND Product=?");
+                $stmt->bind_param("ss", $customer, $product);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($result->num_rows == 0) {
+                    $stmt_insert = $con->prepare("INSERT INTO cart (Customer, Product, Quantity) VALUES (?, ?, ?)");
+                    $stmt_insert->bind_param("ssi", $customer, $product, $quantity);
+                    $stmt_insert->execute();
                 } else {
                     $new = $_GET['quantity'];
-                    $query = "UPDATE `cart` SET Quantity=$new WHERE Customer='$customer' AND Product='$product'";
-                    $result = mysqli_query($con, $query);
+                    $stmt_update = $con->prepare("UPDATE cart SET Quantity=? WHERE Customer=? AND Product=?");
+                    $stmt_update->bind_param("iss", $new, $customer, $product);
+                    $stmt_update->execute();
                 }
             }
-            $query = "SELECT PID,Title,Author,Edition,Quantity,Price FROM cart INNER JOIN products ON cart.Product=products.PID 
-              	        WHERE Customer='$customer'";
-            $result = mysqli_query($con, $query);
+            $stmt = $con->prepare("SELECT PID, Title, Author, Edition, Quantity, Price FROM cart INNER JOIN products ON cart.Product=products.PID WHERE Customer=?");
+            $stmt->bind_param("s", $customer);
+            $stmt->execute();
+            $result = $stmt->get_result();
             $total = 0;
-            if (mysqli_num_rows($result) > 0) {
+            if ($result->num_rows > 0) {
                 $i = 1;
                 $j = 0;
                 while ($row = mysqli_fetch_assoc($result)) {
