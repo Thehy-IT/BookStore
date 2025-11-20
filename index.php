@@ -128,7 +128,7 @@
             $username = $_POST['login_username'];
             $password = $_POST['login_password'];
             $query = "SELECT * from users where UserName ='$username' AND Password='$password'";
-            $result = mysqli_query($con, $query) or die(mysql_error());
+            $result = mysqli_query($con, $query) or die(mysqli_error($con));
             if (mysqli_num_rows($result) > 0) {
                 $row = mysqli_fetch_assoc($result);
                 $_SESSION['user'] = $row['UserName'];
@@ -140,7 +140,7 @@
             $username = $_POST['register_username'];
             $password = $_POST['register_password'];
             $query = "select * from users where UserName = '$username'";
-            $result = mysqli_query($con, $query) or die(mysql_error);
+            $result = mysqli_query($con, $query) or die(mysqli_error($con));
             if (mysqli_num_rows($result) > 0) {
                 print_timeout_alert("username is taken");
             } else {
@@ -174,11 +174,11 @@
                         echo '
                     <li class="dropdown" id="account-dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            <span class="glyphicon glyphicon-user"></span> Tài khoản <span class="caret"></span>
+                            <span class="glyphicon glyphicon-user"></span> Account <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><button type="button" class="btn-dropdown" data-toggle="modal" data-target="#login">Đăng nhập</button></li>
-                            <li><button type="button" class="btn-dropdown" data-toggle="modal" data-target="#register">Đăng ký</button></li>
+                            <li><button type="button" class="btn-dropdown" data-toggle="modal" data-target="#login">Login</button></li>
+                            <li><button type="button" class="btn-dropdown" data-toggle="modal" data-target="#register">Sign Up</button></li>
                         </ul>
                     </li>';
                     } else {
@@ -190,11 +190,11 @@
                     </li>
                     <li>
                     <a href="cart.php" class="nav-icon-link">
-                        <span class="glyphicon glyphicon-shopping-cart"></span> Giỏ Hàng
+                        <span class="glyphicon glyphicon-shopping-cart"></span> Cart
                     </a>
                     </li>
                     <li>
-                    <a href="destroy.php" class="nav-icon-link">
+                    <a href="destroy.php" class="nav-icon-link" style="text-transform: capitalize;">
                         <span class="glyphicon glyphicon-log-out"></span> LogOut
                     </a>
                     </li>';
@@ -365,7 +365,7 @@
                         <img src="img/label-flashsale.svg">
                         <div class="margin_left_big" style="margin-top:2px"><span
                                 style="color:black; font-weight:600; font-size:1.2em; font-family:'Nunito Sans'"
-                                class="flashsale-page-countdown-label">Kết thúc trong</span></div>
+                                class="flashsale-page-countdown-label">Ending in</span></div>
                         <div class="flashsale-countdown margin_left_normal">
                             <span class="flashsale-countdown-temp"></span>
                             <span id="fs_hours" class="flashsale-countdown-number">00</span>
@@ -412,7 +412,7 @@
                                             <p class="old-price"><span class="price">199.000</span></p>
                                         </div>
                                         <div class="clear"></div>
-                                        <div class="progress"><span class="progress-value">Đã bán 12</span>
+                                        <div class="progress"><span class="progress-value">Sold 12</span>
                                             <div class="progress-bar" role="progressbar"
                                                 style="width: 25.53191489361702%;" aria-valuenow="25.53191489361702"
                                                 aria-valuemin="0" aria-valuemax="100"></div>
@@ -445,7 +445,7 @@
                                             <p class="old-price"><span class="price">98.000</span></p>
                                         </div>
                                         <div class="clear"></div>
-                                        <div class="progress"><span class="progress-value">Đã bán 20</span>
+                                        <div class="progress"><span class="progress-value">Sold 20</span>
                                             <div class="progress-bar" role="progressbar"
                                                 style="width: 36.36363636363637%;" aria-valuenow="36.36363636363637"
                                                 aria-valuemin="0" aria-valuemax="100"></div>
@@ -482,7 +482,7 @@
                                             <p class="old-price"><span class="price">229.000</span></p>
                                         </div>
                                         <div class="clear"></div>
-                                        <div class="progress"><span class="progress-value">Đã bán 7</span>
+                                        <div class="progress"><span class="progress-value">Sold 7</span>
                                             <div class="progress-bar" role="progressbar"
                                                 style="width: 9.333333333333334%;" aria-valuenow="9.333333333333334"
                                                 aria-valuemin="0" aria-valuemax="100"></div>
@@ -519,7 +519,7 @@
                                             <p class="old-price"><span class="price">179.000</span></p>
                                         </div>
                                         <div class="clear"></div>
-                                        <div class="progress"><span class="progress-value">Đã bán 16</span>
+                                        <div class="progress"><span class="progress-value">Sold 16</span>
                                             <div class="progress-bar" role="progressbar"
                                                 style="width: 25.806451612903224%;" aria-valuenow="25.806451612903224"
                                                 aria-valuemin="0" aria-valuemax="100"></div>
@@ -556,7 +556,7 @@
                                             <p class="old-price"><span class="price">185.000</span></p>
                                         </div>
                                         <div class="clear"></div>
-                                        <div class="progress"><span class="progress-value">Đã bán 20</span>
+                                        <div class="progress"><span class="progress-value">Sold 20</span>
                                             <div class="progress-bar" role="progressbar"
                                                 style="width: 34.48275862068966%;" aria-valuenow="34.48275862068966"
                                                 aria-valuemin="0" aria-valuemax="100"></div>
@@ -593,7 +593,7 @@
                                             <p class="old-price"><span class="price">185.000</span></p>
                                         </div>
                                         <div class="clear"></div>
-                                        <div class="progress"><span class="progress-value">Đã bán 6</span>
+                                        <div class="progress"><span class="progress-value">Sold 6</span>
                                             <div class="progress-bar" role="progressbar"
                                                 style="width: 8.450704225352112%;" aria-valuenow="8.450704225352112"
                                                 aria-valuemin="0" aria-valuemax="100"></div>
@@ -629,7 +629,7 @@
                                             <p class="old-price"><span class="price">350.000</span></p>
                                         </div>
                                         <div class="clear"></div>
-                                        <div class="progress"><span class="progress-value">Đã bán 17</span>
+                                        <div class="progress"><span class="progress-value">Sold 17</span>
                                             <div class="progress-bar" role="progressbar"
                                                 style="width: 30.909090909090907%;" aria-valuenow="30.909090909090907"
                                                 aria-valuemin="0" aria-valuemax="100"></div>
@@ -665,7 +665,7 @@
                                             <p class="old-price"><span class="price">199.000</span></p>
                                         </div>
                                         <div class="clear"></div>
-                                        <div class="progress"><span class="progress-value">Đã bán 6</span>
+                                        <div class="progress"><span class="progress-value">Sold 6</span>
                                             <div class="progress-bar" role="progressbar"
                                                 style="width: 13.043478260869565%;" aria-valuenow="13.043478260869565"
                                                 aria-valuemin="0" aria-valuemax="100"></div>
@@ -702,7 +702,7 @@
                                             <p class="old-price"><span class="price">120.000</span></p>
                                         </div>
                                         <div class="clear"></div>
-                                        <div class="progress"><span class="progress-value">Đã bán 18</span>
+                                        <div class="progress"><span class="progress-value">Sold 18</span>
                                             <div class="progress-bar" role="progressbar"
                                                 style="width: 33.9622641509434%;" aria-valuenow="33.9622641509434"
                                                 aria-valuemin="0" aria-valuemax="100"></div>
@@ -738,7 +738,7 @@
                                             <p class="old-price"><span class="price">130.000</span></p>
                                         </div>
                                         <div class="clear"></div>
-                                        <div class="progress"><span class="progress-value">Đã bán 8</span>
+                                        <div class="progress"><span class="progress-value">Sold 8</span>
                                             <div class="progress-bar" role="progressbar"
                                                 style="width: 11.267605633802818%;" aria-valuenow="11.267605633802818"
                                                 aria-valuemin="0" aria-valuemax="100"></div>
@@ -829,11 +829,11 @@
         <div class="bestseller-container">
 
             <div class="bestseller-header">
-                <h3>Bảng xếp hạng bán chạy tuần</h3>
+                <h3>Weekly Bestsellers Chart</h3>
                 <ul class="nav nav-tabs bestseller-tabs">
-                    <li class="active"><a href="#tab-van-hoc" data-toggle="tab">Văn học</a></li>
-                    <li><a href="#tab-kinh-te" data-toggle="tab">Kinh Tế</a></li>
-                    <li><a href="#tab-thieu-nhi" data-toggle="tab">Thiếu nhi</a></li>
+                    <li class="active"><a href="#tab-van-hoc" data-toggle="tab">Literature</a></li>
+                    <li><a href="#tab-kinh-te" data-toggle="tab">Economics</a></li>
+                    <li><a href="#tab-thieu-nhi" data-toggle="tab">Children</a></li>
                 </ul>
             </div>
 
@@ -852,9 +852,9 @@
                                             <img class="media-object" src="img/new/1.jpg" alt="Mưa Đỏ">
                                         </div>
                                         <div class="media-body">
-                                            <h4 class="media-heading">Mưa Đỏ</h4>
+                                            <h4 class="media-heading">Red Rain</h4>
                                             <p>Chu Lai</p>
-                                            <p><strong>5841 điểm</strong></p>
+                                            <p><strong>5841 points</strong></p>
                                         </div>
                                     </div>
                                 </li>
@@ -869,9 +869,9 @@
                                             <img class="media-object" src="img/new/2.jpg" alt="Hồ Điệp">
                                         </div>
                                         <div class="media-body">
-                                            <h4 class="media-heading">Hồ Điệp Và Kinh Ngư</h4>
+                                            <h4 class="media-heading">Butterfly and Whale</h4>
                                             <p>Tuệ Kiên</p>
-                                            <p><strong>1082 điểm</strong></p>
+                                            <p><strong>1082 points</strong></p>
                                         </div>
                                     </div>
                                 </li>
@@ -886,9 +886,9 @@
                                             <img class="media-object" src="img/new/3.png" alt="Nhà Giả Kim">
                                         </div>
                                         <div class="media-body">
-                                            <h4 class="media-heading">Nhà Giả Kim (Tái Bản 2020)</h4>
+                                            <h4 class="media-heading">The Alchemist (2020 Reprint)</h4>
                                             <p>Paulo Coelho</p>
-                                            <p><strong>867 điểm</strong></p>
+                                            <p><strong>867 points</strong></p>
                                         </div>
                                     </div>
                                 </li>
@@ -904,9 +904,9 @@
                                             <img src="img/new/1.jpg" class="detail-cover img-responsive" alt="Mưa Đỏ">
                                         </div>
                                         <div class="col-md-7">
-                                            <h3>Mưa Đỏ</h3>
-                                            <p class="detail-meta">Tác giả: <strong>Chu Lai</strong></p>
-                                            <p class="detail-meta">Nhà xuất bản: <strong>Quân Đội Nhân Dân</strong></p>
+                                            <h3>Red Rain</h3>
+                                            <p class="detail-meta">Author: <strong>Chu Lai</strong></p>
+                                            <p class="detail-meta">Publisher: <strong>People's Army</strong></p>
 
                                             <div class="detail-price">
                                                 <span class="new-price">184.500 đ</span>
@@ -920,10 +920,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <p class="detail-description">
-                                                Những mảng cảm xúc đan xen giữa nụ cười - nước mắt, nỗi đau - niềm vui,
-                                                sự sống - cái chết, những thăng hoa - mất mát, sự hy sinh của những
-                                                người cha, người chồng, người con, những người lính, người đồng chí,
-                                                đồng đội.
+                                                Intertwined emotional arrays between smiles - tears, pain - joy, life - death, sublimation - loss, the sacrifice of fathers, husbands, sons, soldiers, comrades.
                                             </p>
                                         </div>
                                     </div>
@@ -935,9 +932,9 @@
                                             <img src="img/new/2.jpg" class="detail-cover img-responsive" alt="Hồ Điệp">
                                         </div>
                                         <div class="col-md-7">
-                                            <h3>Hồ Điệp Và Kinh Ngư</h3>
-                                            <p class="detail-meta">Tác giả: <strong>Tuệ Kiên</strong></p>
-                                            <p class="detail-meta">Nhà xuất bản: <strong>...</strong></p>
+                                            <h3>Butterfly and Whale</h3>
+                                            <p class="detail-meta">Author: <strong>Tuệ Kiên</strong></p>
+                                            <p class="detail-meta">Publisher: <strong>...</strong></p>
 
                                             <div class="detail-price">
                                                 <span class="new-price">99.000 đ</span>
@@ -951,10 +948,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <p class="detail-description">
-                                                Một câu chuyện cuốn hút ngay từ những trang đầu tiên - Khi tình yêu trở
-                                                thành sợi dây mong manh giữa sinh tử, phản bội và hy vọng. Khi một nàng
-                                                hồ điệp nhỏ bé chạm trán với kình ngư mạnh mẽ, liệu đó là định mệnh hay
-                                                chỉ là một giấc mộng chóng tàn?
+                                                A captivating story from the very first pages - When love becomes a fragile thread between life and death, betrayal and hope. When a small butterfly encounters a mighty whale, is it destiny or just a fleeting dream?
                                             </p>
                                         </div>
                                     </div>
@@ -967,9 +961,9 @@
                                                 alt="Nhà Giả Kim">
                                         </div>
                                         <div class="col-md-7">
-                                            <h3>Nhà Giả Kim (Tái Bản 2020)</h3>
-                                            <p class="detail-meta">Tác giả: <strong>Paulo Coelho</strong></p>
-                                            <p class="detail-meta">Nhà xuất bản: <strong>...</strong></p>
+                                            <h3>The Alchemist (2020 Reprint)</h3>
+                                            <p class="detail-meta">Author: <strong>Paulo Coelho</strong></p>
+                                            <p class="detail-meta">Publisher: <strong>...</strong></p>
 
                                             <div class="detail-price">
                                                 <span class="new-price">79.000 đ</span>
@@ -983,7 +977,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <p class="detail-description">
-                                                Mô tả cho sách Nhà Giả Kim...
+                                                Description for The Alchemist...
                                             </p>
                                         </div>
                                     </div>
@@ -1008,9 +1002,9 @@
                                             <img class="media-object" src="img/new/1.jpg" alt="Mưa Đỏ">
                                         </div>
                                         <div class="media-body">
-                                            <h4 class="media-heading">Mưa Đỏ</h4>
+                                            <h4 class="media-heading">Red Rain</h4>
                                             <p>Chu Lai</p>
-                                            <p><strong>5841 điểm</strong></p>
+                                            <p><strong>5841 points</strong></p>
                                         </div>
                                     </div>
                                 </li>
@@ -1025,9 +1019,9 @@
                                             <img class="media-object" src="img/new/2.jpg" alt="Hồ Điệp">
                                         </div>
                                         <div class="media-body">
-                                            <h4 class="media-heading">Hồ Điệp Và Kinh Ngư</h4>
+                                            <h4 class="media-heading">Butterfly and Whale</h4>
                                             <p>Tuệ Kiên</p>
-                                            <p><strong>1082 điểm</strong></p>
+                                            <p><strong>1082 points</strong></p>
                                         </div>
                                     </div>
                                 </li>
@@ -1042,9 +1036,9 @@
                                             <img class="media-object" src="img/new/3.png" alt="Nhà Giả Kim">
                                         </div>
                                         <div class="media-body">
-                                            <h4 class="media-heading">Nhà Giả Kim (Tái Bản 2020)</h4>
+                                            <h4 class="media-heading">The Alchemist (2020 Reprint)</h4>
                                             <p>Paulo Coelho</p>
-                                            <p><strong>867 điểm</strong></p>
+                                            <p><strong>867 points</strong></p>
                                         </div>
                                     </div>
                                 </li>
@@ -1059,9 +1053,9 @@
                                             <img src="img/new/1.jpg" class="detail-cover img-responsive" alt="Mưa Đỏ">
                                         </div>
                                         <div class="col-md-7">
-                                            <h3>Mưa Đỏ</h3>
-                                            <p class="detail-meta">Tác giả: <strong>Chu Lai</strong></p>
-                                            <p class="detail-meta">Nhà xuất bản: <strong>Quân Đội Nhân Dân</strong></p>
+                                            <h3>Red Rain</h3>
+                                            <p class="detail-meta">Author: <strong>Chu Lai</strong></p>
+                                            <p class="detail-meta">Publisher: <strong>People's Army</strong></p>
 
                                             <div class="detail-price">
                                                 <span class="new-price">184.500 đ</span>
@@ -1075,10 +1069,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <p class="detail-description">
-                                                Những mảng cảm xúc đan xen giữa nụ cười - nước mắt, nỗi đau - niềm vui,
-                                                sự sống - cái chết, những thăng hoa - mất mát, sự hy sinh của những
-                                                người cha, người chồng, người con, những người lính, người đồng chí,
-                                                đồng đội.
+                                                Intertwined emotional arrays between smiles - tears, pain - joy, life - death, sublimation - loss, the sacrifice of fathers, husbands, sons, soldiers, comrades.
                                             </p>
                                         </div>
                                     </div>
@@ -1090,9 +1081,9 @@
                                             <img src="img/new/2.jpg" class="detail-cover img-responsive" alt="Hồ Điệp">
                                         </div>
                                         <div class="col-md-7">
-                                            <h3>Hồ Điệp Và Kinh Ngư</h3>
-                                            <p class="detail-meta">Tác giả: <strong>Tuệ Kiên</strong></p>
-                                            <p class="detail-meta">Nhà xuất bản: <strong>...</strong></p>
+                                            <h3>Butterfly and Whale</h3>
+                                            <p class="detail-meta">Author: <strong>Tuệ Kiên</strong></p>
+                                            <p class="detail-meta">Publisher: <strong>...</strong></p>
 
                                             <div class="detail-price">
                                                 <span class="new-price">99.000 đ</span>
@@ -1106,10 +1097,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <p class="detail-description">
-                                                Một câu chuyện cuốn hút ngay từ những trang đầu tiên - Khi tình yêu trở
-                                                thành sợi dây mong manh giữa sinh tử, phản bội và hy vọng. Khi một nàng
-                                                hồ điệp nhỏ bé chạm trán với kình ngư mạnh mẽ, liệu đó là định mệnh hay
-                                                chỉ là một giấc mộng chóng tàn?
+                                                A captivating story from the very first pages - When love becomes a fragile thread between life and death, betrayal and hope. When a small butterfly encounters a mighty whale, is it destiny or just a fleeting dream?
                                             </p>
                                         </div>
                                     </div>
@@ -1122,9 +1110,9 @@
                                                 alt="Nhà Giả Kim">
                                         </div>
                                         <div class="col-md-7">
-                                            <h3>Nhà Giả Kim (Tái Bản 2020)</h3>
-                                            <p class="detail-meta">Tác giả: <strong>Paulo Coelho</strong></p>
-                                            <p class="detail-meta">Nhà xuất bản: <strong>...</strong></p>
+                                            <h3>The Alchemist (2020 Reprint)</h3>
+                                            <p class="detail-meta">Author: <strong>Paulo Coelho</strong></p>
+                                            <p class="detail-meta">Publisher: <strong>...</strong></p>
 
                                             <div class="detail-price">
                                                 <span class="new-price">79.000 đ</span>
@@ -1138,7 +1126,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <p class="detail-description">
-                                                Mô tả cho sách Nhà Giả Kim...
+                                                Description for The Alchemist...
                                             </p>
                                         </div>
                                     </div>
@@ -1162,9 +1150,9 @@
                                             <img class="media-object" src="img/new/1.jpg" alt="Mưa Đỏ">
                                         </div>
                                         <div class="media-body">
-                                            <h4 class="media-heading">Mưa Đỏ</h4>
+                                            <h4 class="media-heading">Red Rain</h4>
                                             <p>Chu Lai</p>
-                                            <p><strong>5841 điểm</strong></p>
+                                            <p><strong>5841 points</strong></p>
                                         </div>
                                     </div>
                                 </li>
@@ -1179,9 +1167,9 @@
                                             <img class="media-object" src="img/new/2.jpg" alt="Hồ Điệp">
                                         </div>
                                         <div class="media-body">
-                                            <h4 class="media-heading">Hồ Điệp Và Kinh Ngư</h4>
+                                            <h4 class="media-heading">Butterfly and Whale</h4>
                                             <p>Tuệ Kiên</p>
-                                            <p><strong>1082 điểm</strong></p>
+                                            <p><strong>1082 points</strong></p>
                                         </div>
                                     </div>
                                 </li>
@@ -1196,9 +1184,9 @@
                                             <img class="media-object" src="img/new/3.png" alt="Nhà Giả Kim">
                                         </div>
                                         <div class="media-body">
-                                            <h4 class="media-heading">Nhà Giả Kim (Tái Bản 2020)</h4>
+                                            <h4 class="media-heading">The Alchemist (2020 Reprint)</h4>
                                             <p>Paulo Coelho</p>
-                                            <p><strong>867 điểm</strong></p>
+                                            <p><strong>867 points</strong></p>
                                         </div>
                                     </div>
                                 </li>
@@ -1213,9 +1201,9 @@
                                             <img src="img/new/1.jpg" class="detail-cover img-responsive" alt="Mưa Đỏ">
                                         </div>
                                         <div class="col-md-7">
-                                            <h3>Mưa Đỏ</h3>
-                                            <p class="detail-meta">Tác giả: <strong>Chu Lai</strong></p>
-                                            <p class="detail-meta">Nhà xuất bản: <strong>Quân Đội Nhân Dân</strong></p>
+                                            <h3>Red Rain</h3>
+                                            <p class="detail-meta">Author: <strong>Chu Lai</strong></p>
+                                            <p class="detail-meta">Publisher: <strong>People's Army</strong></p>
 
                                             <div class="detail-price">
                                                 <span class="new-price">184.500 đ</span>
@@ -1229,10 +1217,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <p class="detail-description">
-                                                Những mảng cảm xúc đan xen giữa nụ cười - nước mắt, nỗi đau - niềm vui,
-                                                sự sống - cái chết, những thăng hoa - mất mát, sự hy sinh của những
-                                                người cha, người chồng, người con, những người lính, người đồng chí,
-                                                đồng đội.
+                                                Intertwined emotional arrays between smiles - tears, pain - joy, life - death, sublimation - loss, the sacrifice of fathers, husbands, sons, soldiers, comrades.
                                             </p>
                                         </div>
                                     </div>
@@ -1244,9 +1229,9 @@
                                             <img src="img/new/2.jpg" class="detail-cover img-responsive" alt="Hồ Điệp">
                                         </div>
                                         <div class="col-md-7">
-                                            <h3>Hồ Điệp Và Kinh Ngư</h3>
-                                            <p class="detail-meta">Tác giả: <strong>Tuệ Kiên</strong></p>
-                                            <p class="detail-meta">Nhà xuất bản: <strong>...</strong></p>
+                                            <h3>Butterfly and Whale</h3>
+                                            <p class="detail-meta">Author: <strong>Tuệ Kiên</strong></p>
+                                            <p class="detail-meta">Publisher: <strong>...</strong></p>
 
                                             <div class="detail-price">
                                                 <span class="new-price">99.000 đ</span>
@@ -1260,10 +1245,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <p class="detail-description">
-                                                Một câu chuyện cuốn hút ngay từ những trang đầu tiên - Khi tình yêu trở
-                                                thành sợi dây mong manh giữa sinh tử, phản bội và hy vọng. Khi một nàng
-                                                hồ điệp nhỏ bé chạm trán với kình ngư mạnh mẽ, liệu đó là định mệnh hay
-                                                chỉ là một giấc mộng chóng tàn?
+                                                A captivating story from the very first pages - When love becomes a fragile thread between life and death, betrayal and hope. When a small butterfly encounters a mighty whale, is it destiny or just a fleeting dream?
                                             </p>
                                         </div>
                                     </div>
@@ -1276,9 +1258,9 @@
                                                 alt="Nhà Giả Kim">
                                         </div>
                                         <div class="col-md-7">
-                                            <h3>Nhà Giả Kim (Tái Bản 2020)</h3>
-                                            <p class="detail-meta">Tác giả: <strong>Paulo Coelho</strong></p>
-                                            <p class="detail-meta">Nhà xuất bản: <strong>...</strong></p>
+                                            <h3>The Alchemist (2020 Reprint)</h3>
+                                            <p class="detail-meta">Author: <strong>Paulo Coelho</strong></p>
+                                            <p class="detail-meta">Publisher: <strong>...</strong></p>
 
                                             <div class="detail-price">
                                                 <span class="new-price">79.000 đ</span>
@@ -1292,7 +1274,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <p class="detail-description">
-                                                Mô tả cho sách Nhà Giả Kim...
+                                                Description for The Alchemist...
                                             </p>
                                         </div>
                                     </div>
