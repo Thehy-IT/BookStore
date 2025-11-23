@@ -26,6 +26,7 @@ if (!$row) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -53,16 +54,21 @@ if (!$row) {
 
         /* --- Background Blobs --- */
         .bg-blobs {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
             background: radial-gradient(circle at 5% 10%, rgba(212, 175, 55, 0.15), transparent 40%),
-                        radial-gradient(circle at 95% 90%, rgba(15, 23, 42, 0.15), transparent 40%);
+                radial-gradient(circle at 95% 90%, rgba(15, 23, 42, 0.15), transparent 40%);
         }
 
         /* --- Navbar Glass --- */
         .navbar {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         /* --- Main Product Card --- */
@@ -73,19 +79,21 @@ if (!$row) {
             border: var(--glass-border);
             border-radius: 24px;
             padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
         }
 
         .book-cover-wrapper {
             position: relative;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
             transition: 0.3s;
         }
+
         .book-cover-wrapper:hover {
             transform: scale(1.02);
         }
+
         .book-cover-wrapper img {
             width: 100%;
             height: auto;
@@ -93,10 +101,15 @@ if (!$row) {
         }
 
         .discount-badge {
-            position: absolute; top: 20px; left: 20px;
-            background: #ef4444; color: white;
-            font-weight: 800; padding: 8px 16px;
-            border-radius: 30px; z-index: 2;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #ef4444;
+            color: white;
+            font-weight: 800;
+            padding: 8px 16px;
+            border-radius: 30px;
+            z-index: 2;
             box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
         }
 
@@ -120,12 +133,23 @@ if (!$row) {
         .price-area {
             margin: 25px 0;
             padding: 20px;
-            background: rgba(255,255,255,0.5);
+            background: rgba(255, 255, 255, 0.5);
             border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.8);
+            border: 1px solid rgba(255, 255, 255, 0.8);
         }
-        .price-current { font-size: 2rem; font-weight: 800; color: var(--primary); }
-        .price-old { text-decoration: line-through; color: #94a3b8; font-size: 1.2rem; margin-left: 10px; }
+
+        .price-current {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .price-old {
+            text-decoration: line-through;
+            color: #94a3b8;
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
 
         .btn-add-cart {
             background: linear-gradient(45deg, var(--primary), #1e293b);
@@ -138,6 +162,7 @@ if (!$row) {
             transition: 0.3s;
             box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
         }
+
         .btn-add-cart:hover {
             transform: translateY(-3px);
             box-shadow: 0 15px 30px rgba(15, 23, 42, 0.3);
@@ -148,28 +173,42 @@ if (!$row) {
         /* --- Detail Table --- */
         .details-table td {
             padding: 12px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
-        .details-table tr:last-child td { border-bottom: none; }
-        .details-label { font-weight: 600; color: #64748b; width: 150px; }
-        .details-value { font-weight: 600; color: var(--primary); }
+
+        .details-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .details-label {
+            font-weight: 600;
+            color: #64748b;
+            width: 150px;
+        }
+
+        .details-value {
+            font-weight: 600;
+            color: var(--primary);
+        }
 
         /* --- Service Cards --- */
         .service-card {
-            background: rgba(255,255,255,0.6);
+            background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(10px);
             padding: 25px;
             border-radius: 16px;
             text-align: center;
             height: 100%;
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             transition: 0.3s;
         }
+
         .service-card:hover {
             background: white;
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
+
         .service-icon {
             font-size: 2rem;
             color: var(--accent);
@@ -211,11 +250,11 @@ if (!$row) {
     <div class="container pb-5">
         <div class="product-glass-card">
             <div class="row g-5">
-                
+
                 <!-- Left Column: Image -->
                 <div class="col-lg-5">
                     <div class="book-cover-wrapper">
-                        <?php if($row['Discount'] > 0): ?>
+                        <?php if ($row['Discount'] > 0): ?>
                             <div class="discount-badge">-<?php echo $row['Discount']; ?>%</div>
                         <?php endif; ?>
                         <img src="img/books/<?php echo $row['PID']; ?>.jpg" alt="<?php echo $row['Title']; ?>" onerror="this.src='https://placehold.co/600x900?text=Book+Cover'">
@@ -225,7 +264,7 @@ if (!$row) {
                 <!-- Right Column: Info -->
                 <div class="col-lg-7">
                     <h1 class="book-title"><?php echo $row['Title']; ?></h1>
-                    
+
                     <div class="meta-tags mb-4">
                         <span><i class="fas fa-pen-nib me-1"></i> <?php echo $row['Author']; ?></span>
                         <span><i class="fas fa-building me-1"></i> <?php echo $row['Publisher']; ?></span>
@@ -234,7 +273,7 @@ if (!$row) {
                     <div class="price-area d-flex align-items-center justify-content-between">
                         <div>
                             <span class="price-current"><?php echo number_format($row['Price']); ?> đ</span>
-                            <?php if($row['MRP'] > $row['Price']): ?>
+                            <?php if ($row['MRP'] > $row['Price']): ?>
                                 <span class="price-old"><?php echo number_format($row['MRP']); ?> đ</span>
                             <?php endif; ?>
                         </div>
@@ -244,17 +283,17 @@ if (!$row) {
                     <p class="text-muted mb-4" style="line-height: 1.8;">
                         <?php echo $row['Description']; ?>
                     </p>
-                    
+
                     <!-- Quantity & Add to Cart Form -->
                     <div class="row align-items-end mb-5">
                         <div class="col-md-4 mb-3 mb-md-0">
                             <label class="form-label fw-bold small text-uppercase">Quantity</label>
                             <select class="form-select form-select-lg border-0 bg-light rounded-3" id="qtySelect">
-                                <?php 
-                                    $max_qty = ($row['Available'] > 10) ? 10 : $row['Available'];
-                                    for($i=1; $i<=$max_qty; $i++) {
-                                        echo "<option value='$i'>$i</option>";
-                                    }
+                                <?php
+                                $max_qty = ($row['Available'] > 10) ? 10 : $row['Available'];
+                                for ($i = 1; $i <= $max_qty; $i++) {
+                                    echo "<option value='$i'>$i</option>";
+                                }
                                 ?>
                             </select>
                         </div>
@@ -268,11 +307,26 @@ if (!$row) {
                     <!-- Technical Specs -->
                     <h5 class="fw-bold mb-3 border-bottom pb-2">Product Details</h5>
                     <table class="details-table w-100">
-                        <tr><td class="details-label">Product Code</td><td class="details-value"><?php echo $row['PID']; ?></td></tr>
-                        <tr><td class="details-label">Edition</td><td class="details-value"><?php echo $row['Edition']; ?></td></tr>
-                        <tr><td class="details-label">Language</td><td class="details-value"><?php echo $row['Language']; ?></td></tr>
-                        <tr><td class="details-label">Pages</td><td class="details-value"><?php echo $row['page']; ?></td></tr>
-                        <tr><td class="details-label">Weight</td><td class="details-value"><?php echo $row['weight']; ?></td></tr>
+                        <tr>
+                            <td class="details-label">Product Code</td>
+                            <td class="details-value"><?php echo $row['PID']; ?></td>
+                        </tr>
+                        <tr>
+                            <td class="details-label">Edition</td>
+                            <td class="details-value"><?php echo $row['Edition']; ?></td>
+                        </tr>
+                        <tr>
+                            <td class="details-label">Language</td>
+                            <td class="details-value"><?php echo $row['Language']; ?></td>
+                        </tr>
+                        <tr>
+                            <td class="details-label">Pages</td>
+                            <td class="details-value"><?php echo $row['page']; ?></td>
+                        </tr>
+                        <tr>
+                            <td class="details-label">Weight</td>
+                            <td class="details-value"><?php echo $row['weight']; ?></td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -315,7 +369,7 @@ if (!$row) {
 
     <!-- JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Logic Add to Cart -->
     <script>
         function addToCart(pid) {
@@ -325,4 +379,5 @@ if (!$row) {
         }
     </script>
 </body>
+
 </html>

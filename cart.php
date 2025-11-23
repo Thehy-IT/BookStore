@@ -43,8 +43,8 @@ if (isset($_GET['remove'])) {
     $product_id = $_GET['remove'];
     $del = $con->prepare("DELETE FROM cart WHERE Customer=? AND Product=?");
     $del->bind_param("ss", $customer, $product_id);
-    
-    if($del->execute()){
+
+    if ($del->execute()) {
         header("Location: cart.php?action=removed");
         exit();
     }
@@ -55,23 +55,24 @@ if (isset($_POST['place_order'])) {
     // Xóa sạch giỏ hàng của user đó
     $clear = $con->prepare("DELETE FROM cart WHERE Customer=?");
     $clear->bind_param("s", $customer);
-    
-    if($clear->execute()){
+
+    if ($clear->execute()) {
         header("Location: cart.php?action=placed");
         exit();
     }
 }
 
 // 5. Xử lý thông báo dựa trên tham số 'action'
-if(isset($_GET['action'])) {
-    if($_GET['action'] == 'added') $swal_script = "Swal.fire({icon: 'success', title: 'Updated!', text: 'Cart updated successfully.', timer: 2000, showConfirmButton: false});";
-    if($_GET['action'] == 'removed') $swal_script = "Swal.fire({icon: 'success', title: 'Removed!', text: 'Item removed from cart.', timer: 2000, showConfirmButton: false});";
-    if($_GET['action'] == 'placed') $swal_script = "Swal.fire({icon: 'success', title: 'Order Placed!', text: 'Thank you! Cash on Delivery.', confirmButtonColor: '#0f172a'});";
+if (isset($_GET['action'])) {
+    if ($_GET['action'] == 'added') $swal_script = "Swal.fire({icon: 'success', title: 'Updated!', text: 'Cart updated successfully.', timer: 2000, showConfirmButton: false});";
+    if ($_GET['action'] == 'removed') $swal_script = "Swal.fire({icon: 'success', title: 'Removed!', text: 'Item removed from cart.', timer: 2000, showConfirmButton: false});";
+    if ($_GET['action'] == 'placed') $swal_script = "Swal.fire({icon: 'success', title: 'Order Placed!', text: 'Thank you! Cash on Delivery.', confirmButtonColor: '#0f172a'});";
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -100,16 +101,21 @@ if(isset($_GET['action'])) {
 
         /* --- Background Blobs --- */
         .bg-blobs {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
             background: radial-gradient(circle at 5% 80%, rgba(212, 175, 55, 0.1), transparent 40%),
-                        radial-gradient(circle at 95% 10%, rgba(15, 23, 42, 0.1), transparent 40%);
+                radial-gradient(circle at 95% 10%, rgba(15, 23, 42, 0.1), transparent 40%);
         }
 
         /* --- Navbar --- */
         .navbar {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         /* --- Glass Panel --- */
@@ -118,7 +124,7 @@ if(isset($_GET['action'])) {
             backdrop-filter: blur(20px);
             border: var(--glass-border);
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
             overflow: hidden;
         }
 
@@ -126,6 +132,7 @@ if(isset($_GET['action'])) {
         .cart-table thead {
             background: rgba(15, 23, 42, 0.05);
         }
+
         .cart-table th {
             font-weight: 700;
             text-transform: uppercase;
@@ -134,17 +141,19 @@ if(isset($_GET['action'])) {
             border: none;
             padding: 15px 20px;
         }
+
         .cart-table td {
             vertical-align: middle;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             padding: 20px;
         }
+
         .cart-img {
             width: 60px;
             height: 90px;
             object-fit: cover;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         /* --- Buttons --- */
@@ -152,12 +161,15 @@ if(isset($_GET['action'])) {
             color: #ef4444;
             background: rgba(239, 68, 68, 0.1);
             border: none;
-            width: 35px; height: 35px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             transition: 0.3s;
         }
+
         .btn-remove:hover {
-            background: #ef4444; color: white;
+            background: #ef4444;
+            color: white;
             transform: rotate(90deg);
         }
 
@@ -173,6 +185,7 @@ if(isset($_GET['action'])) {
             letter-spacing: 1px;
             transition: 0.3s;
         }
+
         .btn-checkout:hover {
             background: var(--accent);
             box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
@@ -184,6 +197,7 @@ if(isset($_GET['action'])) {
             padding: 60px 0;
             text-align: center;
         }
+
         .empty-icon {
             font-size: 5rem;
             color: #cbd5e1;
@@ -194,7 +208,7 @@ if(isset($_GET['action'])) {
 
 <body>
     <div class="bg-blobs"></div>
-    <?php if($swal_script) echo "<script>$swal_script</script>"; ?>
+    <?php if ($swal_script) echo "<script>$swal_script</script>"; ?>
 
     <!-- ============== Navbar ==============-->
     <nav class="navbar navbar-expand-lg fixed-top shadow-sm">
@@ -228,7 +242,7 @@ if(isset($_GET['action'])) {
         $stmt->bind_param("s", $customer);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         $total = 0;
         $count = 0;
         ?>
@@ -250,38 +264,38 @@ if(isset($_GET['action'])) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while($row = $result->fetch_assoc()): 
+                                    <?php while ($row = $result->fetch_assoc()):
                                         $subtotal = $row['Price'] * $row['Quantity'];
                                         $total += $subtotal;
                                         $count += $row['Quantity'];
                                     ?>
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="img/books/<?php echo $row['PID']; ?>.jpg" class="cart-img me-3" onerror="this.src='https://placehold.co/100x150?text=Book'">
-                                                <div>
-                                                    <h6 class="fw-bold mb-1"><?php echo $row['Title']; ?></h6>
-                                                    <small class="text-muted">by <?php echo $row['Author']; ?></small>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="img/books/<?php echo $row['PID']; ?>.jpg" class="cart-img me-3" onerror="this.src='https://placehold.co/100x150?text=Book'">
+                                                    <div>
+                                                        <h6 class="fw-bold mb-1"><?php echo $row['Title']; ?></h6>
+                                                        <small class="text-muted">by <?php echo $row['Author']; ?></small>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td class="fw-bold"><?php echo number_format($row['Price']); ?></td>
-                                        <td>
-                                            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fs-6"><?php echo $row['Quantity']; ?></span>
-                                        </td>
-                                        <td class="text-end fw-bold text-primary"><?php echo number_format($subtotal); ?></td>
-                                        <td class="text-end">
-                                            <a href="#" onclick="confirmRemove('<?php echo $row['PID']; ?>')" class="btn-remove d-inline-flex align-items-center justify-content-center">
-                                                <i class="fas fa-times"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td class="fw-bold"><?php echo number_format($row['Price']); ?></td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fs-6"><?php echo $row['Quantity']; ?></span>
+                                            </td>
+                                            <td class="text-end fw-bold text-primary"><?php echo number_format($subtotal); ?></td>
+                                            <td class="text-end">
+                                                <a href="#" onclick="confirmRemove('<?php echo $row['PID']; ?>')" class="btn-remove d-inline-flex align-items-center justify-content-center">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
                                     <?php endwhile; ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    
+
                     <div class="mt-4">
                         <a href="index.php" class="text-decoration-none text-muted fw-bold">
                             <i class="fas fa-arrow-left me-2"></i> Continue Shopping
@@ -293,7 +307,7 @@ if(isset($_GET['action'])) {
                 <div class="col-lg-4">
                     <div class="glass-panel p-4 sticky-top" style="top: 100px; z-index: 1;">
                         <h5 class="fw-bold mb-4">Order Summary</h5>
-                        
+
                         <div class="d-flex justify-content-between mb-3">
                             <span class="text-muted">Subtotal (<?php echo $count; ?> items)</span>
                             <span class="fw-bold"><?php echo number_format($total); ?> đ</span>
@@ -315,7 +329,7 @@ if(isset($_GET['action'])) {
                                 Checkout <i class="fas fa-arrow-right ms-2"></i>
                             </button>
                         </form>
-                        
+
                         <div class="mt-3 text-center small text-muted">
                             <i class="fas fa-shield-alt me-1"></i> Secure Checkout
                         </div>
@@ -341,7 +355,7 @@ if(isset($_GET['action'])) {
 
     <!-- JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
         // Xác nhận xóa sản phẩm
         function confirmRemove(pid) {
@@ -377,4 +391,5 @@ if(isset($_GET['action'])) {
         }
     </script>
 </body>
+
 </html>

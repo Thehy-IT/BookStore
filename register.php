@@ -5,34 +5,30 @@ include "dbconnect.php";
 $message = "";
 $message_type = "";
 
-if(isset($_POST['submit']) && $_POST['submit'] == "register")
-{
+if (isset($_POST['submit']) && $_POST['submit'] == "register") {
     // 1. Lấy dữ liệu và làm sạch
     $username = trim($_POST['register_username']);
     $password = $_POST['register_password'];
     $confirm_password = $_POST['confirm_password'];
 
     // 2. Validate cơ bản
-    if(empty($username) || empty($password)) {
+    if (empty($username) || empty($password)) {
         $message = "Vui lòng điền đầy đủ thông tin.";
         $message_type = "warning";
-    }
-    elseif($password !== $confirm_password) {
+    } elseif ($password !== $confirm_password) {
         $message = "Mật khẩu xác nhận không khớp.";
         $message_type = "error";
-    }
-    else {
+    } else {
         // 3. Kiểm tra Username đã tồn tại chưa (Dùng Prepared Statement)
         $stmt = $con->prepare("SELECT UserName FROM users WHERE UserName = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
 
-        if($result->num_rows > 0) {   
+        if ($result->num_rows > 0) {
             $message = "Tên đăng nhập '$username' đã được sử dụng.";
             $message_type = "error";
-        }
-        else {
+        } else {
             // 4. Mã hóa mật khẩu (Quan trọng!)
             // Mật khẩu sẽ được biến đổi thành chuỗi ký tự ngẫu nhiên an toàn
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -42,7 +38,7 @@ if(isset($_POST['submit']) && $_POST['submit'] == "register")
             $insert_stmt = $con->prepare("INSERT INTO users (UserName, Password) VALUES (?, ?)");
             $insert_stmt->bind_param("ss", $username, $hashed_password);
 
-            if($insert_stmt->execute()) {
+            if ($insert_stmt->execute()) {
                 $message = "Đăng ký thành công! Bạn có thể đăng nhập ngay.";
                 $message_type = "success";
                 // Tự động chuyển hướng sau 2 giây (Xử lý bằng JS bên dưới)
@@ -59,6 +55,7 @@ if(isset($_POST['submit']) && $_POST['submit'] == "register")
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -90,9 +87,14 @@ if(isset($_POST['submit']) && $_POST['submit'] == "register")
 
         /* --- BACKGROUND BLOBS --- */
         .bg-blobs {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
             background: radial-gradient(circle at 80% 10%, rgba(212, 175, 55, 0.15), transparent 40%),
-                        radial-gradient(circle at 20% 90%, rgba(15, 23, 42, 0.15), transparent 40%);
+                radial-gradient(circle at 20% 90%, rgba(15, 23, 42, 0.15), transparent 40%);
         }
 
         /* --- GLASS CARD --- */
@@ -108,15 +110,19 @@ if(isset($_POST['submit']) && $_POST['submit'] == "register")
             max-width: 500px;
         }
 
-        h2 { font-family: 'Playfair Display', serif; color: var(--primary); }
+        h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary);
+        }
 
         .form-control {
             background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(0,0,0,0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 12px;
             padding: 12px 15px;
             transition: 0.3s;
         }
+
         .form-control:focus {
             background: white;
             box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
@@ -132,6 +138,7 @@ if(isset($_POST['submit']) && $_POST['submit'] == "register")
             transition: 0.3s;
             box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
         }
+
         .btn-glass:hover {
             background: var(--accent);
             transform: translateY(-2px);
@@ -139,6 +146,7 @@ if(isset($_POST['submit']) && $_POST['submit'] == "register")
         }
     </style>
 </head>
+
 <body>
 
     <div class="bg-blobs"></div>
@@ -180,7 +188,7 @@ if(isset($_POST['submit']) && $_POST['submit'] == "register")
             <button type="submit" name="submit" value="register" class="btn btn-glass w-100 mb-3">
                 Sign Up Now
             </button>
-            
+
             <div class="text-center mt-4">
                 <span class="text-muted">Already have an account?</span>
                 <a href="login.php" class="text-primary fw-bold text-decoration-none ms-1">Log In</a>
@@ -189,24 +197,25 @@ if(isset($_POST['submit']) && $_POST['submit'] == "register")
     </div>
 
     <!-- Script xử lý thông báo -->
-    <?php if(!empty($message)): ?>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                icon: '<?php echo $message_type; ?>',
-                title: '<?php echo ($message_type == "success" ? "Success!" : "Notice"); ?>',
-                text: '<?php echo $message; ?>',
-                confirmButtonColor: '#0f172a',
-                background: 'rgba(255, 255, 255, 0.95)',
-            }).then((result) => {
-                // Nếu đăng ký thành công, chuyển hướng về trang login
-                if ('<?php echo $message_type; ?>' === 'success') {
-                    window.location.href = 'login.php';
-                }
+    <?php if (!empty($message)): ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: '<?php echo $message_type; ?>',
+                    title: '<?php echo ($message_type == "success" ? "Success!" : "Notice"); ?>',
+                    text: '<?php echo $message; ?>',
+                    confirmButtonColor: '#0f172a',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                }).then((result) => {
+                    // Nếu đăng ký thành công, chuyển hướng về trang login
+                    if ('<?php echo $message_type; ?>' === 'success') {
+                        window.location.href = 'login.php';
+                    }
+                });
             });
-        });
-    </script>
+        </script>
     <?php endif; ?>
 
 </body>
+
 </html>

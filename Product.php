@@ -19,7 +19,7 @@ if (count($whereClauses) > 0) {
     $sql .= " WHERE " . implode(' AND ', $whereClauses);
 }
 // Mặc định sắp xếp mới nhất
-$sql .= " ORDER BY PID DESC"; 
+$sql .= " ORDER BY PID DESC";
 
 // --- Phân trang (Pagination) ---
 $results_per_page = 9; // Hiển thị 9 cuốn mỗi trang
@@ -27,7 +27,11 @@ $result_count = mysqli_query($con, $sql);
 $number_of_results = mysqli_num_rows($result_count);
 $number_of_pages = ceil($number_of_results / $results_per_page);
 
-if (!isset($_GET['page'])) { $page = 1; } else { $page = $_GET['page']; }
+if (!isset($_GET['page'])) {
+    $page = 1;
+} else {
+    $page = $_GET['page'];
+}
 $this_page_first_result = ($page - 1) * $results_per_page;
 
 $sql .= " LIMIT " . $this_page_first_result . ',' . $results_per_page;
@@ -36,6 +40,7 @@ $result = mysqli_query($con, $sql);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -45,7 +50,7 @@ $result = mysqli_query($con, $sql);
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Libraries -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css"> <!-- Range Slider -->
 
@@ -68,9 +73,12 @@ $result = mysqli_query($con, $sql);
         /* --- Background Decoration --- */
         .bg-decoration {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: -1;
-            background: 
+            background:
                 radial-gradient(circle at 15% 50%, rgba(212, 175, 55, 0.05), transparent 25%),
                 radial-gradient(circle at 85% 30%, rgba(15, 23, 42, 0.05), transparent 25%);
         }
@@ -79,8 +87,10 @@ $result = mysqli_query($con, $sql);
         .navbar-glass {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         /* --- Sidebar Filter Style --- */
@@ -92,7 +102,8 @@ $result = mysqli_query($con, $sql);
             border: var(--glass-border);
             box-shadow: var(--glass-shadow);
             position: sticky;
-            top: 100px; /* Sticky sidebar */
+            top: 100px;
+            /* Sticky sidebar */
         }
 
         .filter-title {
@@ -127,7 +138,7 @@ $result = mysqli_query($con, $sql);
 
         .product-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             background: rgba(255, 255, 255, 0.95);
             z-index: 2;
         }
@@ -135,13 +146,16 @@ $result = mysqli_query($con, $sql);
         .card-img-top-wrapper {
             position: relative;
             overflow: hidden;
-            padding-top: 150%; /* Aspect Ratio 2:3 */
+            padding-top: 150%;
+            /* Aspect Ratio 2:3 */
         }
 
         .card-img-top-wrapper img {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             transition: transform 0.6s ease;
         }
@@ -153,7 +167,8 @@ $result = mysqli_query($con, $sql);
         /* Hover Actions Overlay */
         .card-actions {
             position: absolute;
-            top: 50%; left: 50%;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
             display: flex;
             gap: 10px;
@@ -168,12 +183,15 @@ $result = mysqli_query($con, $sql);
         }
 
         .btn-action {
-            width: 45px; height: 45px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: white;
             color: var(--primary);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             transition: 0.2s;
             text-decoration: none;
         }
@@ -219,7 +237,7 @@ $result = mysqli_query($con, $sql);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-top: 1px solid rgba(0,0,0,0.05);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .current-price {
@@ -240,15 +258,18 @@ $result = mysqli_query($con, $sql);
             flex-direction: row;
             height: 220px;
         }
+
         .list-view .card-img-top-wrapper {
             width: 160px;
             padding-top: 0;
             flex-shrink: 0;
         }
+
         .list-view .card-body-glass {
             align-items: flex-start;
             justify-content: center;
         }
+
         .list-view .book-desc {
             display: block !important;
             font-size: 0.9rem;
@@ -259,24 +280,29 @@ $result = mysqli_query($con, $sql);
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+
         .list-view .card-actions {
             position: static;
             transform: none;
             opacity: 1;
             margin-top: 15px;
         }
-        
+
         /* Pagination Modern */
         .pagination .page-link {
             border: none;
-            background: rgba(255,255,255,0.5);
+            background: rgba(255, 255, 255, 0.5);
             color: var(--primary);
             margin: 0 5px;
             border-radius: 50%;
-            width: 40px; height: 40px;
-            display: flex; align-items: center; justify-content: center;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 600;
         }
+
         .pagination .page-item.active .page-link {
             background: var(--primary);
             color: var(--accent);
@@ -284,6 +310,7 @@ $result = mysqli_query($con, $sql);
         }
     </style>
 </head>
+
 <body>
 
     <div class="bg-decoration"></div>
@@ -307,8 +334,8 @@ $result = mysqli_query($con, $sql);
 
     <!-- Header Banner -->
     <div class="container mt-4">
-        <div class="p-5 rounded-4 text-white position-relative overflow-hidden shadow-lg" 
-             style="background: linear-gradient(135deg, #0f172a 0%, #334155 100%);">
+        <div class="p-5 rounded-4 text-white position-relative overflow-hidden shadow-lg"
+            style="background: linear-gradient(135deg, #0f172a 0%, #334155 100%);">
             <div class="position-relative z-2">
                 <h1 class="display-5 fw-bold font-playfair">Khám Phá Tri Thức</h1>
                 <p class="lead opacity-75">Hàng ngàn đầu sách đang chờ bạn.</p>
@@ -320,7 +347,7 @@ $result = mysqli_query($con, $sql);
     <!-- Main Content -->
     <div class="container my-5">
         <div class="row g-4">
-            
+
             <!-- Sidebar Filters -->
             <div class="col-lg-3">
                 <div class="sidebar-glass">
@@ -332,7 +359,7 @@ $result = mysqli_query($con, $sql);
                     <!-- Search -->
                     <form action="Product.php" method="GET" class="mb-4">
                         <div class="input-group">
-                            <input type="text" name="keyword" class="form-control border-end-0 bg-light" placeholder="Tìm tên sách..." value="<?php echo isset($_GET['keyword'])?$_GET['keyword']:''; ?>">
+                            <input type="text" name="keyword" class="form-control border-end-0 bg-light" placeholder="Tìm tên sách..." value="<?php echo isset($_GET['keyword']) ? $_GET['keyword'] : ''; ?>">
                             <button class="btn btn-light border border-start-0" type="submit"><i class="fas fa-search text-muted"></i></button>
                         </div>
                     </form>
@@ -342,9 +369,9 @@ $result = mysqli_query($con, $sql);
                         <h6 class="fw-bold mb-3">Thể Loại</h6>
                         <?php
                         $cats = ["Literature and Fiction", "Academic", "Business", "Children", "Health", "Regional"];
-                        foreach($cats as $c){
+                        foreach ($cats as $c) {
                             $active = (isset($_GET['category']) && $_GET['category'] == $c) ? 'fw-bold text-primary' : 'text-muted';
-                            echo '<div class="mb-2"><a href="Product.php?category='.urlencode($c).'" class="text-decoration-none '.$active.' d-flex justify-content-between"><span>'.$c.'</span> <small class="bg-white px-2 rounded-pill shadow-sm">'.rand(10,50).'</small></a></div>';
+                            echo '<div class="mb-2"><a href="Product.php?category=' . urlencode($c) . '" class="text-decoration-none ' . $active . ' d-flex justify-content-between"><span>' . $c . '</span> <small class="bg-white px-2 rounded-pill shadow-sm">' . rand(10, 50) . '</small></a></div>';
                         }
                         ?>
                     </div>
@@ -398,57 +425,57 @@ $result = mysqli_query($con, $sql);
                 <!-- Products Loop -->
                 <div class="row g-4" id="productsContainer">
                     <?php
-                    if(mysqli_num_rows($result) > 0){
+                    if (mysqli_num_rows($result) > 0) {
                         while ($row = mysqli_fetch_array($result)) {
                             $img = "img/books/" . $row['PID'] . ".jpg";
                             // Fallback image logic
-                            
+
                             // Tính giảm giá giả lập nếu chưa có
                             $discount_html = "";
-                            if($row['Discount'] > 0){
-                                $discount_html = '<span class="badge bg-danger position-absolute top-0 start-0 m-3 shadow-sm">-'.$row['Discount'].'%</span>';
+                            if ($row['Discount'] > 0) {
+                                $discount_html = '<span class="badge bg-danger position-absolute top-0 start-0 m-3 shadow-sm">-' . $row['Discount'] . '%</span>';
                             }
                     ?>
-                    <div class="col-md-4 col-sm-6 product-item">
-                        <div class="product-card">
-                            <?php echo $discount_html; ?>
-                            
-                            <div class="card-img-top-wrapper">
-                                <img src="<?php echo $img; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=No+Image'" alt="<?php echo $row['Title']; ?>">
-                                <div class="card-actions">
-                                    <button class="btn-action" onclick="openQuickView('<?php echo $row['PID']; ?>')" title="Xem nhanh" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></button>
-                                    <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn-action" title="Yêu thích" data-bs-toggle="tooltip"><i class="far fa-heart"></i></a>
-                                    <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-action bg-dark text-white" title="Thêm vào giỏ" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></a>
+                            <div class="col-md-4 col-sm-6 product-item">
+                                <div class="product-card">
+                                    <?php echo $discount_html; ?>
+
+                                    <div class="card-img-top-wrapper">
+                                        <img src="<?php echo $img; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=No+Image'" alt="<?php echo $row['Title']; ?>">
+                                        <div class="card-actions">
+                                            <button class="btn-action" onclick="openQuickView('<?php echo $row['PID']; ?>')" title="Xem nhanh" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></button>
+                                            <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn-action" title="Yêu thích" data-bs-toggle="tooltip"><i class="far fa-heart"></i></a>
+                                            <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-action bg-dark text-white" title="Thêm vào giỏ" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></a>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-body-glass">
+                                        <div class="book-category"><?php echo $row['Category']; ?></div>
+                                        <a href="description.php?ID=<?php echo $row['PID']; ?>" class="text-decoration-none text-dark">
+                                            <h5 class="book-title text-truncate"><?php echo $row['Title']; ?></h5>
+                                        </a>
+                                        <div class="book-author text-truncate">by <?php echo $row['Author']; ?></div>
+
+                                        <!-- Mô tả ngắn chỉ hiện ở List View -->
+                                        <p class="book-desc d-none">
+                                            <?php echo substr($row['Description'], 0, 150) . '...'; ?>
+                                        </p>
+
+                                        <div class="price-wrapper">
+                                            <div>
+                                                <span class="current-price"><?php echo number_format($row['Price']); ?> đ</span>
+                                                <?php if ($row['MRP'] > $row['Price']) { ?>
+                                                    <span class="old-price"><?php echo number_format($row['MRP']); ?> đ</span>
+                                                <?php } ?>
+                                            </div>
+                                            <div class="text-warning small">
+                                                <i class="fas fa-star"></i> <?php echo number_format((float)rand(40, 50) / 10, 1); ?>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="card-body-glass">
-                                <div class="book-category"><?php echo $row['Category']; ?></div>
-                                <a href="description.php?ID=<?php echo $row['PID']; ?>" class="text-decoration-none text-dark">
-                                    <h5 class="book-title text-truncate"><?php echo $row['Title']; ?></h5>
-                                </a>
-                                <div class="book-author text-truncate">by <?php echo $row['Author']; ?></div>
-                                
-                                <!-- Mô tả ngắn chỉ hiện ở List View -->
-                                <p class="book-desc d-none">
-                                    <?php echo substr($row['Description'], 0, 150) . '...'; ?>
-                                </p>
-                                
-                                <div class="price-wrapper">
-                                    <div>
-                                        <span class="current-price"><?php echo number_format($row['Price']); ?> đ</span>
-                                        <?php if($row['MRP'] > $row['Price']) { ?>
-                                            <span class="old-price"><?php echo number_format($row['MRP']); ?> đ</span>
-                                        <?php } ?>
-                                    </div>
-                                    <div class="text-warning small">
-                                        <i class="fas fa-star"></i> <?php echo number_format((float)rand(40,50)/10, 1); ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php 
+                    <?php
                         }
                     } else {
                         echo '<div class="col-12 text-center py-5"><h4 class="text-muted">Không tìm thấy sách nào!</h4><i class="fas fa-box-open fa-3x text-black-50 mt-3"></i></div>';
@@ -460,19 +487,19 @@ $result = mysqli_query($con, $sql);
                 <div class="mt-5 d-flex justify-content-center">
                     <nav>
                         <ul class="pagination">
-                            <?php if($page > 1) { ?>
-                            <li class="page-item"><a class="page-link" href="Product.php?page=<?php echo $page-1; ?>"><i class="fas fa-chevron-left"></i></a></li>
+                            <?php if ($page > 1) { ?>
+                                <li class="page-item"><a class="page-link" href="Product.php?page=<?php echo $page - 1; ?>"><i class="fas fa-chevron-left"></i></a></li>
                             <?php } ?>
-                            
+
                             <?php
-                            for ($i=1; $i<=$number_of_pages; $i++) {
+                            for ($i = 1; $i <= $number_of_pages; $i++) {
                                 $active = ($i == $page) ? 'active' : '';
-                                echo '<li class="page-item '.$active.'"><a class="page-link" href="Product.php?page='.$i.'">'.$i.'</a></li>';
+                                echo '<li class="page-item ' . $active . '"><a class="page-link" href="Product.php?page=' . $i . '">' . $i . '</a></li>';
                             }
                             ?>
-                            
-                            <?php if($page < $number_of_pages) { ?>
-                            <li class="page-item"><a class="page-link" href="Product.php?page=<?php echo $page+1; ?>"><i class="fas fa-chevron-right"></i></a></li>
+
+                            <?php if ($page < $number_of_pages) { ?>
+                                <li class="page-item"><a class="page-link" href="Product.php?page=<?php echo $page + 1; ?>"><i class="fas fa-chevron-right"></i></a></li>
                             <?php } ?>
                         </ul>
                     </nav>
@@ -498,7 +525,7 @@ $result = mysqli_query($con, $sql);
                             <p class="text-muted fst-italic mb-3" id="qv-author">Author Name</p>
                             <h4 class="text-primary fw-bold mb-3" id="qv-price">100.000 đ</h4>
                             <p class="small text-muted mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                            
+
                             <div class="d-flex gap-2">
                                 <a href="#" id="qv-add-cart" class="btn btn-dark rounded-pill px-4 flex-grow-1">Thêm vào giỏ</a>
                                 <a href="#" id="qv-detail" class="btn btn-outline-dark rounded-pill px-4">Chi tiết</a>
@@ -540,21 +567,22 @@ $result = mysqli_query($con, $sql);
 
         // Initialize Tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-          return new bootstrap.Tooltip(tooltipTriggerEl)
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
         })
 
         // Fake Quick View Logic (In real app, fetch data via AJAX)
         function openQuickView(id) {
             // Demo data population
             document.getElementById('qv-img').src = 'img/books/' + id + '.jpg';
-            document.getElementById('qv-title').innerText = 'Book Title #' + id; 
+            document.getElementById('qv-title').innerText = 'Book Title #' + id;
             document.getElementById('qv-add-cart').href = 'cart.php?ID=' + id + '&quantity=1';
-            
+
             // Show modal
             var myModal = new bootstrap.Modal(document.getElementById('quickViewModal'));
             myModal.show();
         }
     </script>
 </body>
+
 </html>

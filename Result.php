@@ -14,6 +14,7 @@ $keyword = "%{$keyword_raw}%";
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -41,16 +42,21 @@ $keyword = "%{$keyword_raw}%";
 
         /* --- Background Blobs --- */
         .bg-blobs {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
             background: radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.1), transparent 40%),
-                        radial-gradient(circle at 90% 80%, rgba(15, 23, 42, 0.1), transparent 40%);
+                radial-gradient(circle at 90% 80%, rgba(15, 23, 42, 0.1), transparent 40%);
         }
 
         /* --- Navbar Glass --- */
         .navbar {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         /* --- Book Card Glass --- */
@@ -63,12 +69,12 @@ $keyword = "%{$keyword_raw}%";
             transition: all 0.3s ease;
             height: 100%;
             position: relative;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
         }
 
         .book-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
             background: rgba(255, 255, 255, 0.95);
             border-color: var(--accent);
         }
@@ -76,15 +82,17 @@ $keyword = "%{$keyword_raw}%";
         .book-img {
             width: 100%;
             height: 280px;
-            object-fit: contain; /* Đảm bảo ảnh sách không bị méo */
+            object-fit: contain;
+            /* Đảm bảo ảnh sách không bị méo */
             border-radius: 8px;
             margin-bottom: 15px;
-            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+            filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.1));
         }
 
         .discount-badge {
             position: absolute;
-            top: 10px; left: 10px;
+            top: 10px;
+            left: 10px;
             background: #ef4444;
             color: white;
             font-weight: 700;
@@ -109,6 +117,7 @@ $keyword = "%{$keyword_raw}%";
             font-weight: 700;
             font-size: 1.1rem;
         }
+
         .old-price {
             text-decoration: line-through;
             color: #94a3b8;
@@ -117,8 +126,9 @@ $keyword = "%{$keyword_raw}%";
         }
     </style>
 </head>
+
 <body>
-    
+
     <!-- Background -->
     <div class="bg-blobs"></div>
 
@@ -163,7 +173,7 @@ $keyword = "%{$keyword_raw}%";
 
     <!-- ============== Search Results Section ==============-->
     <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
-        
+
         <?php
         // Query DB
         $query = "SELECT * FROM products WHERE PID LIKE ? OR Title LIKE ? OR Author LIKE ? OR Publisher LIKE ? OR Category LIKE ?";
@@ -186,41 +196,41 @@ $keyword = "%{$keyword_raw}%";
         <!-- Grid Books -->
         <div class="row g-4">
             <?php if ($count > 0): ?>
-                <?php while ($row = $result->fetch_assoc()): 
+                <?php while ($row = $result->fetch_assoc()):
                     // Xử lý đường dẫn ảnh & link
                     $path = "img/books/" . $row['PID'] . ".jpg";
                     // Nếu ảnh lỗi thì dùng ảnh placeholder (tuỳ chọn)
                     $link = "description.php?ID=" . $row["PID"];
                 ?>
-                <div class="col-6 col-md-4 col-lg-3">
-                    <a href="<?php echo $link; ?>" class="text-decoration-none text-dark">
-                        <div class="book-card">
-                            <!-- Badge giảm giá -->
-                            <?php if($row['Discount'] > 0): ?>
-                                <div class="discount-badge">-<?php echo $row['Discount']; ?>%</div>
-                            <?php endif; ?>
-                            
-                            <!-- Ảnh -->
-                            <img src="<?php echo $path; ?>" class="book-img img-fluid" alt="<?php echo $row['Title']; ?>" onerror="this.src='https://placehold.co/300x450?text=No+Image'">
-                            
-                            <!-- Thông tin -->
-                            <div class="mt-2">
-                                <h5 class="book-title"><?php echo $row['Title']; ?></h5>
-                                <p class="text-muted small mb-2"><i class="fas fa-pen-nib me-1"></i> <?php echo $row['Author']; ?></p>
-                                
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="price-tag">
-                                        <?php echo $row['Price']; ?> đ
-                                        <?php if($row['MRP'] > $row['Price']): ?>
-                                            <span class="old-price"><?php echo $row['MRP']; ?> đ</span>
-                                        <?php endif; ?>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="<?php echo $link; ?>" class="text-decoration-none text-dark">
+                            <div class="book-card">
+                                <!-- Badge giảm giá -->
+                                <?php if ($row['Discount'] > 0): ?>
+                                    <div class="discount-badge">-<?php echo $row['Discount']; ?>%</div>
+                                <?php endif; ?>
+
+                                <!-- Ảnh -->
+                                <img src="<?php echo $path; ?>" class="book-img img-fluid" alt="<?php echo $row['Title']; ?>" onerror="this.src='https://placehold.co/300x450?text=No+Image'">
+
+                                <!-- Thông tin -->
+                                <div class="mt-2">
+                                    <h5 class="book-title"><?php echo $row['Title']; ?></h5>
+                                    <p class="text-muted small mb-2"><i class="fas fa-pen-nib me-1"></i> <?php echo $row['Author']; ?></p>
+
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="price-tag">
+                                            <?php echo $row['Price']; ?> đ
+                                            <?php if ($row['MRP'] > $row['Price']): ?>
+                                                <span class="old-price"><?php echo $row['MRP']; ?> đ</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary rounded-circle"><i class="fas fa-shopping-bag"></i></button>
                                     </div>
-                                    <button class="btn btn-sm btn-outline-primary rounded-circle"><i class="fas fa-shopping-bag"></i></button>
                                 </div>
                             </div>
-                        </div>
-                    </a>
-                </div>
+                        </a>
+                    </div>
                 <?php endwhile; ?>
             <?php else: ?>
                 <!-- Empty State (Khi không tìm thấy sách) -->
@@ -237,4 +247,5 @@ $keyword = "%{$keyword_raw}%";
     <!-- JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

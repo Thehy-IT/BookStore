@@ -36,14 +36,21 @@
                 $result = $stmt->get_result();
                 if ($result->num_rows > 0) {
                     $row = $result->fetch_assoc();
-                    $is_password_correct = password_verify($password_input, $row['Password']) || ($password_input === $row['Password']);
 
-                    if ($is_password_correct) {
+                    if (password_verify($password_input, $row['Password'])) {
                         $_SESSION['user'] = $row['UserName'];
                         $_SESSION['role'] = $row['Role'];
                         $_SESSION['user_id'] = $row['UserID'];
 
-                        $swal_script = set_swal('success', 'Welcome back!', 'Đăng nhập thành công.');
+                        // Chuyển hướng dựa trên quyền
+                        if ($row['Role'] == 'admin') {
+                            header("Location: admin.php");
+                            exit();
+                        } else {
+                            // Với user thường, chỉ cần tải lại trang để cập nhật header
+                            header("Location: index.php");
+                            exit();
+                        }
                     } else {
                         $swal_script = set_swal('error', 'Login Failed', 'Sai mật khẩu.');
                     }
@@ -609,10 +616,21 @@
                 transform: scale(1.2);
             }
 
-            .social-icon-facebook:hover { color: #1877F2 !important; }
-            .social-icon-instagram:hover { color: #E4405F !important; }
-            .social-icon-twitter:hover { color: #1DA1F2 !important; }
-            .social-icon-youtube:hover { color: #FF0000 !important; }
+            .social-icon-facebook:hover {
+                color: #1877F2 !important;
+            }
+
+            .social-icon-instagram:hover {
+                color: #E4405F !important;
+            }
+
+            .social-icon-twitter:hover {
+                color: #1DA1F2 !important;
+            }
+
+            .social-icon-youtube:hover {
+                color: #FF0000 !important;
+            }
 
             /* --- Search bar hover effect --- */
             .search-form-hover {

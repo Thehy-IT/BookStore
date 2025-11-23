@@ -11,6 +11,7 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,19 +19,28 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
     <!-- Bootstrap 5 & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         :root {
             --primary: #0f172a;
             --accent: #d4af37;
             --glass-bg: rgba(255, 255, 255, 0.8);
         }
-        body { background: #f0f4f8; font-family: sans-serif; }
-        
+
+        body {
+            background: #f0f4f8;
+            font-family: sans-serif;
+        }
+
         .bg-blobs {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
             background: radial-gradient(circle at 90% 10%, rgba(212, 175, 55, 0.15), transparent 40%),
-                        radial-gradient(circle at 10% 90%, rgba(15, 23, 42, 0.15), transparent 40%);
+                radial-gradient(circle at 10% 90%, rgba(15, 23, 42, 0.15), transparent 40%);
         }
 
         .sidebar {
@@ -40,24 +50,40 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
             position: fixed;
             width: 250px;
             padding-top: 20px;
-            border-right: 1px solid rgba(255,255,255,0.5);
+            border-right: 1px solid rgba(255, 255, 255, 0.5);
         }
 
-        .main-content { margin-left: 250px; padding: 40px; }
+        .main-content {
+            margin-left: 250px;
+            padding: 40px;
+        }
 
         .stat-card {
             background: white;
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             border-left: 5px solid var(--accent);
         }
-        
-        .nav-link { color: var(--primary); padding: 15px 20px; font-weight: 600; }
-        .nav-link:hover { background: rgba(212, 175, 55, 0.1); color: var(--accent); }
-        .nav-link.active { background: var(--primary); color: white; }
+
+        .nav-link {
+            color: var(--primary);
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--accent);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
     </style>
 </head>
+
 <body>
     <div class="bg-blobs"></div>
 
@@ -76,13 +102,13 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
     <!-- Main Content -->
     <div class="main-content">
         <h2 class="fw-bold mb-4">Overview</h2>
-        
+
         <div class="row g-4">
             <!-- Thống kê sản phẩm -->
             <div class="col-md-4">
                 <div class="stat-card">
                     <?php
-                        $p_count = mysqli_num_rows(mysqli_query($con, "SELECT * FROM products"));
+                    $p_count = mysqli_num_rows(mysqli_query($con, "SELECT * FROM products"));
                     ?>
                     <h3 class="fw-bold"><?php echo $p_count; ?></h3>
                     <p class="text-muted mb-0">Total Products</p>
@@ -93,7 +119,7 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
             <div class="col-md-4">
                 <div class="stat-card" style="border-color: #4e54c8;">
                     <?php
-                        $u_count = mysqli_num_rows(mysqli_query($con, "SELECT * FROM users"));
+                    $u_count = mysqli_num_rows(mysqli_query($con, "SELECT * FROM users"));
                     ?>
                     <h3 class="fw-bold"><?php echo $u_count; ?></h3>
                     <p class="text-muted mb-0">Total Users</p>
@@ -104,7 +130,7 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
             <div class="col-md-4">
                 <div class="stat-card" style="border-color: #11998e;">
                     <?php
-                        $c_count = mysqli_num_rows(mysqli_query($con, "SELECT * FROM cart"));
+                    $c_count = mysqli_num_rows(mysqli_query($con, "SELECT * FROM cart"));
                     ?>
                     <h3 class="fw-bold"><?php echo $c_count; ?></h3>
                     <p class="text-muted mb-0">Items in Carts</p>
@@ -127,7 +153,7 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
                 <tbody>
                     <?php
                     $res = mysqli_query($con, "SELECT * FROM products LIMIT 5");
-                    while($row = mysqli_fetch_assoc($res)){
+                    while ($row = mysqli_fetch_assoc($res)) {
                         echo "<tr>
                             <td>{$row['PID']}</td>
                             <td>{$row['Title']}</td>
@@ -146,4 +172,5 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
     </div>
 
 </body>
+
 </html>
