@@ -215,20 +215,21 @@ INSERT INTO `products` (`PID`, `Title`, `Author`, `MRP`, `Price`, `Discount`, `A
 -- Table structure for table `users`
 --
 
-CREATE TABLE IF NOT EXISTS `users` (
-  `UserName` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
-  `Password` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`UserName`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
+CREATE TABLE `users` (
+  `UserID` int(11) NOT NULL AUTO_INCREMENT,
+  `UserName` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `Password` varchar(255) COLLATE utf8_unicode_ci NOT NULL, -- Dài 255 để chứa mã hóa
+  `Role` varchar(20) COLLATE utf8_unicode_ci DEFAULT 'user', -- 'admin' hoặc 'user'
+  PRIMARY KEY (`UserID`),
+  UNIQUE KEY `UserName` (`UserName`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`UserName`, `Password`) VALUES
-('suyash', 'gulati'),
-('hy', 'hy');
-
+INSERT INTO `users` (`UserID`, `UserName`, `Password`, `Role`) VALUES
+(1, 'admin', '$2y$10$3zX.moN2g228JMAXn3h6A.OigGz94gG22d2TfV2Cg8TqgX.a/VzI.', 'admin'),
+(2, 'user', '$2y$10$BV4ahIfYu9YjM/7deEXc4.jZFYOat374C9jzsoJ0ngxr2xmFwpAkm', 'user');
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

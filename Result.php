@@ -1,213 +1,240 @@
 <?php
 session_start();
-if (!isset($_SESSION['user']))
-    header("location: index.php?Message=Login To Continue");
+include "dbconnect.php"; // Đảm bảo file kết nối DB hoạt động
+
+// Kiểm tra nếu chưa login thì chuyển hướng (Tuỳ bạn, thường tìm kiếm sách thì không cần login cũng được)
+// if (!isset($_SESSION['user'])) {
+//     header("location: index.php?Message=Login To Continue");
+// }
+
+// Xử lý từ khóa tìm kiếm
+$keyword_raw = isset($_POST['keyword']) ? $_POST['keyword'] : '';
+$keyword = "%{$keyword_raw}%";
 ?>
 
-
 <!DOCTYPE html>
-<html>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="css/w3.css">
-<link rel="stylesheet" href="css/font-awesome.min.css">
-<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
-<link rel="stylesheet" href="css/my.css" type="text/css">
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search Results | BookZ Store</title>
 
-<body>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        #books .row {
-            margin-top: 30px;
-            font-weight: 800;
+        :root {
+            --primary: #0f172a;
+            --accent: #d4af37;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
-        @media only screen and (max-width: 760px) {
-            #books .row {
-                margin-top: 10px;
-            }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            color: var(--primary);
         }
 
-        .book-block {
-            margin-top: 20px;
-            margin-bottom: 10px;
-            padding: 10px 10px 10px 10px;
-            border: 1px solid #DEEAEE;
-            border-radius: 10px;
+        /* --- Background Blobs --- */
+        .bg-blobs {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.1), transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(15, 23, 42, 0.1), transparent 40%);
+        }
+
+        /* --- Navbar Glass --- */
+        .navbar {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* --- Book Card Glass --- */
+        .book-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: var(--glass-border);
+            border-radius: 16px;
+            padding: 15px;
+            transition: all 0.3s ease;
             height: 100%;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            border-color: var(--accent);
+        }
+
+        .book-img {
+            width: 100%;
+            height: 280px;
+            object-fit: contain; /* Đảm bảo ảnh sách không bị méo */
+            border-radius: 8px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+        }
+
+        .discount-badge {
+            position: absolute;
+            top: 10px; left: 10px;
+            background: #ef4444;
+            color: white;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .book-title {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 2.6em;
+        }
+
+        .price-tag {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .old-price {
+            text-decoration: line-through;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-left: 5px;
         }
     </style>
+</head>
+<body>
+    
+    <!-- Background -->
+    <div class="bg-blobs"></div>
 
-    </head>
+    <!-- ============== Navbar ==============-->
+    <nav class="navbar navbar-expand-lg fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.php">
+                BOOK<span style="color: var(--accent)">Z</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-    <body>
-        <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
-            <div class="container-fluid">
-                <!-- Brand and toggle get grouped for better mobile display -->
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="index.php" style="padding: 5px;">
-                        <img class="img-responsive" alt="Brand" src="img/logo.png" style="max-height: 40px;">
-                    </a>
-                </div>
+            <div class="collapse navbar-collapse" id="navContent">
+                <!-- Search Form -->
+                <form class="d-flex mx-auto my-2 my-lg-0" style="max-width: 500px; width: 100%;" action="Result.php" method="POST">
+                    <div class="input-group">
+                        <input class="form-control rounded-start-pill border-end-0 bg-light" type="search" name="keyword" value="<?php echo htmlspecialchars($keyword_raw); ?>" placeholder="Search books...">
+                        <button class="btn btn-light border border-start-0 rounded-end-pill" type="submit">
+                            <i class="fas fa-search text-muted"></i>
+                        </button>
+                    </div>
+                </form>
 
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    <form class="navbar-form navbar-left" role="search" method="POST" action="Result.php">
-                        <div class="form-group">
-                            <input type="text" class="form-control" name="keyword" placeholder="Search for a Book, Author Or Category">
-                        </div>
-                    </form>
-                    <ul class="nav navbar-nav navbar-right">
-                        <?php
-                        if (!isset($_SESSION['user'])) {
-                            echo '
-                <li>
-                    <button type="button" id="login_button" class="btn btn-lg" data-toggle="modal" data-target="#login">Login</button>
-                      <div id="login" class="modal fade" role="dialog">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    <h4 class="modal-title text-center">Login Form</h4>
-                                </div>
-                                <div class="modal-body">
-                                  <ul >
-                                    <li>
-                                      <div class="row">
-                                          <div class="col-md-12 text-center">
-                                              <form class="form" role="form" method="post" action="index.php" accept-charset="UTF-8">
-                                                  <div class="form-group">
-                                                      <label class="sr-only" for="username">Username</label>
-                                                      <input type="text" name="login_username" class="form-control" placeholder="Username" required>
-                                                  </div>
-                                                  <div class="form-group">
-                                                      <label class="sr-only" for="password">Password</label>
-                                                      <input type="password" name="login_password" class="form-control"  placeholder="Password" required>
-                                                      <div class="help-block text-right">
-                                                          <a href="#">Forget the password ?</a>
-                                                      </div>
-                                                  </div>
-                                                  <div class="form-group">
-                                                      <button type="submit" name="submit" value="login" class="btn btn-block">
-                                                          Sign in
-                                                      </button>
-                                                  </div>
-                                              </form>
-                                          </div>
-                                      </div>
-                                    </li>
-                                  </ul>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <ul class="navbar-nav ms-auto">
+                    <?php if (!isset($_SESSION['user'])): ?>
+                        <li class="nav-item"><a href="login.php" class="btn btn-outline-dark rounded-pill px-4 ms-2">Login</a></li>
+                    <?php else: ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle fw-bold" href="#" data-bs-toggle="dropdown">
+                                Hello, <?php echo $_SESSION['user']; ?>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                                <li><a class="dropdown-item text-danger" href="destroy.php">Logout</a></li>
+                            </ul>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============== Search Results Section ==============-->
+    <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
+        
+        <?php
+        // Query DB
+        $query = "SELECT * FROM products WHERE PID LIKE ? OR Title LIKE ? OR Author LIKE ? OR Publisher LIKE ? OR Category LIKE ?";
+        $stmt = $con->prepare($query);
+        $stmt->bind_param("sssss", $keyword, $keyword, $keyword, $keyword, $keyword);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $count = $result->num_rows;
+        ?>
+
+        <!-- Header Result -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <p class="text-muted mb-0">Search Results for: "<strong class="text-dark"><?php echo htmlspecialchars($keyword_raw); ?></strong>"</p>
+                <h2 class="fw-bold">Found <span style="color: var(--accent)"><?php echo $count; ?></span> Books</h2>
+            </div>
+            <a href="index.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Back Home</a>
+        </div>
+
+        <!-- Grid Books -->
+        <div class="row g-4">
+            <?php if ($count > 0): ?>
+                <?php while ($row = $result->fetch_assoc()): 
+                    // Xử lý đường dẫn ảnh & link
+                    $path = "img/books/" . $row['PID'] . ".jpg";
+                    // Nếu ảnh lỗi thì dùng ảnh placeholder (tuỳ chọn)
+                    $link = "description.php?ID=" . $row["PID"];
+                ?>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <a href="<?php echo $link; ?>" class="text-decoration-none text-dark">
+                        <div class="book-card">
+                            <!-- Badge giảm giá -->
+                            <?php if($row['Discount'] > 0): ?>
+                                <div class="discount-badge">-<?php echo $row['Discount']; ?>%</div>
+                            <?php endif; ?>
+                            
+                            <!-- Ảnh -->
+                            <img src="<?php echo $path; ?>" class="book-img img-fluid" alt="<?php echo $row['Title']; ?>" onerror="this.src='https://placehold.co/300x450?text=No+Image'">
+                            
+                            <!-- Thông tin -->
+                            <div class="mt-2">
+                                <h5 class="book-title"><?php echo $row['Title']; ?></h5>
+                                <p class="text-muted small mb-2"><i class="fas fa-pen-nib me-1"></i> <?php echo $row['Author']; ?></p>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="price-tag">
+                                        <?php echo $row['Price']; ?> đ
+                                        <?php if($row['MRP'] > $row['Price']): ?>
+                                            <span class="old-price"><?php echo $row['MRP']; ?> đ</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary rounded-circle"><i class="fas fa-shopping-bag"></i></button>
                                 </div>
                             </div>
                         </div>
-                      </div>
-                </li>
-                <li>
-                  <button type="button" id="register_button" class="btn btn-lg" data-toggle="modal" data-target="#register">Sign Up</button>
-                    <div id="register" class="modal fade" role="dialog">
-                      <div class="modal-dialog">
-                          <div class="modal-content">
-                              <div class="modal-header">
-                                  <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                  <h4 class="modal-title text-center">Member Registration Form</h4>
-                              </div>
-                              <div class="modal-body">
-                                <ul >
-                                  <li>
-                                    <div class="row">
-                                        <div class="col-md-12 text-center">
-                                            <form class="form" role="form" method="post" action="index.php" accept-charset="UTF-8">
-                                                <div class="form-group">
-                                                    <label class="sr-only" for="username">Username</label>
-                                                    <input type="text" name="register_username" class="form-control" placeholder="Username" required>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="sr-only" for="password">Password</label>
-                                                    <input type="password" name="register_password" class="form-control"  placeholder="Password" required>
-                                                </div>
-                                                <div class="form-group">
-                                                    <button type="submit" name="submit" value="register" class="btn btn-block">
-                                                        Sign Up
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                  </li>
-                                </ul>
-                              </div>
-                              <div class="modal-footer">
-                                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                              </div>
-                          </div>
-                      </div>
-                    </div>
-                </li>';
-                        } else
-                            echo ' <li> <a href="destroy.php" class="btn btn-lg"> LogOut </a> </li>';
-                        ?>
-
-                    </ul>
-                </div><!-- /.navbar-collapse -->
-            </div><!-- /.container-fluid -->
-        </nav>
-        <div id="top">
-            <?php
-            include "dbconnect.php";
-            $keyword_post = $_POST['keyword'];
-            $keyword = "%{$keyword_post}%";
-
-            $query = "SELECT * FROM products WHERE PID LIKE ? OR Title LIKE ? OR Author LIKE ? OR Publisher LIKE ? OR Category LIKE ?";
-            $stmt = $con->prepare($query);
-            $stmt->bind_param("sssss", $keyword, $keyword, $keyword, $keyword, $keyword);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            $i = 0;
-            echo '<div class="container-fluid" id="books">
-        <div class="row">
-          <div class="col-xs-12 text-center" id="heading">
-                 <h4 style="color:#00B9F5;text-transform:uppercase;"> found  ' . mysqli_num_rows($result) . ' records </h4>
-           </div>
-        </div>';
-            if (mysqli_num_rows($result) > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $path = "img/books/" . $row['PID'] . ".jpg";
-                    $description = "description.php?ID=" . $row["PID"];
-                    if ($i % 3 == 0)  $offset = 0;
-                    else  $offset = 1;
-                    if ($i % 3 == 0)
-                        echo '<div class="row">';
-                    echo '
-               <a href="' . $description . '">
-                <div class="col-sm-5 col-sm-offset-1 col-md-3 col-md-offset-' . $offset . ' col-lg-3 text-center w3-card-8 w3-dark-grey">
-                    <div class="book-block">
-                        <img class="book block-center img-responsive" src="' . $path . '">
-                        <hr>
-                         ' . $row["Title"] . '<br>
-                        ' . $row["Price"] . '  &nbsp
-                        <span style="text-decoration:line-through;color:#828282;"> ' . $row["MRP"] . ' </span>
-                        <span class="label label-warning">' . $row["Discount"] . '%</span>
-                    </div>
+                    </a>
                 </div>
-                
-               </a> ';
-                    $i++;
-                    if ($i % 3 == 0)
-                        echo '</div>';
-                }
-            }
-            echo '</div>';
-            ?>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <!-- Empty State (Khi không tìm thấy sách) -->
+                <div class="col-12 text-center py-5">
+                    <div style="font-size: 5rem; color: #cbd5e1;"><i class="fas fa-search"></i></div>
+                    <h3 class="mt-3 text-muted">No books found matching your search.</h3>
+                    <p class="text-muted">Try checking your spelling or use different keywords.</p>
+                    <a href="index.php" class="btn btn-primary rounded-pill px-4 mt-3" style="background: var(--primary);">Browse All Books</a>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
 
-
-    </body>
-
+    <!-- JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

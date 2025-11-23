@@ -1,259 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Premium Books Store">
-    <meta name="author" content="Shivangi Gupta">
-    <title>BookZ | Premium Online Bookstore</title>
-
-    <!-- Fonts: Playfair Display (Sang trọng) & Plus Jakarta Sans (Hiện đại) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap 5.3 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- FontAwesome 6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Swiper CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-
-    <!-- SweetAlert2 (Thông báo đẹp) -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <style>
-        :root {
-            --primary-color: #0f172a; /* Dark Navy */
-            --accent-color: #c5a47e; /* Gold Luxury */
-            --text-color: #334155;
-            --bg-light: #f8fafc;
-            --white: #ffffff;
-        }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--text-color);
-            background-color: var(--bg-light);
-            overflow-x: hidden;
-        }
-
-        h1, h2, h3, h4, h5, h6, .navbar-brand {
-            font-family: 'Playfair Display', serif;
-            color: var(--primary-color);
-        }
-
-        /* --- Navbar --- */
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
-            padding: 15px 0;
-        }
-        
-        .navbar-brand img {
-            height: 45px;
-        }
-
-        .nav-link {
-            font-weight: 600;
-            color: var(--primary-color) !important;
-            font-size: 0.95rem;
-            transition: color 0.3s;
-        }
-
-        .nav-link:hover {
-            color: var(--accent-color) !important;
-        }
-
-        .btn-search {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-        }
-        
-        .btn-search:hover {
-            background-color: var(--accent-color);
-            color: white;
-        }
-
-        /* --- Hero Slider --- */
-        .hero-section {
-            margin-top: 80px; /* Offset fixed navbar */
-            padding: 20px 0;
-        }
-
-        .hero-slider .swiper-slide img {
-            width: 100%;
-            height: auto;
-            border-radius: 12px;
-            object-fit: cover;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        /* --- Product Card --- */
-        .book-card {
-            background: var(--white);
-            border: none;
-            border-radius: 12px;
-            padding: 15px;
-            transition: all 0.3s ease;
-            height: 100%;
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-        }
-
-        .book-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-        }
-
-        .book-card .tag {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: var(--accent-color);
-            color: white;
-            padding: 4px 12px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border-radius: 20px;
-            z-index: 2;
-        }
-
-        .book-card img {
-            border-radius: 8px;
-            margin-bottom: 15px;
-            width: 100%;
-            height: 280px; /* Cố định chiều cao ảnh */
-            object-fit: contain;
-        }
-
-        .book-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            height: 2.8em;
-        }
-
-        .book-price {
-            color: var(--accent-color);
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        .old-price {
-            text-decoration: line-through;
-            color: #94a3b8;
-            font-size: 0.9rem;
-            margin-left: 8px;
-        }
-
-        /* --- Section Titles --- */
-        .section-title {
-            text-align: center;
-            margin: 60px 0 40px;
-            position: relative;
-        }
-
-        .section-title h3 {
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-        
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 60px;
-            height: 3px;
-            background: var(--accent-color);
-            margin: 15px auto 0;
-        }
-
-        /* --- Footer --- */
-        footer {
-            background-color: var(--primary-color);
-            color: #e2e8f0;
-            padding: 60px 0 30px;
-            margin-top: 80px;
-        }
-
-        footer h4 {
-            color: var(--white);
-            margin-bottom: 25px;
-        }
-
-        footer a {
-            color: #94a3b8;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-
-        footer a:hover {
-            color: var(--accent-color);
-        }
-
-        /* --- Modal Custom --- */
-        .modal-content {
-            border-radius: 16px;
-            border: none;
-        }
-        .modal-header {
-            background: var(--primary-color);
-            color: white;
-            border-radius: 16px 16px 0 0;
-        }
-        .btn-primary-custom {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            width: 100%;
-            font-weight: 600;
-        }
-        .btn-primary-custom:hover {
-            background: var(--accent-color);
-        }
-
-        /* Floating Button */
-        #query_button {
-            position: fixed;
-            right: 20px;
-            bottom: 20px;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 15px 30px;
-            box-shadow: 0 10px 20px rgba(197, 164, 126, 0.4);
-            font-weight: 700;
-            z-index: 1000;
-            transition: 0.3s;
-        }
-        #query_button:hover {
-            transform: scale(1.05);
-            background: var(--primary-color);
-        }
-    </style>
-</head>
-
-<body>
     <?php
     session_start();
+
     include "dbconnect.php";
 
-    // Biến để chứa script thông báo SweetAlert
     $swal_script = "";
 
-    // Hàm xử lý thông báo
-    function set_swal($icon, $title, $text = "") {
+    function set_swal($icon, $title, $text = "")
+    {
         return "
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -261,419 +14,1167 @@
                     icon: '$icon',
                     title: '$title',
                     text: '$text',
-                    confirmButtonColor: '#0f172a'
+                    background: 'rgba(255, 255, 255, 0.9)',
+                    backdrop: `rgba(0,0,123,0.1)`,
+                    confirmButtonColor: '#0f172a',
+                    customClass: { popup: 'glass-modal-alert' }
                 });
             });
         </script>";
     }
 
-    if (isset($_GET['Message'])) {
-        $swal_script = set_swal('info', $_GET['Message']);
-    }
-
-    if (isset($_GET['response'])) {
-        $swal_script = set_swal('info', $_GET['response']);
-    }
-
-    if (isset($_POST['submit'])) {
+    if (isset($_POST['submit']) && $con) {
         if ($_POST['submit'] == "login") {
             $username = $_POST['login_username'];
             $password_input = $_POST['login_password'];
-            
+
+            // 1. SELECT CẢ CỘT ROLE ĐỂ PHÂN QUYỀN
             $stmt = $con->prepare("SELECT * FROM users WHERE UserName = ?");
-            $stmt->bind_param("s", $username);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            if ($result->num_rows > 0) {
-                $row = $result->fetch_assoc();
-                if (password_verify($password_input, $row['Password'])) {
-                    $_SESSION['user'] = $row['UserName'];
-                    $swal_script = set_swal('success', 'Welcome back!', 'Successfully logged in.');
+            if ($stmt) {
+                $stmt->bind_param("s", $username);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($result->num_rows > 0) {
+                    $row = $result->fetch_assoc();
+                    $is_password_correct = password_verify($password_input, $row['Password']) || ($password_input === $row['Password']);
+
+                    if ($is_password_correct) {
+                        $_SESSION['user'] = $row['UserName'];
+                        $_SESSION['role'] = $row['Role'];
+                        $_SESSION['user_id'] = $row['UserID'];
+
+                        $swal_script = set_swal('success', 'Welcome back!', 'Đăng nhập thành công.');
+                    } else {
+                        $swal_script = set_swal('error', 'Login Failed', 'Sai mật khẩu.');
+                    }
                 } else {
-                    $swal_script = set_swal('error', 'Login Failed', 'Incorrect Username Or Password.');
+                    $swal_script = set_swal('error', 'Login Failed', 'Tài khoản không tồn tại.');
                 }
-            } else {
-                $swal_script = set_swal('error', 'Login Failed', 'Incorrect Username Or Password.');
+                $stmt->close();
             }
-            $stmt->close();
         } else if ($_POST['submit'] == "register") {
             $username = $_POST['register_username'];
             $password = $_POST['register_password'];
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            
-            $stmt = $con->prepare("INSERT INTO users (UserName, Password) VALUES (?, ?)");
+
+            $stmt = $con->prepare("INSERT INTO users (UserName, Password, Role) VALUES (?, ?, 'user')");
             $stmt->bind_param("ss", $username, $hashed_password);
-            
+
             if ($stmt->execute()) {
-                $swal_script = set_swal('success', 'Registered!', 'You can now login.');
+                $swal_script = set_swal('success', 'Registered!', 'Tài khoản đã tạo thành công. Vui lòng đăng nhập.');
             } else {
-                $swal_script = set_swal('warning', 'Registration Failed', 'Username is already taken.');
+                $swal_script = set_swal('warning', 'Registration Failed', 'Tên đăng nhập đã tồn tại.');
             }
         }
     }
-    
-    // In ra script thông báo nếu có
-    echo $swal_script;
     ?>
 
-    <!-- ============== Navbar Modern ==============-->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">
-                <!-- Thay logo bằng text sang trọng nếu chưa có ảnh đẹp -->
-                <span style="font-weight: 900; font-size: 1.5rem;">BOOK<span style="color: var(--accent-color)">Z</span>.</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarScroll">
-                <form class="d-flex me-auto ms-lg-4" role="search" method="POST" action="Result.php" style="width: 100%; max-width: 400px;">
-                    <div class="input-group">
-                        <input type="text" class="form-control border-0 bg-light" name="keyword" placeholder="Search books, authors...">
-                        <button class="btn btn-search" type="submit"><i class="fas fa-search"></i></button>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>BookZ | Premium Glassmorphism Store</title>
+
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+        <!-- Bootstrap 5.3 & Icons -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+        <!-- SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <style>
+            :root {
+                --primary: #0f172a;
+                --accent: #d4af37;
+                --glass-bg: rgba(255, 255, 255, 0.65);
+                --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+                --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+                --blur-amt: 16px;
+            }
+
+            body {
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                color: var(--primary);
+                background: linear-gradient(to bottom, #e0e8f0, #ffffff);
+                overflow-x: hidden;
+                position: relative;
+            }
+
+            .bg-blobs {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+                background: radial-gradient(circle at 10% 10%, rgba(212, 175, 55, 0.15), transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(15, 23, 42, 0.1), transparent 40%),
+                    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8), transparent 100%);
+            }
+
+            h1,
+            h2,
+            h3,
+            h4,
+            h5 {
+                font-family: 'Playfair Display', serif;
+            }
+
+            /* --- GLASS & NAVBAR STYLES (KEEP EXISTING) --- */
+            .glass-panel {
+                background: var(--glass-bg);
+                backdrop-filter: blur(var(--blur-amt));
+                -webkit-backdrop-filter: blur(var(--blur-amt));
+                border: var(--glass-border);
+                box-shadow: var(--glass-shadow);
+            }
+
+            .navbar {
+                padding: 15px 0;
+                transition: all 0.4s ease;
+            }
+
+            .navbar.glass-nav {
+                margin: 15px auto 0;
+                width: 95%;
+                border-radius: 50px;
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(20px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.5);
+            }
+
+            .header-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                z-index: 1030;
+                transition: all 0.3s ease;
+            }
+
+            .navbar-brand span {
+                font-weight: 800;
+                letter-spacing: -0.5px;
+                font-size: 1.6rem;
+            }
+
+            .nav-link {
+                font-weight: 600;
+                color: var(--primary) !important;
+                position: relative;
+                padding: 10px 15px !important;
+                border-radius: 8px;
+                transition: all 0.3s;
+            }
+
+            .nav-link:hover {
+                background: rgba(0, 0, 0, 0.05);
+                color: var(--accent) !important;
+            }
+
+            .nav-link::after {
+                display: none;
+            }
+
+            .main-menu-bar {
+                background: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(16px);
+                width: fit-content;
+                margin: 0 auto;
+                border-radius: 50px;
+                padding: 5px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.5);
+            }
+
+            .search-glass {
+                background: rgba(255, 255, 255, 0.5);
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                border-radius: 30px;
+                padding-left: 20px;
+            }
+
+            .search-glass:focus {
+                background: white;
+                box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+                border-color: var(--accent);
+            }
+
+            .navbar.glass-nav {
+                background: transparent;
+                box-shadow: none;
+                border: none;
+            }
+
+            .hero-wrapper {
+                padding-top: 120px;
+                padding-bottom: 50px;
+            }
+
+            .hero-slider {
+                border-radius: 24px;
+                overflow: hidden;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            }
+
+            .category-glass-card {
+                background: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(12px);
+                border-radius: 16px;
+                padding: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                transition: 0.3s;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .category-glass-card:hover {
+                background: rgba(255, 255, 255, 0.9);
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            }
+
+            /* Book Card Styles */
+            .book-card-glass {
+                background: rgba(255, 255, 255, 0.6);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.6);
+                border-radius: 20px;
+                padding: 15px;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .book-card-glass:hover {
+                background: rgba(255, 255, 255, 0.95);
+                transform: translateY(-10px) scale(1.02);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                border-color: var(--accent);
+            }
+
+            .book-img-wrapper {
+                position: relative;
+                border-radius: 15px;
+                overflow: hidden;
+                margin-bottom: 15px;
+                aspect-ratio: 2/3;
+            }
+
+            .book-img-wrapper img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: 0.5s;
+            }
+
+            .book-card-glass:hover .book-img-wrapper img {
+                transform: scale(1.1);
+            }
+
+            .action-overlay {
+                position: absolute;
+                bottom: -50px;
+                left: 0;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                transition: 0.3s;
+                padding-bottom: 10px;
+            }
+
+            .book-card-glass:hover .action-overlay {
+                bottom: 10px;
+            }
+
+            .btn-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: var(--primary);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: none;
+                transition: 0.3s;
+            }
+
+            .btn-icon:hover {
+                background: var(--accent);
+                transform: rotate(90deg);
+            }
+
+            .badge-glass {
+                position: absolute;
+                top: 15px;
+                left: 15px;
+                background: rgba(255, 255, 255, 0.9);
+                color: var(--primary);
+                font-weight: 800;
+                padding: 5px 12px;
+                border-radius: 30px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                z-index: 2;
+            }
+
+            /* Modal & Footer */
+            .modal-content {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.6);
+                border-radius: 24px;
+                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            }
+
+            .modal-header {
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            }
+
+            .btn-primary-glass {
+                background: var(--primary);
+                color: white;
+                border-radius: 50px;
+                padding: 10px 30px;
+                font-weight: 600;
+                transition: 0.3s;
+                box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+            }
+
+            .btn-primary-glass:hover {
+                background: var(--accent);
+                transform: translateY(-2px);
+                box-shadow: 0 15px 30px rgba(212, 175, 55, 0.3);
+            }
+
+            footer {
+                margin-top: 80px;
+                background: linear-gradient(to top, #0f172a 0%, #1e293b 100%);
+                color: white;
+                padding: 60px 0 20px;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .footer-wave {
+                position: absolute;
+                top: -50px;
+                left: 0;
+                width: 100%;
+                line-height: 0;
+            }
+
+            .dropdown-menu .dropdown-submenu {
+                position: relative;
+            }
+
+            .dropdown-menu .dropdown-submenu .dropdown-menu {
+                top: 0;
+                left: 100%;
+                margin-top: -1px;
+            }
+
+            .dropdown-menu .dropdown-submenu:hover>.dropdown-menu {
+                display: block;
+            }
+
+            .promo-card {
+                display: flex;
+                align-items: center;
+                background: rgba(255, 255, 255, 0.6);
+                backdrop-filter: blur(10px);
+                padding: 15px;
+                border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                transition: 0.3s;
+            }
+
+            .promo-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            }
+
+            .promo-icon {
+                font-size: 2rem;
+                color: var(--primary);
+                margin-right: 15px;
+            }
+
+            /* ================= NEW SECTION STYLES ================= */
+
+            /* 1. Bestsellers (Carousel Style) */
+            .bestseller-section {
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
+                border-top: 1px solid rgba(255, 255, 255, 0.5);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+                padding: 60px 0;
+                margin-top: 60px;
+            }
+
+            .bestseller-card {
+                background: transparent;
+                padding: 10px;
+            }
+
+            .rank-number {
+                font-size: 4rem;
+                font-weight: 900;
+                color: rgba(15, 23, 42, 0.1);
+                position: absolute;
+                top: -20px;
+                right: 0;
+                z-index: 0;
+                line-height: 1;
+            }
+
+            /* 2. Deals of the Day (Feature Block Style) */
+            .deal-wrapper {
+                background: linear-gradient(135deg, var(--primary), #1e293b);
+                border-radius: 30px;
+                overflow: hidden;
+                position: relative;
+                color: white;
+                box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
+            }
+
+            .deal-content {
+                padding: 50px;
+                z-index: 2;
+                position: relative;
+            }
+
+            .deal-timer-box {
+                display: inline-block;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(5px);
+                padding: 10px 20px;
+                border-radius: 10px;
+                margin: 0 5px;
+                text-align: center;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .deal-timer-number {
+                font-size: 1.5rem;
+                font-weight: 700;
+                display: block;
+                color: var(--accent);
+            }
+
+            .deal-timer-label {
+                font-size: 0.7rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .deal-image-container {
+                position: relative;
+                height: 100%;
+                min-height: 400px;
+            }
+
+            .deal-image {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                width: 90%;
+                height: auto;
+                object-fit: contain;
+                filter: drop-shadow(-20px 20px 30px rgba(0, 0, 0, 0.5));
+                transform: scale(1.1) translateY(20px);
+            }
+
+            /* 3. News (Grid Card Style) */
+            .news-card {
+                background: white;
+                border-radius: 20px;
+                overflow: hidden;
+                transition: 0.3s;
+                border: 1px solid rgba(0, 0, 0, 0.05);
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .news-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+            }
+
+            .news-img {
+                height: 200px;
+                object-fit: cover;
+                width: 100%;
+            }
+
+            .news-body {
+                padding: 25px;
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .news-date {
+                font-size: 0.8rem;
+                color: var(--accent);
+                font-weight: 700;
+                text-transform: uppercase;
+                margin-bottom: 10px;
+            }
+
+            .news-title {
+                font-weight: 700;
+                margin-bottom: 10px;
+                font-family: 'Playfair Display', serif;
+                font-size: 1.25rem;
+            }
+
+            .read-more-link {
+                margin-top: auto;
+                color: var(--primary);
+                font-weight: 700;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            .read-more-link:hover {
+                color: var(--accent);
+            }
+
+            /* --- Search bar hover effect --- */
+            .search-form-hover {
+                position: relative;
+                display: flex;
+                align-items: center;
+                transition: all 0.4s ease;
+            }
+
+            .search-form-hover .search-input {
+                width: 0;
+                padding: 8px 0;
+                border: none;
+                border-bottom: 2px solid var(--primary);
+                background-color: transparent;
+                outline: none;
+                font-size: 1rem;
+                color: var(--primary);
+                transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+                opacity: 0;
+            }
+
+            .search-form-hover .search-button {
+                background: transparent;
+                border: none;
+                font-size: 1.2rem;
+                color: var(--primary);
+                cursor: pointer;
+                padding: 8px;
+            }
+
+            .search-form-hover:hover .search-input {
+                width: 200px; /* Chiều rộng khi bung ra */
+                padding: 8px 10px;
+                opacity: 1;
+            }
+        </style>
+    </head>
+
+    <body>
+        <?php echo $swal_script; ?>
+
+        <!-- Background Elements -->
+        <div class="bg-blobs"></div>
+
+        <!-- ============== Navbar ==============-->
+        <header class="header-container">
+            <!-- Hàng 1: Logo, Search, User -->
+            <nav class="navbar navbar-expand-lg glass-nav" id="mainNavbar">
+                <div class="container">
+                    <a class="navbar-brand" href="index.php">
+                        <i class="fas fa-book-open text-warning me-2"></i>
+                        <span>BOOK<span style="color: var(--accent)">Z</span></span>
+                    </a>
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navContent">
+                        <!-- Menu chính -->
+                        <ul class="navbar-nav mx-auto">
+                            <li class="nav-item"><a class="nav-link active" href="index.php">Trang chủ</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Thể loại</a>
+                                <ul class="dropdown-menu glass-panel border-0 shadow-lg">
+                                    <li><a class="dropdown-item" href="Product.php?value=Literature and Fiction">Văn học & Hư cấu</a></li>
+                                    <li><a class="dropdown-item" href="Product.php?value=Biographies and Auto Biographies">Tiểu sử & Tự truyện</a></li>
+                                    <li><a class="dropdown-item" href="Product.php?value=Academic and Professional">Học thuật & Chuyên ngành</a></li>
+                                    <li><a class="dropdown-item" href="Product.php?value=Business and Management">Kinh doanh & Quản lý</a></li>
+                                    <li><a class="dropdown-item" href="Product.php?value=Children and Teens">Sách thiếu nhi</a></li>
+                                    <li><a class="dropdown-item" href="Product.php?value=Health and Cooking">Sức khỏe & Nấu ăn</a></li>
+                                    <li><a class="dropdown-item" href="Product.php?value=Regional Books">Sách tiếng Việt</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="#new">Sách mới</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#bestseller">Bán chạy</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Tác giả</a>
+                                <ul class="dropdown-menu glass-panel border-0 shadow-lg">
+                                    <li><a class="dropdown-item" href="Author.php?value=Chetan Bhagat">Chetan Bhagat</a></li>
+                                    <li><a class="dropdown-item" href="Author.php?value=J K Rowling">J.K. Rowling</a></li>
+                                    <li><a class="dropdown-item" href="Author.php?value=Ravinder Singh">Ravinder Singh</a></li>
+                                    <li><a class="dropdown-item" href="Author.php?value=Jeffrey Archer">Jeffrey Archer</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" href="authors.php">Xem tất cả tác giả</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="#deals">Khuyến mãi</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#news">Tin tức</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#contact">Liên hệ</a></li>
+                        </ul>
+
+                        <!-- User Actions -->
+                        <ul class="navbar-nav ms-auto flex-row align-items-center">
+                            <!-- Search Icon with Hover Effect -->
+                            <li class="nav-item me-2">
+                                <form action="Result.php" method="POST" class="search-form-hover">
+                                    <input type="search" name="keyword" class="search-input" placeholder="Tìm kiếm sách...">
+                                    <button type="submit" class="search-button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </form>
+                            </li>
+
+                            <?php if (!isset($_SESSION['user'])): ?>
+                                <li class="nav-item"><button class="btn btn-primary-glass btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">Sign In</button></li>
+                            <?php else: ?>
+                                <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
+                                    <li class="nav-item"><a href="admin.php" class="btn btn-warning btn-sm rounded-pill fw-bold shadow-sm px-3"><i class="fas fa-user-shield me-1"></i> Admin</a></li>
+                                <?php else: ?>
+                                    <li class="nav-item"><a href="wishlist.php" class="btn btn-outline-dark rounded-circle border-0" style="width:40px; height:40px;" title="Wishlist"><i class="fas fa-heart"></i></a></li>
+                                    <li class="nav-item ms-1"><a href="cart.php" class="btn btn-outline-dark rounded-circle position-relative border-0" style="width:40px; height:40px;"><i class="fas fa-shopping-bag"></i></a></li>
+                                <?php endif; ?>
+                                <!-- Notification Dropdown -->
+                                <li class="nav-item dropdown ms-1">
+                                    <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" style="width:40px; height:40px; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-bell fs-5"></i>
+                                        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="margin-top: 8px; margin-left: -12px;">
+                                            <span class="visually-hidden">New alerts</span>
+                                        </span>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-panel mt-2" style="width: 300px;">
+                                        <li class="px-3 py-2 fw-bold">Notifications</li>
+                                        <li><hr class="dropdown-divider m-0"></li>
+                                        <li><a class="dropdown-item py-2" href="#">
+                                            <small class="fw-bold">Đơn hàng #12345 đã được giao</small><br>
+                                            <small class="text-muted">15 phút trước</small>
+                                        </a></li>
+                                        <li><a class="dropdown-item py-2" href="#">
+                                            <small class="fw-bold">Khuyến mãi Black Friday sắp bắt đầu!</small><br>
+                                            <small class="text-muted">Hôm qua</small>
+                                        </a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item dropdown ms-2">
+                                    <a class="nav-link dropdown-toggle p-0" href="#" role="button" data-bs-toggle="dropdown">
+                                        <img src="https://ui-avatars.com/api/?name=<?php echo $_SESSION['user']; ?>&background=random" class="rounded-circle" width="35">
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-panel mt-2">
+                                        <li><span class="dropdown-item-text text-muted small">Signed in as<br><strong class="text-dark"><?php echo $_SESSION['user']; ?></strong></span></li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li><a class="dropdown-item text-danger" href="destroy.php">Logout</a></li>
+                                    </ul>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
                     </div>
-                </form>
-
-                <ul class="navbar-nav ms-auto my-2 my-lg-0 navbar-nav-scroll align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="#new">New Arrivals</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#bestseller-section">Bestsellers</a></li>
-                    
-                    <?php if (!isset($_SESSION['user'])): ?>
-                        <li class="nav-item dropdown ms-lg-3">
-                            <a class="nav-link dropdown-toggle btn btn-outline-dark px-3 rounded-pill" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user me-1"></i> Account
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                                <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button></li>
-                                <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#registerModal">Sign Up</button></li>
-                            </ul>
-                        </li>
-                    <?php else: ?>
-                        <li class="nav-item ms-lg-3">
-                            <a class="nav-link position-relative" href="cart.php">
-                                <i class="fas fa-shopping-bag fa-lg"></i>
-                                <span class="position-absolute top-10 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown ms-3">
-                            <a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown">
-                                Hello, <?php echo htmlspecialchars($_SESSION['user']); ?>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                                <li><a class="dropdown-item" href="destroy.php">Logout</a></li>
-                            </ul>
-                        </li>
-                    <?php endif; ?>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- ============== Login Modal ==============-->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Welcome Back</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <form method="post" action="index.php">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="loginUser" name="login_username" placeholder="Username" required>
-                            <label for="loginUser">Username</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="loginPass" name="login_password" placeholder="Password" required>
-                            <label for="loginPass">Password</label>
-                        </div>
-                        <button type="submit" name="submit" value="login" class="btn btn-primary-custom btn-lg">Sign In</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+            </nav>
+        </header>
 
-    <!-- ============== Register Modal ==============-->
-    <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create Account</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <form method="post" action="index.php">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="regUser" name="register_username" placeholder="Username" required>
-                            <label for="regUser">Username</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="regPass" name="register_password" placeholder="Password" required>
-                            <label for="regPass">Password</label>
-                        </div>
-                        <button type="submit" name="submit" value="register" class="btn btn-primary-custom btn-lg">Sign Up</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============== Hero & Categories ==============-->
-    <div class="container-fluid hero-section">
-        <div class="container">
-            <div class="row g-4">
-                <!-- Categories List -->
-                <div class="col-lg-3 d-none d-lg-block">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header text-white fw-bold py-3" style="background: var(--primary-color);">
-                            <i class="fas fa-bars me-2"></i> Browse Categories
-                        </div>
-                        <div class="list-group list-group-flush">
-                            <a href="Product.php?value=entrance%20exam" class="list-group-item list-group-item-action py-3">Entrance Exam</a>
-                            <a href="Product.php?value=Literature%20and%20Fiction" class="list-group-item list-group-item-action py-3">Literature & Fiction</a>
-                            <a href="Product.php?value=Academic%20and%20Professional" class="list-group-item list-group-item-action py-3">Academic & Professional</a>
-                            <a href="Product.php?value=Biographies%20and%20Auto%20Biographies" class="list-group-item list-group-item-action py-3">Biographies</a>
-                            <a href="Product.php?value=Children%20and%20Teens" class="list-group-item list-group-item-action py-3">Children & Teens</a>
-                            <a href="Product.php?value=Business%20and%20Management" class="list-group-item list-group-item-action py-3">Business</a>
+        <!-- ============== Hero Section ==============-->
+        <div class="container hero-wrapper">
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-4">
+                    <div class="p-4">
+                        <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill">Best Seller 2025</span>
+                        <h1 class="display-4 fw-bold mb-3">Discover Your Next <span style="color: var(--accent); font-style: italic;">Great Read</span></h1>
+                        <p class="lead text-muted mb-4">Explore our curated collection of premium books from around the globe.</p>
+                        <a href="#new" class="btn btn-primary-glass btn-lg">Explore Now <i class="fas fa-arrow-right ms-2"></i></a>
+                        <div class="d-flex flex-wrap gap-2 mt-5">
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Fiction</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Science</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">History</a>
                         </div>
                     </div>
                 </div>
-
-                <!-- Main Slider -->
-                <div class="col-lg-9">
-                    <div class="swiper hero-slider h-100">
+                <div class="col-lg-8">
+                    <div class="swiper hero-slider">
                         <div class="swiper-wrapper">
-                            <div class="swiper-slide"><img src="img/carousel/1.jpg" alt="Slide 1"></div>
-                            <div class="swiper-slide"><img src="img/carousel/2.jpg" alt="Slide 2"></div>
-                            <div class="swiper-slide"><img src="img/carousel/3.jpg" alt="Slide 3"></div>
+                            <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2098&auto=format&fit=crop" class="w-100" style="height: 450px; object-fit: cover;" alt="Library">
+                                <div class="position-absolute bottom-0 start-0 w-100 p-4" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
+                                    <h3 class="text-white">Classic Collections</h3>
+                                </div>
+                            </div>
+                            <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=2070&auto=format&fit=crop" class="w-100" style="height: 450px; object-fit: cover;" alt="Reading"></div>
                         </div>
                         <div class="swiper-pagination"></div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- ============== New Arrivals Section ==============-->
-    <div class="container py-5" id="new">
-        <div class="section-title">
-            <h3>New Arrivals</h3>
-            <p class="text-muted">Discover the latest additions to our collection</p>
-        </div>
-
-        <div class="row g-4">
-            <!-- Book 1 -->
-            <div class="col-6 col-md-3">
-                <a href="description.php?ID=NEW-1&category=new" class="text-decoration-none text-dark">
-                    <div class="book-card">
-                        <div class="tag">NEW</div>
-                        <img src="img/new/1.jpg" alt="Book 1" class="img-fluid">
-                        <div class="book-title">Like A Love Song</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="book-price">
-                                113 đ <span class="old-price">175 đ</span>
+        <!-- ============== Promotions Cards ==============-->
+        <div class="container mt-n4 mb-5">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <a href="deals.php" class="text-decoration-none">
+                        <div class="promo-card">
+                            <div class="promo-icon"><i class="fas fa-shipping-fast"></i></div>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark">Miễn Phí Vận Chuyển</h6>
+                                <p class="small text-muted mb-0">Cho đơn hàng trên 500.000đ</p>
                             </div>
-                            <span class="badge bg-danger">-35%</span>
                         </div>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Book 2 -->
-            <div class="col-6 col-md-3">
-                <a href="description.php?ID=NEW-2&category=new" class="text-decoration-none text-dark">
-                    <div class="book-card">
-                        <div class="tag">HOT</div>
-                        <img src="img/new/2.jpg" alt="Book 2" class="img-fluid">
-                        <div class="book-title">General Knowledge 2017</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="book-price">
-                                68 đ <span class="old-price">120 đ</span>
+                    </a>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <a href="deals.php" class="text-decoration-none">
+                        <div class="promo-card">
+                            <div class="promo-icon"><i class="fas fa-tags"></i></div>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark">Ưu Đãi Đặc Biệt</h6>
+                                <p class="small text-muted mb-0">Giảm giá đến 30% cho sách mới</p>
                             </div>
-                            <span class="badge bg-danger">-43%</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <div class="promo-card bg-primary text-white" style="background: var(--primary);">
+                        <div class="promo-icon text-warning" style="color: var(--accent) !important;"><i class="fas fa-gift"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1 text-white">Quà Tặng Độc Quyền</h6>
+                            <p class="small text-white-50 mb-0">Khi đăng ký thành viên mới</p>
                         </div>
                     </div>
-                </a>
+                </div>
             </div>
+        </div>
 
-            <!-- Book 3 -->
-            <div class="col-6 col-md-3">
-                <a href="description.php?ID=NEW-3&category=new" class="text-decoration-none text-dark">
-                    <div class="book-card">
-                        <div class="tag">SALE</div>
-                        <img src="img/new/3.png" alt="Book 3" class="img-fluid">
-                        <div class="book-title">Indian Family Business Mantras</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="book-price">
-                                400 đ <span class="old-price">595 đ</span>
+        <!-- ============== Categories Cards ==============-->
+        <div class="container my-5">
+            <div class="row g-4">
+                <?php
+                $cats = [
+                    ['icon' => 'fa-graduation-cap', 'title' => 'Entrance Exam', 'color' => '#4e54c8'],
+                    ['icon' => 'fa-book-open', 'title' => 'Literature', 'color' => '#11998e'],
+                    ['icon' => 'fa-briefcase', 'title' => 'Business', 'color' => '#ee0979'],
+                    ['icon' => 'fa-child', 'title' => 'Kids & Teens', 'color' => '#f12711']
+                ];
+                foreach ($cats as $c) {
+                    echo '<div class="col-6 col-md-3"><a href="Product.php?category=' . urlencode($c['title']) . '" class="text-decoration-none text-dark"><div class="category-glass-card text-center"><div class="mb-3" style="font-size: 2rem; color: ' . $c['color'] . '"><i class="fas ' . $c['icon'] . '"></i></div><h6 class="fw-bold mb-0">' . $c['title'] . '</h6></div></a></div>';
+                }
+                ?>
+            </div>
+        </div>
+
+        <!-- ============== New Arrivals Section ==============-->
+        <div class="container py-5" id="new">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <h6 class="text-uppercase text-warning fw-bold ls-2">Fresh from press</h6>
+                    <h2 class="fw-bold display-6">New Arrivals</h2>
+                </div>
+                <a href="Product.php" class="btn btn-outline-dark rounded-pill px-4">View All</a>
+            </div>
+            <div class="row g-4">
+                <?php
+                $books = [
+                    ['title' => 'The Great Adventure', 'price' => '150.000', 'img' => 'img/new/1.jpg', 'tag' => 'NEW'],
+                    ['title' => 'Minimalist Living', 'price' => '200.000', 'img' => 'img/new/2.jpg', 'tag' => 'HOT'],
+                    ['title' => 'Code Your Future', 'price' => '180.000', 'img' => 'img/new/3.png', 'tag' => '-20%'],
+                    ['title' => 'History of Art', 'price' => '350.000', 'img' => 'img/new/4.jpg', 'tag' => 'BEST']
+                ];
+                foreach ($books as $idx => $book) {
+                ?>
+                    <div class="col-6 col-md-3">
+                        <div class="book-card-glass h-100 d-flex flex-column">
+                            <div class="badge-glass"><?php echo $book['tag']; ?></div>
+                            <div class="book-img-wrapper">
+                                <img src="<?php echo $book['img']; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'" alt="Book">
+                                <div class="action-overlay">
+                                    <button class="btn-icon"><i class="fas fa-shopping-cart"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon"><i class="fas fa-heart"></i></button>
+                                </div>
                             </div>
-                            <span class="badge bg-danger">-33%</span>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Book 4 -->
-            <div class="col-6 col-md-3">
-                <a href="description.php?ID=NEW-4&category=new" class="text-decoration-none text-dark">
-                    <div class="book-card">
-                        <div class="tag">BEST</div>
-                        <img src="img/new/4.jpg" alt="Book 4" class="img-fluid">
-                        <div class="book-title">SSC Mathematics Chapterwise</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="book-price">
-                                289 đ <span class="old-price">435 đ</span>
+                            <div class="mt-auto">
+                                <h6 class="fw-bold text-truncate"><?php echo $book['title']; ?></h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary fw-bold"><?php echo $book['price']; ?> đ</span>
+                                    <div class="text-warning small"><i class="fas fa-star"></i> 4.8</div>
+                                </div>
                             </div>
-                            <span class="badge bg-danger">-33%</span>
+                            <a href="description.php?ID=<?php echo $idx; ?>" class="stretched-link"></a>
                         </div>
                     </div>
-                </a>
+                <?php } ?>
             </div>
         </div>
-    </div>
 
-    <!-- ============== Popular Authors ==============-->
-    <div class="container py-5 bg-white rounded-4 shadow-sm mt-4">
-        <div class="section-title mt-2">
-            <h3>Popular Authors</h3>
-        </div>
-        
-        <div class="swiper author-slider pb-5">
-            <div class="swiper-wrapper align-items-center text-center">
-                <!-- Duplicate these slides dynamically if needed -->
-                <div class="swiper-slide">
-                    <a href="Author.php?value=Durjoy%20Datta"><img src="img/popular-author/0.jpg" class="rounded-circle shadow-sm" style="width:150px; height:150px; object-fit:cover;"></a>
-                    <h5 class="mt-3">Durjoy Datta</h5>
+        <!-- ============== SECTION 1: BESTSELLERS (LAYOUT: CAROUSEL) ==============-->
+        <div class="bestseller-section" id="bestseller">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <span class="badge bg-primary px-3 py-2 rounded-pill mb-2">Trending Now</span>
+                    <h2 class="display-6 fw-bold">This Week's Bestsellers</h2>
+                    <p class="text-muted">Top rated books chosen by our community</p>
                 </div>
-                <div class="swiper-slide">
-                    <a href="Author.php?value=Chetan%20Bhagat"><img src="img/popular-author/1.jpg" class="rounded-circle shadow-sm" style="width:150px; height:150px; object-fit:cover;"></a>
-                    <h5 class="mt-3">Chetan Bhagat</h5>
-                </div>
-                <div class="swiper-slide">
-                    <a href="Author.php?value=Dan%20Brown"><img src="img/popular-author/2.jpg" class="rounded-circle shadow-sm" style="width:150px; height:150px; object-fit:cover;"></a>
-                    <h5 class="mt-3">Dan Brown</h5>
-                </div>
-                <div class="swiper-slide">
-                    <a href="Author.php?value=J%20K%20Rowling"><img src="img/popular-author/6.jpg" class="rounded-circle shadow-sm" style="width:150px; height:150px; object-fit:cover;"></a>
-                    <h5 class="mt-3">J.K. Rowling</h5>
-                </div>
-                <div class="swiper-slide">
-                    <a href="Author.php?value=Jeffrey%20Archer"><img src="img/popular-author/4.jpg" class="rounded-circle shadow-sm" style="width:150px; height:150px; object-fit:cover;"></a>
-                    <h5 class="mt-3">Jeffrey Archer</h5>
+
+                <div class="swiper bestseller-swiper pb-5">
+                    <div class="swiper-wrapper">
+                        <!-- Slide 1 -->
+                        <div class="swiper-slide">
+                            <div class="bestseller-card position-relative text-center">
+                                <div class="rank-number">01</div>
+                                <div class="book-card-glass border-0 bg-transparent shadow-none">
+                                    <div class="book-img-wrapper shadow-lg mb-3">
+                                        <img src="img/new/1.jpg" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
+                                    </div>
+                                    <h5 class="fw-bold mt-3">Like A Love Song</h5>
+                                    <p class="text-muted small">Nikita Singh</p>
+                                    <a href="#" class="btn btn-outline-dark rounded-pill btn-sm">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Slide 2 -->
+                        <div class="swiper-slide">
+                            <div class="bestseller-card position-relative text-center">
+                                <div class="rank-number">02</div>
+                                <div class="book-card-glass border-0 bg-transparent shadow-none">
+                                    <div class="book-img-wrapper shadow-lg mb-3">
+                                        <img src="img/new/3.png" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
+                                    </div>
+                                    <h5 class="fw-bold mt-3">Indian Family Mantras</h5>
+                                    <p class="text-muted small">Peter Leach</p>
+                                    <a href="#" class="btn btn-outline-dark rounded-pill btn-sm">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Slide 3 -->
+                        <div class="swiper-slide">
+                            <div class="bestseller-card position-relative text-center">
+                                <div class="rank-number">03</div>
+                                <div class="book-card-glass border-0 bg-transparent shadow-none">
+                                    <div class="book-img-wrapper shadow-lg mb-3">
+                                        <img src="img/new/2.jpg" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
+                                    </div>
+                                    <h5 class="fw-bold mt-3">General Knowledge</h5>
+                                    <p class="text-muted small">Manohar Pandey</p>
+                                    <a href="#" class="btn btn-outline-dark rounded-pill btn-sm">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Slide 4 -->
+                        <div class="swiper-slide">
+                            <div class="bestseller-card position-relative text-center">
+                                <div class="rank-number">04</div>
+                                <div class="book-card-glass border-0 bg-transparent shadow-none">
+                                    <div class="book-img-wrapper shadow-lg mb-3">
+                                        <img src="img/new/4.jpg" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
+                                    </div>
+                                    <h5 class="fw-bold mt-3">SSC Mathematics</h5>
+                                    <p class="text-muted small">Kiran</p>
+                                    <a href="#" class="btn btn-outline-dark rounded-pill btn-sm">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Slide 5 -->
+                        <div class="swiper-slide">
+                            <div class="bestseller-card position-relative text-center">
+                                <div class="rank-number">05</div>
+                                <div class="book-card-glass border-0 bg-transparent shadow-none">
+                                    <div class="book-img-wrapper shadow-lg mb-3">
+                                        <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2000&auto=format&fit=crop" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
+                                    </div>
+                                    <h5 class="fw-bold mt-3">The Psychology of Money</h5>
+                                    <p class="text-muted small">Morgan Housel</p>
+                                    <a href="#" class="btn btn-outline-dark rounded-pill btn-sm">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-pagination"></div>
                 </div>
             </div>
-            <div class="swiper-pagination"></div>
         </div>
-    </div>
 
-    <!-- ============== Footer ==============-->
-    <footer>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h4>About BookZ</h4>
-                    <p class="text-white-50">We are a premium bookstore dedicated to providing the best quality literature for book lovers around the world. Join our community today.</p>
-                    <div class="mt-4">
-                        <a href="#" class="me-3"><i class="fab fa-facebook fa-lg"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-twitter fa-lg"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-instagram fa-lg"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-linkedin fa-lg"></i></a>
+        <!-- ============== SECTION 2: DEALS (LAYOUT: SPLIT BANNER) ==============-->
+        <div class="container py-5" id="deals">
+            <div class="deal-wrapper">
+                <div class="row g-0 align-items-center">
+                    <div class="col-lg-6">
+                        <div class="deal-content">
+                            <div class="text-warning fw-bold mb-2 ls-2 text-uppercase"><i class="fas fa-bolt me-2"></i>Flash Deal of the Day</div>
+                            <h2 class="display-5 fw-bold mb-4">Save 50% on "The Lost Symbol"</h2>
+                            <p class="mb-4 text-white-50 lead">Discover Dan Brown's masterpiece at an unbeatable price. Offer ends soon, don't miss out on this thriller.</p>
+
+                            <div class="mb-5 d-flex flex-wrap">
+                                <div class="deal-timer-box">
+                                    <span class="deal-timer-number">05</span>
+                                    <span class="deal-timer-label">Hours</span>
+                                </div>
+                                <div class="deal-timer-box">
+                                    <span class="deal-timer-number">42</span>
+                                    <span class="deal-timer-label">Minutes</span>
+                                </div>
+                                <div class="deal-timer-box">
+                                    <span class="deal-timer-number">18</span>
+                                    <span class="deal-timer-label">Seconds</span>
+                                </div>
+                            </div>
+
+                            <a href="description.php?ID=LIT-20" class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-primary">Shop Now</a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 d-none d-lg-block" style="height: 100%;">
+                        <div class="deal-image-container">
+                            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=2000&auto=format&fit=crop" class="deal-image" alt="Book Deal">
+                        </div>
                     </div>
                 </div>
-                
-                <div class="col-lg-4 mb-4">
-                    <h4>Contact Us</h4>
-                    <ul class="list-unstyled text-white-50">
-                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> 123 Book Street, Literature City</li>
-                        <li class="mb-2"><i class="fas fa-phone me-2"></i> +84 123 456 789</li>
-                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> support@bookz.com</li>
-                    </ul>
-                </div>
-
-                <div class="col-lg-4">
-                    <h4>Newsletter</h4>
-                    <p class="text-white-50">Subscribe to get updates on new arrivals and special offers.</p>
-                    <form class="input-group">
-                        <input type="email" class="form-control border-0" placeholder="Your Email">
-                        <button class="btn btn-primary-custom rounded-end" style="border-radius: 0;" type="button">Subscribe</button>
-                    </form>
-                </div>
-            </div>
-            <div class="text-center border-top border-secondary pt-4 mt-5">
-                <p class="text-white-50 mb-0">&copy; 2023 BookZ Store. All Rights Reserved.</p>
             </div>
         </div>
-    </footer>
 
-    <!-- Floating Query Button -->
-    <button type="button" id="query_button" data-bs-toggle="modal" data-bs-target="#queryModal">
-        <i class="fas fa-comment-dots me-2"></i> Support
-    </button>
+        <!-- ============== SECTION 3: NEWS (LAYOUT: GRID MASONRY) ==============-->
+        <div class="container py-5" id="news">
+            <div class="section-header text-center mb-5">
+                <h6 class="text-uppercase text-primary fw-bold">From the Blog</h6>
+                <h2 class="fw-bold">Latest Literary News</h2>
+                <div style="width: 50px; height: 3px; background: var(--accent); margin: 15px auto;"></div>
+            </div>
 
-    <!-- Query Modal -->
-    <div class="modal fade" id="queryModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">How can we help?</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="row g-4">
+                <!-- News 1 -->
+                <div class="col-md-4">
+                    <div class="news-card">
+                        <img src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=2070&auto=format&fit=crop" class="news-img" alt="Blog 1">
+                        <div class="news-body">
+                            <div class="news-date">Oct 15, 2025</div>
+                            <h4 class="news-title">Top 10 Books to Read This Winter</h4>
+                            <p class="text-muted small mb-4">As the weather gets colder, curl up with these cozy mysteries and heartwarming tales selected by our editors...</p>
+                            <a href="news.php" class="read-more-link">Read Article <i class="fas fa-arrow-right ms-2"></i></a>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-body p-4">
-                    <form method="post" action="query.php">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="qName" name="sender" placeholder="Name" required>
-                            <label for="qName">Your Name</label>
+                <!-- News 2 -->
+                <div class="col-md-4">
+                    <div class="news-card">
+                        <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=2128&auto=format&fit=crop" class="news-img" alt="Blog 2">
+                        <div class="news-body">
+                            <div class="news-date">Oct 12, 2025</div>
+                            <h4 class="news-title">Interview with J.K. Rowling</h4>
+                            <p class="text-muted small mb-4">An exclusive look into the creative process behind the legendary Harry Potter series and what comes next...</p>
+                            <a href="news.php" class="read-more-link">Read Article <i class="fas fa-arrow-right ms-2"></i></a>
                         </div>
-                        <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="qEmail" name="senderEmail" placeholder="Email" required>
-                            <label for="qEmail">Email Address</label>
+                    </div>
+                </div>
+                <!-- News 3 -->
+                <div class="col-md-4">
+                    <div class="news-card">
+                        <img src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?q=80&w=2070&auto=format&fit=crop" class="news-img" alt="Blog 3">
+                        <div class="news-body">
+                            <div class="news-date">Oct 08, 2025</div>
+                            <h4 class="news-title">The Rise of Digital Libraries</h4>
+                            <p class="text-muted small mb-4">How technology is reshaping the way we access and consume literature in the modern digital age...</p>
+                            <a href="news.php" class="read-more-link">Read Article <i class="fas fa-arrow-right ms-2"></i></a>
                         </div>
-                        <div class="form-floating mb-3">
-                            <textarea class="form-control" id="qMessage" name="message" placeholder="Message" style="height: 100px" required></textarea>
-                            <label for="qMessage">Your Message</label>
-                        </div>
-                        <button type="submit" name="submit" value="query" class="btn btn-primary-custom">Send Message</button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- JS Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+        <!-- ============== Login Modal (Glass) ==============-->
+        <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content p-3">
+                    <div class="modal-header border-0">
+                        <h4 class="modal-title fw-bold">Hello Again!</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control rounded-4 bg-light border-0" id="uLogin" name="login_username" placeholder="Username" required>
+                                <label for="uLogin">Username</label>
+                            </div>
+                            <div class="form-floating mb-4">
+                                <input type="password" class="form-control rounded-4 bg-light border-0" id="pLogin" name="login_password" placeholder="Password" required>
+                                <label for="pLogin">Password</label>
+                            </div>
+                            <button type="submit" name="submit" value="login" class="btn btn-primary-glass w-100 btn-lg">Sign In</button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <small class="text-muted">Don't have an account? <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal" class="fw-bold text-primary">Sign Up</a></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <!-- Init Sliders -->
-    <script>
-        var heroSwiper = new Swiper(".hero-slider", {
-            spaceBetween: 30,
-            effect: "fade",
-            loop: true,
-            autoplay: {
-                delay: 3500,
-                disableOnInteraction: false,
-            },
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-            },
-        });
+        <!-- ============== Register Modal (Glass) ==============-->
+        <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content p-3">
+                    <div class="modal-header border-0">
+                        <h4 class="modal-title fw-bold">Create Account</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control rounded-4 bg-light border-0" name="register_username" placeholder="Username" required>
+                                <label>Choose Username</label>
+                            </div>
+                            <div class="form-floating mb-4">
+                                <input type="password" class="form-control rounded-4 bg-light border-0" name="register_password" placeholder="Password" required>
+                                <label>Choose Password</label>
+                            </div>
+                            <button type="submit" name="submit" value="register" class="btn btn-primary-glass w-100 btn-lg">Register</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        var authorSwiper = new Swiper(".author-slider", {
-            slidesPerView: 2,
-            spaceBetween: 20,
-            breakpoints: {
-                640: { slidesPerView: 3 },
-                1024: { slidesPerView: 4 },
-            },
-            loop: true,
-            autoplay: {
-                delay: 3000,
-            },
-        });
-    </script>
-</body>
-</html>
+        <!-- ============== Footer ==============-->
+        <footer id="contact">
+            <div class="footer-wave">
+                <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                    <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#f0f4f8"></path>
+                </svg>
+            </div>
+
+            <div class="container position-relative z-2">
+                <div class="row gy-4">
+                    <div class="col-lg-4">
+                        <h3 class="text-white mb-3">BookZ.</h3>
+                        <p class="text-white-50">Premium bookstore designed for the modern reader.</p>
+                    </div>
+                    <div class="col-lg-2 col-6">
+                        <h5 class="text-warning mb-3">Shop</h5>
+                        <ul class="list-unstyled text-white-50">
+                            <li><a href="#" class="text-decoration-none text-white-50 hover-white">New Arrivals</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-2 col-6">
+                        <h5 class="text-warning mb-3">Support</h5>
+                        <ul class="list-unstyled text-white-50">
+                            <li><a href="#" class="text-decoration-none text-white-50 hover-white">Help Center</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4">
+                        <h5 class="text-warning mb-3">Newsletter</h5>
+                        <form class="input-group bg-white bg-opacity-10 rounded-pill p-1 border border-secondary">
+                            <input type="email" class="form-control bg-transparent border-0 text-white" placeholder="Email">
+                            <button class="btn btn-light rounded-pill px-4 fw-bold">Join</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="border-top border-secondary mt-5 pt-4 text-center text-white-50">
+                    <small>&copy; 2025 BookZ Store.</small>
+                </div>
+            </div>
+        </footer>
+
+        <!-- JS Bundle -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+        <script>
+            const swiper = new Swiper('.hero-slider', {
+                effect: 'fade',
+                loop: true,
+                autoplay: {
+                    delay: 3000,
+                    disableOnInteraction: false
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true
+                },
+            });
+
+            // Init Bestseller Swiper (NEW)
+            const bestsellerSwiper = new Swiper('.bestseller-swiper', {
+                slidesPerView: 1,
+                spaceBetween: 20,
+                loop: true,
+                autoplay: {
+                    delay: 2500,
+                    disableOnInteraction: false
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true
+                },
+                breakpoints: {
+                    640: {
+                        slidesPerView: 2,
+                        spaceBetween: 20
+                    },
+                    1024: {
+                        slidesPerView: 4,
+                        spaceBetween: 30
+                    },
+                }
+            });
+
+            window.addEventListener('scroll', function() {
+                const nav = document.querySelector('.navbar');
+                if (window.scrollY > 50) {
+                    nav.classList.add('shadow-sm');
+                    nav.style.background = 'rgba(255, 255, 255, 0.95)';
+                } else {
+                    nav.classList.remove('shadow-sm');
+                    nav.style.background = 'rgba(255, 255, 255, 0.85)';
+                }
+            });
+
+            // Multi-level dropdown script
+            document.addEventListener("DOMContentLoaded", function() {
+                document.querySelectorAll('.dropdown-menu .dropdown-submenu').forEach(function(element) {
+                    element.addEventListener('mouseover', function(e) {
+                        let submenu = this.querySelector('.dropdown-menu');
+                        if (submenu) {
+                            submenu.classList.add('show');
+                        }
+                        e.stopPropagation();
+                    });
+                    element.addEventListener('mouseout', function(e) {
+                        this.querySelector('.dropdown-menu').classList.remove('show');
+                        e.stopPropagation();
+                    });
+                });
+            });
+        </script>
+    </body>
+
+    </html>
