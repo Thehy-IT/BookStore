@@ -983,8 +983,8 @@
                                 <img src="<?php echo $book['img']; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'" alt="Book">
                                 <div class="action-overlay">
                                     <button class="btn-icon"><i class="fas fa-shopping-cart"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-eye"></i></button>
-                                    <button class="btn-icon"><i class="fas fa-heart"></i></button>
+                                    <a href="description.php?ID=<?php echo $idx; ?>" class="btn-icon"><i class="fas fa-eye"></i></a>
+                                    <a href="wishlist.php?ID=<?php echo $idx; ?>" class="btn-icon"><i class="fas fa-heart"></i></a>
                                 </div>
                             </div>
                             <div class="mt-auto">
