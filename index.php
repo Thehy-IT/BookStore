@@ -318,16 +318,53 @@
             }
 
             .badge-glass {
+                /* Ribbon Style Container */
                 position: absolute;
-                top: 15px;
-                left: 15px;
-                background: rgba(255, 255, 255, 0.9);
-                color: var(--primary);
-                font-weight: 800;
-                padding: 5px 12px;
-                border-radius: 30px;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-                z-index: 2;
+                top: -6px;
+                left: -6px;
+                width: 120px;
+                height: 120px;
+                overflow: hidden;
+                z-index: 3;
+                /* Ensure it's above the image */
+            }
+
+            .badge-glass span {
+                position: absolute;
+                display: block;
+                width: 160px;
+                padding: 8px 0;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+                color: #fff;
+                font-weight: 700;
+                text-align: center;
+                text-transform: uppercase;
+                font-size: 0.8rem;
+                transform: rotate(-45deg) translateY(-20px);
+                left: -40px;
+                top: 32px;
+            }
+
+            /* --- Badge Colors --- */
+            .badge-new span {
+                background: linear-gradient(45deg, #3b82f6, #60a5fa);
+                /* Blue */
+            }
+
+            .badge-hot span {
+                background: linear-gradient(45deg, #ef4444, #f87171);
+                /* Red */
+            }
+
+            .badge-sale span {
+                background: linear-gradient(45deg, #f59e0b, #fcd34d);
+                /* Amber */
+            }
+
+            .badge-best span {
+                background: linear-gradient(45deg, var(--accent), #e7c86a);
+                /* Gold */
+                color: var(--primary) !important;
             }
 
             /* Modal & Footer */
@@ -585,15 +622,79 @@
             }
 
             .search-form-hover:hover .search-input {
-                width: 200px; /* Chiều rộng khi bung ra */
+                width: 200px;
+                /* Chiều rộng khi bung ra */
                 padding: 8px 10px;
                 opacity: 1;
+            }
+
+            /* --- Scroll to Top Button --- */
+            #scrollTopBtn {
+                position: fixed;
+                bottom: 25px;
+                right: 25px;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                background: var(--primary);
+                color: white;
+                border: none;
+                z-index: 1000;
+                box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
+                transition: opacity 0.3s ease, transform 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+                text-decoration: none;
+                opacity: 0;
+                transform: translateY(20px);
+                visibility: hidden;
+            }
+
+            #scrollTopBtn.show {
+                opacity: 1;
+                transform: translateY(0);
+                visibility: visible;
+            }
+
+            #scrollTopBtn:hover {
+                background: var(--accent);
+                transform: translateY(-5px);
+                box-shadow: 0 12px 25px rgba(212, 175, 55, 0.3);
+            }
+
+            #scrollTopBtn:active {
+                transform: translateY(-2px) scale(0.95);
+                box-shadow: 0 5px 15px rgba(15, 23, 42, 0.2);
+            }
+
+            /* --- Snow Effect --- */
+            .snowflake {
+                position: fixed;
+                top: -10px;
+                background: white;
+                border-radius: 50%;
+                opacity: 0.7;
+                pointer-events: none;
+                z-index: 9999;
+                box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #b0e0e6;
+                animation: fall linear infinite;
+            }
+
+            @keyframes fall {
+                to {
+                    transform: translateY(105vh);
+                }
             }
         </style>
     </head>
 
     <body>
         <?php echo $swal_script; ?>
+
+        <!-- Container cho tuyết rơi (sẽ được tạo bằng JS) -->
+        <div id="snow-container"></div>
 
         <!-- Background Elements -->
         <div class="bg-blobs"></div>
@@ -679,15 +780,17 @@
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-panel mt-2" style="width: 300px;">
                                         <li class="px-3 py-2 fw-bold">Notifications</li>
-                                        <li><hr class="dropdown-divider m-0"></li>
+                                        <li>
+                                            <hr class="dropdown-divider m-0">
+                                        </li>
                                         <li><a class="dropdown-item py-2" href="#">
-                                            <small class="fw-bold">Đơn hàng #12345 đã được giao</small><br>
-                                            <small class="text-muted">15 phút trước</small>
-                                        </a></li>
+                                                <small class="fw-bold">Đơn hàng #12345 đã được giao</small><br>
+                                                <small class="text-muted">15 phút trước</small>
+                                            </a></li>
                                         <li><a class="dropdown-item py-2" href="#">
-                                            <small class="fw-bold">Khuyến mãi Black Friday sắp bắt đầu!</small><br>
-                                            <small class="text-muted">Hôm qua</small>
-                                        </a></li>
+                                                <small class="fw-bold">Khuyến mãi Black Friday sắp bắt đầu!</small><br>
+                                                <small class="text-muted">Hôm qua</small>
+                                            </a></li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown ms-2">
@@ -813,10 +916,28 @@
                     ['title' => 'History of Art', 'price' => '350.000', 'img' => 'img/new/4.jpg', 'tag' => 'BEST']
                 ];
                 foreach ($books as $idx => $book) {
+                    // Logic để thêm class màu cho badge
+                    $badge_class = '';
+                    switch (strtoupper($book['tag'])) {
+                        case 'NEW':
+                            $badge_class = 'badge-new';
+                            break;
+                        case 'HOT':
+                            $badge_class = 'badge-hot';
+                            break;
+                        case 'BEST':
+                            $badge_class = 'badge-best';
+                            break;
+                        default: // Mặc định cho các tag có % (giảm giá)
+                            if (strpos($book['tag'], '%') !== false) {
+                                $badge_class = 'badge-sale';
+                            }
+                            break;
+                    }
                 ?>
                     <div class="col-6 col-md-3">
                         <div class="book-card-glass h-100 d-flex flex-column">
-                            <div class="badge-glass"><?php echo $book['tag']; ?></div>
+                            <div class="badge-glass <?php echo $badge_class; ?>"><span><?php echo $book['tag']; ?></span></div>
                             <div class="book-img-wrapper">
                                 <img src="<?php echo $book['img']; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'" alt="Book">
                                 <div class="action-overlay">
@@ -1104,6 +1225,9 @@
             </div>
         </footer>
 
+        <!-- ============== Scroll to Top Button ==============-->
+        <a href="#" id="scrollTopBtn" title="Go to top"><i class="fas fa-arrow-up"></i></a>
+
         <!-- JS Bundle -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -1146,6 +1270,50 @@
                     },
                 }
             });
+
+            // Scroll to Top Button Logic
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 200) {
+                    scrollTopBtn.classList.add('show');
+                } else {
+                    scrollTopBtn.classList.remove('show');
+                }
+            });
+
+            scrollTopBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Snow Effect Logic
+            document.addEventListener('DOMContentLoaded', function() {
+                const snowContainer = document.getElementById('snow-container');
+                const numberOfSnowflakes = 100; // Bạn có thể tăng/giảm số lượng tuyết
+
+                for (let i = 0; i < numberOfSnowflakes; i++) {
+                    let snowflake = document.createElement('div');
+                    snowflake.className = 'snowflake';
+
+                    let size = Math.random() * 4 + 1; // Kích thước từ 1px đến 5px
+                    let left = Math.random() * 100; // Vị trí từ 0% đến 100%
+                    let duration = Math.random() * 5 + 5; // Thời gian rơi từ 5s đến 10s
+                    let delay = Math.random() * 5; // Độ trễ
+
+                    snowflake.style.width = `${size}px`;
+                    snowflake.style.height = `${size}px`;
+                    snowflake.style.left = `${left}vw`;
+                    snowflake.style.animationDuration = `${duration}s`;
+                    snowflake.style.animationDelay = `${delay}s`;
+
+                    snowContainer.appendChild(snowflake);
+                }
+            });
+
 
             window.addEventListener('scroll', function() {
                 const nav = document.querySelector('.navbar');
