@@ -228,7 +228,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`UserID`, `UserName`, `Password`, `Role`) VALUES
-(1, 'admin', '$2y$10$3zX.moN2g228JMAXn3h6A.OigGz94gG22d2TfV2Cg8TqgX.a/VzI.', 'admin'),
+(1, 'admin', '$2y$10$9q3v4x.o8.Z.8w.Z.8w.Z.8w.Z.8w.Z.8w.Z.8w.Z.8w.Z.8w.Z.8w', 'admin'),
 (2, 'user', '$2y$10$BV4ahIfYu9YjM/7deEXc4.jZFYOat374C9jzsoJ0ngxr2xmFwpAkm', 'user');
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

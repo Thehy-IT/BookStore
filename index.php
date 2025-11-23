@@ -591,6 +591,29 @@
                 color: var(--accent);
             }
 
+            /* --- Footer hover effect --- */
+            .footer-link:hover {
+                color: white !important;
+                padding-left: 5px;
+                transition: all 0.3s ease;
+            }
+
+            /* --- Social Media Icon Hover --- */
+            .social-icon {
+                transition: color 0.3s ease, transform 0.3s ease;
+                display: inline-block;
+                /* Needed for transform */
+            }
+
+            .social-icon:hover {
+                transform: scale(1.2);
+            }
+
+            .social-icon-facebook:hover { color: #1877F2 !important; }
+            .social-icon-instagram:hover { color: #E4405F !important; }
+            .social-icon-twitter:hover { color: #1DA1F2 !important; }
+            .social-icon-youtube:hover { color: #FF0000 !important; }
+
             /* --- Search bar hover effect --- */
             .search-form-hover {
                 position: relative;
@@ -1195,27 +1218,45 @@
 
             <div class="container position-relative z-2">
                 <div class="row gy-4">
-                    <div class="col-lg-4">
-                        <h3 class="text-white mb-3">BookZ.</h3>
-                        <p class="text-white-50">Premium bookstore designed for the modern reader.</p>
+                    <div class="col-lg-4 col-md-6">
+                        <a class="navbar-brand text-white fs-3" href="index.php">
+                            <i class="fas fa-book-open text-warning me-2"></i>
+                            <span>BOOK<span style="color: var(--accent)">Z</span></span>
+                        </a>
+                        <p class="text-white-50 mt-3">Khám phá thế giới tri thức với bộ sưu tập sách chọn lọc, mang đến trải nghiệm đọc cao cấp cho độc giả hiện đại.</p>
+                        <div class="mt-4">
+                            <a href="#" class="text-white-50 me-3 fs-5 social-icon social-icon-facebook" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="text-white-50 me-3 fs-5 social-icon social-icon-instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="text-white-50 me-3 fs-5 social-icon social-icon-twitter" title="Twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="text-white-50 fs-5 social-icon social-icon-youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        </div>
                     </div>
-                    <div class="col-lg-2 col-6">
+                    <div class="col-lg-2 col-6 offset-lg-1">
                         <h5 class="text-warning mb-3">Shop</h5>
                         <ul class="list-unstyled text-white-50">
-                            <li><a href="#" class="text-decoration-none text-white-50 hover-white">New Arrivals</a></li>
+                            <li class="mb-2"><a href="#new" class="text-decoration-none text-white-50 footer-link">Sách mới</a></li>
+                            <li class="mb-2"><a href="#bestseller" class="text-decoration-none text-white-50 footer-link">Bán chạy</a></li>
+                            <li class="mb-2"><a href="#deals" class="text-decoration-none text-white-50 footer-link">Khuyến mãi</a></li>
+                            <li class="mb-2"><a href="Product.php" class="text-decoration-none text-white-50 footer-link">Tất cả sách</a></li>
                         </ul>
                     </div>
                     <div class="col-lg-2 col-6">
                         <h5 class="text-warning mb-3">Support</h5>
                         <ul class="list-unstyled text-white-50">
-                            <li><a href="#" class="text-decoration-none text-white-50 hover-white">Help Center</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-white-50 footer-link">Về BookZ</a></li>
+                            <li class="mb-2"><a href="#contact" class="text-decoration-none text-white-50 footer-link">Liên hệ</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-white-50 footer-link">FAQs</a></li>
+                            <li class="mb-2"><a href="#" class="text-decoration-none text-white-50 footer-link">Chính sách</a></li>
                         </ul>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-3 col-md-6">
                         <h5 class="text-warning mb-3">Newsletter</h5>
-                        <form class="input-group bg-white bg-opacity-10 rounded-pill p-1 border border-secondary">
-                            <input type="email" class="form-control bg-transparent border-0 text-white" placeholder="Email">
-                            <button class="btn btn-light rounded-pill px-4 fw-bold">Join</button>
+                        <p class="text-white-50 small">Đăng ký để nhận thông tin sách mới và ưu đãi độc quyền.</p>
+                        <form class="input-group mt-3">
+                            <input type="email" class="form-control bg-white bg-opacity-10 border-0 text-white" placeholder="Nhập email của bạn..." style="border-radius: 50px 0 0 50px;">
+                            <button class="btn btn-warning" type="button" style="border-radius: 0 50px 50px 0;">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
                         </form>
                     </div>
                 </div>
