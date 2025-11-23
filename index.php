@@ -74,6 +74,19 @@
             }
         }
     }
+
+    // --- Lấy danh sách thể loại tự động từ cơ sở dữ liệu cho menu ---
+    $categories_menu = [];
+    $sql_categories_menu = "SELECT DISTINCT Category FROM products WHERE Category IS NOT NULL AND Category != '' ORDER BY Category ASC";
+    $result_categories_menu = mysqli_query($con, $sql_categories_menu);
+    if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
+        while ($row_cat_menu = mysqli_fetch_assoc($result_categories_menu)) {
+            // Ở đây, chúng ta có thể tạo một mảng ánh xạ từ tên tiếng Anh sang tiếng Việt nếu cần
+            // Ví dụ: $display_name = $translations[$row_cat_menu['Category']] ?? $row_cat_menu['Category'];
+            // Tạm thời, ta sẽ dùng trực tiếp tên từ DB
+            $categories_menu[$row_cat_menu['Category']] = $row_cat_menu['Category'];
+        }
+    }
     ?>
 
     <!DOCTYPE html>
@@ -769,13 +782,13 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Thể loại</a>
                                 <ul class="dropdown-menu glass-panel border-0 shadow-lg">
-                                    <li><a class="dropdown-item" href="Product.php?value=Literature and Fiction">Văn học & Hư cấu</a></li>
-                                    <li><a class="dropdown-item" href="Product.php?value=Biographies and Auto Biographies">Tiểu sử & Tự truyện</a></li>
-                                    <li><a class="dropdown-item" href="Product.php?value=Academic and Professional">Học thuật & Chuyên ngành</a></li>
-                                    <li><a class="dropdown-item" href="Product.php?value=Business and Management">Kinh doanh & Quản lý</a></li>
-                                    <li><a class="dropdown-item" href="Product.php?value=Children and Teens">Sách thiếu nhi</a></li>
-                                    <li><a class="dropdown-item" href="Product.php?value=Health and Cooking">Sức khỏe & Nấu ăn</a></li>
-                                    <li><a class="dropdown-item" href="Product.php?value=Regional Books">Sách tiếng Việt</a></li>
+                                    <?php
+                                    // Sử dụng mảng categories_menu vừa lấy được
+                                    foreach ($categories_menu as $cat_slug => $cat_name) {
+                                        // Lưu ý: param trên URL là 'category', không phải 'value'
+                                        echo '<li><a class="dropdown-item" href="Product.php?category=' . urlencode($cat_slug) . '">' . htmlspecialchars($cat_name) . '</a></li>';
+                                    }
+                                    ?>
                                 </ul>
                             </li>
                             <li class="nav-item"><a class="nav-link" href="#new">Sách mới</a></li>

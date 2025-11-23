@@ -36,6 +36,22 @@ $this_page_first_result = ($page - 1) * $results_per_page;
 
 $sql .= " LIMIT " . $this_page_first_result . ',' . $results_per_page;
 $result = mysqli_query($con, $sql);
+
+// --- Lấy danh sách thể loại tự động từ cơ sở dữ liệu ---
+$categories = [];
+$sql_categories = "SELECT DISTINCT Category FROM products WHERE Category IS NOT NULL AND Category != '' ORDER BY Category ASC";
+$result_categories = mysqli_query($con, $sql_categories);
+if ($result_categories && mysqli_num_rows($result_categories) > 0) {
+    while ($row_cat = mysqli_fetch_assoc($result_categories)) {
+        // Sử dụng tên thể loại làm cả key và value để tương thích với code hiện tại
+        // Giả định tên thể loại trong DB là tiếng Anh, và chúng ta sẽ hiển thị nó
+        // Nếu bạn có bảng riêng cho thể loại với tên Tiếng Việt, logic sẽ khác
+        $categories[$row_cat['Category']] = $row_cat['Category'];
+    }
+}
+
+// Lấy category hiện tại từ URL để đánh dấu 'active'
+$current_category = isset($_GET['category']) ? $_GET['category'] : '';
 ?>
 
 <!DOCTYPE html>
@@ -335,13 +351,11 @@ $result = mysqli_query($con, $sql);
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">Thể loại</a>
                             <ul class="dropdown-menu glass-panel border-0 shadow-lg">
-                                <li><a class="dropdown-item" href="Product.php?category=Literature and Fiction">Văn học & Hư cấu</a></li>
-                                <li><a class="dropdown-item" href="Product.php?category=Biographies and Auto Biographies">Tiểu sử & Tự truyện</a></li>
-                                <li><a class="dropdown-item" href="Product.php?category=Academic and Professional">Học thuật & Chuyên ngành</a></li>
-                                <li><a class="dropdown-item" href="Product.php?category=Business and Management">Kinh doanh & Quản lý</a></li>
-                                <li><a class="dropdown-item" href="Product.php?category=Children and Teens">Sách thiếu nhi</a></li>
-                                <li><a class="dropdown-item" href="Product.php?category=Health and Cooking">Sức khỏe & Nấu ăn</a></li>
-                                <li><a class="dropdown-item" href="Product.php?category=Regional Books">Sách tiếng Việt</a></li>
+                                <?php
+                                foreach ($categories as $cat_slug => $cat_name) {
+                                    echo '<li><a class="dropdown-item" href="Product.php?category=' . urlencode($cat_slug) . '">' . $cat_name . '</a></li>';
+                                }
+                                ?>
                             </ul>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="index.php#new">Sách mới</a></li>
@@ -427,10 +441,9 @@ $result = mysqli_query($con, $sql);
                     <div class="mb-4">
                         <h6 class="fw-bold mb-3">Thể Loại</h6>
                         <?php
-                        $cats = ["Literature and Fiction", "Academic and Professional", "Business and Management", "Children and Teens", "Health and Cooking", "Regional Books"];
-                        foreach ($cats as $c) {
-                            $active = (isset($_GET['category']) && str_replace(' ', '', strtolower($_GET['category'])) == str_replace(' ', '', strtolower($c))) ? 'fw-bold text-primary' : 'text-muted';
-                            echo '<div class="mb-2"><a href="Product.php?category=' . urlencode($c) . '" class="text-decoration-none ' . $active . ' d-flex justify-content-between"><span>' . $c . '</span> <small class="bg-white px-2 rounded-pill shadow-sm">' . rand(10, 50) . '</small></a></div>';
+                        foreach ($categories as $cat_slug => $cat_name) {
+                            $active_class = ($current_category == $cat_slug) ? 'fw-bold text-primary' : 'text-muted';
+                            echo '<div class="mb-2"><a href="Product.php?category=' . urlencode($cat_slug) . '" class="text-decoration-none ' . $active_class . ' d-flex justify-content-between"><span>' . $cat_name . '</span> <small class="bg-white px-2 rounded-pill shadow-sm">' . rand(10, 50) . '</small></a></div>';
                         }
                         ?>
                     </div>
@@ -657,7 +670,6 @@ $result = mysqli_query($con, $sql);
             .btn-primary-glass:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3); }
         `;
         document.head.appendChild(style);
-
     </script>
 </body>
 
