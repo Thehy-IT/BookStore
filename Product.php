@@ -315,22 +315,81 @@ $result = mysqli_query($con, $sql);
 
     <div class="bg-decoration"></div>
 
-    <!-- Navbar Minimal -->
-    <nav class="navbar navbar-expand-lg navbar-glass">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.php"><i class="fas fa-book-open text-warning me-2"></i>BOOKZ</a>
-            <div class="d-flex align-items-center gap-3">
-                <a href="index.php" class="text-dark text-decoration-none fw-medium">Trang chủ</a>
-                <a href="cart.php" class="btn btn-outline-dark rounded-circle position-relative" style="width:40px;height:40px;padding:0;display:grid;place-items:center;">
-                    <i class="fas fa-shopping-bag"></i>
-                    <!-- Badge số lượng -->
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.6rem;">
-                        <?php echo isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0; ?>
-                    </span>
+    <!-- ============== Navbar (from index.php) ==============-->
+    <header class="header-container navbar-glass">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="index.php">
+                    <i class="fas fa-book-open text-warning me-2"></i>
+                    <span>BOOK<span style="color: var(--accent)">Z</span></span>
                 </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navContent">
+                    <!-- Menu chính -->
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item"><a class="nav-link" href="index.php">Trang chủ</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">Thể loại</a>
+                            <ul class="dropdown-menu glass-panel border-0 shadow-lg">
+                                <li><a class="dropdown-item" href="Product.php?category=Literature and Fiction">Văn học & Hư cấu</a></li>
+                                <li><a class="dropdown-item" href="Product.php?category=Biographies and Auto Biographies">Tiểu sử & Tự truyện</a></li>
+                                <li><a class="dropdown-item" href="Product.php?category=Academic and Professional">Học thuật & Chuyên ngành</a></li>
+                                <li><a class="dropdown-item" href="Product.php?category=Business and Management">Kinh doanh & Quản lý</a></li>
+                                <li><a class="dropdown-item" href="Product.php?category=Children and Teens">Sách thiếu nhi</a></li>
+                                <li><a class="dropdown-item" href="Product.php?category=Health and Cooking">Sức khỏe & Nấu ăn</a></li>
+                                <li><a class="dropdown-item" href="Product.php?category=Regional Books">Sách tiếng Việt</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="index.php#new">Sách mới</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.php#bestseller">Bán chạy</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.php#deals">Khuyến mãi</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.php#news">Tin tức</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.php#contact">Liên hệ</a></li>
+                    </ul>
+
+                    <!-- User Actions -->
+                    <ul class="navbar-nav ms-auto flex-row align-items-center">
+                        <!-- Search Icon with Hover Effect -->
+                        <li class="nav-item me-2">
+                            <form action="Result.php" method="POST" class="search-form-hover">
+                                <input type="search" name="keyword" class="search-input" placeholder="Tìm kiếm sách...">
+                                <button type="submit" class="search-button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
+                        </li>
+
+                        <?php if (!isset($_SESSION['user'])): ?>
+                            <li class="nav-item"><button class="btn btn-primary-glass btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">Sign In</button></li>
+                        <?php else: ?>
+                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
+                                <li class="nav-item"><a href="admin.php" class="btn btn-warning btn-sm rounded-pill fw-bold shadow-sm px-3"><i class="fas fa-user-shield me-1"></i> Admin</a></li>
+                            <?php else: ?>
+                                <li class="nav-item"><a href="wishlist.php" class="btn btn-outline-dark rounded-circle border-0" style="width:40px; height:40px;" title="Wishlist"><i class="fas fa-heart"></i></a></li>
+                                <li class="nav-item ms-1"><a href="cart.php" class="btn btn-outline-dark rounded-circle position-relative border-0" style="width:40px; height:40px;"><i class="fas fa-shopping-bag"></i></a></li>
+                            <?php endif; ?>
+                            <li class="nav-item dropdown ms-2">
+                                <a class="nav-link dropdown-toggle p-0" href="#" role="button" data-bs-toggle="dropdown">
+                                    <img src="https://ui-avatars.com/api/?name=<?php echo $_SESSION['user']; ?>&background=random" class="rounded-circle" width="35">
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-panel mt-2">
+                                    <li><span class="dropdown-item-text text-muted small">Signed in as<br><strong class="text-dark"><?php echo $_SESSION['user']; ?></strong></span></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item text-danger" href="destroy.php">Logout</a></li>
+                                </ul>
+                            </li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
     <!-- Header Banner -->
     <div class="container mt-4">
@@ -338,7 +397,7 @@ $result = mysqli_query($con, $sql);
             style="background: linear-gradient(135deg, #0f172a 0%, #334155 100%);">
             <div class="position-relative z-2">
                 <h1 class="display-5 fw-bold font-playfair">Khám Phá Tri Thức</h1>
-                <p class="lead opacity-75">Hàng ngàn đầu sách đang chờ bạn.</p>
+                <p class="lead opacity-75 col-md-8">Hàng ngàn đầu sách thuộc mọi lĩnh vực đang chờ bạn khám phá.</p>
             </div>
             <i class="fas fa-book-reader position-absolute bottom-0 end-0 mb-n4 me-n4 opacity-10" style="font-size: 15rem; transform: rotate(-15deg);"></i>
         </div>
@@ -359,7 +418,7 @@ $result = mysqli_query($con, $sql);
                     <!-- Search -->
                     <form action="Product.php" method="GET" class="mb-4">
                         <div class="input-group">
-                            <input type="text" name="keyword" class="form-control border-end-0 bg-light" placeholder="Tìm tên sách..." value="<?php echo isset($_GET['keyword']) ? $_GET['keyword'] : ''; ?>">
+                            <input type="text" name="keyword" class="form-control border-end-0 bg-light" placeholder="Tìm trong trang..." value="<?php echo isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : ''; ?>">
                             <button class="btn btn-light border border-start-0" type="submit"><i class="fas fa-search text-muted"></i></button>
                         </div>
                     </form>
@@ -368,9 +427,9 @@ $result = mysqli_query($con, $sql);
                     <div class="mb-4">
                         <h6 class="fw-bold mb-3">Thể Loại</h6>
                         <?php
-                        $cats = ["Literature and Fiction", "Academic", "Business", "Children", "Health", "Regional"];
+                        $cats = ["Literature and Fiction", "Academic and Professional", "Business and Management", "Children and Teens", "Health and Cooking", "Regional Books"];
                         foreach ($cats as $c) {
-                            $active = (isset($_GET['category']) && $_GET['category'] == $c) ? 'fw-bold text-primary' : 'text-muted';
+                            $active = (isset($_GET['category']) && str_replace(' ', '', strtolower($_GET['category'])) == str_replace(' ', '', strtolower($c))) ? 'fw-bold text-primary' : 'text-muted';
                             echo '<div class="mb-2"><a href="Product.php?category=' . urlencode($c) . '" class="text-decoration-none ' . $active . ' d-flex justify-content-between"><span>' . $c . '</span> <small class="bg-white px-2 rounded-pill shadow-sm">' . rand(10, 50) . '</small></a></div>';
                         }
                         ?>
@@ -582,6 +641,23 @@ $result = mysqli_query($con, $sql);
             var myModal = new bootstrap.Modal(document.getElementById('quickViewModal'));
             myModal.show();
         }
+
+        // Thêm các style cần thiết cho header mới
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .header-container { position: sticky; top: 0; z-index: 1030; transition: all 0.3s ease; }
+            .search-form-hover { position: relative; display: flex; align-items: center; transition: all 0.4s ease; }
+            .search-form-hover .search-input { width: 0; padding: 8px 0; border: none; border-bottom: 2px solid var(--primary); background-color: transparent; outline: none; font-size: 1rem; color: var(--primary); transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); opacity: 0; }
+            .search-form-hover .search-button { background: transparent; border: none; font-size: 1.2rem; color: var(--primary); cursor: pointer; padding: 8px; }
+            .search-form-hover:hover .search-input { width: 200px; padding: 8px 10px; opacity: 1; }
+            .nav-link { font-weight: 600; color: var(--primary) !important; position: relative; padding: 10px 15px !important; border-radius: 8px; transition: all 0.3s; }
+            .nav-link:hover, .nav-link.active { background: rgba(0, 0, 0, 0.05); color: var(--accent) !important; }
+            .dropdown-menu.glass-panel { background: var(--glass-bg); backdrop-filter: blur(16px); border: var(--glass-border); box-shadow: var(--glass-shadow); }
+            .btn-primary-glass { background: var(--primary); color: white; border-radius: 50px; padding: 5px 20px; font-weight: 600; transition: 0.3s; box-shadow: 0 5px 15px rgba(15, 23, 42, 0.2); border: none; }
+            .btn-primary-glass:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3); }
+        `;
+        document.head.appendChild(style);
+
     </script>
 </body>
 
