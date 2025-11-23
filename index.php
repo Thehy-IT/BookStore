@@ -634,23 +634,33 @@
 
             /* --- Search bar hover effect --- */
             .search-form-hover {
-                position: relative;
                 display: flex;
                 align-items: center;
                 transition: all 0.4s ease;
+                position: relative;
+                /* Làm mốc cho input con */
             }
 
             .search-form-hover .search-input {
-                width: 0;
-                padding: 8px 0;
+                position: absolute;
+                /* Nổi lên trên, không chiếm không gian */
+                right: 100%;
+                /* Bắt đầu từ bên phải của form */
+                top: 50%;
+                transform: translateY(-50%) scaleX(0);
+                /* Ẩn bằng cách co lại theo chiều ngang */
+                transform-origin: right;
+                /* Hiệu ứng bung ra từ bên phải */
+                width: 95px;
+                /* Chiều rộng cố định (bạn có thể thay đổi giá trị này) */
                 border: none;
                 border-bottom: 2px solid var(--primary);
                 background-color: transparent;
                 outline: none;
                 font-size: 1rem;
                 color: var(--primary);
-                transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-                opacity: 0;
+                transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+                padding: 8px 10px;
             }
 
             .search-form-hover .search-button {
@@ -663,10 +673,8 @@
             }
 
             .search-form-hover:hover .search-input {
-                width: 200px;
-                /* Chiều rộng khi bung ra */
-                padding: 8px 10px;
-                opacity: 1;
+                transform: translateY(-50%) scaleX(1);
+                /* Hiện ra bằng cách giãn ra */
             }
 
             /* --- Scroll to Top Button --- */
@@ -782,7 +790,7 @@
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
-                                    <li><a class="dropdown-item" href="authors.php">Xem tất cả tác giả</a></li>
+                                    <li><a class="dropdown-item" href="author.php">Xem tất cả tác giả</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item"><a class="nav-link" href="#deals">Khuyến mãi</a></li>
