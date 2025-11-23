@@ -227,17 +227,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 INSERT INTO `users` (`UserName`, `Password`) VALUES
 ('suyash', 'gulati'),
-('shivangi', 'gupta'),
-('nimisha', 'sehgal'),
-('avaleen', 'kaur'),
-('ankita', 'negi'),
-('astha', 'bhargav'),
-('avani', 'khurana'),
-('shikhar', 'gupta'),
-('rakhi', 'gupta'),
-('saurabh', 'saha'),
-('suyashgulati', 's19'),
-('a', 'a');
+('hy', 'hy');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
