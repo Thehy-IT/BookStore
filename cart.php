@@ -16,16 +16,6 @@ $user_id = $_SESSION['user_id'];
 
 // --- XỬ LÝ LOGIC ---
 
-// NEW: Xử lý xóa tất cả sản phẩm
-if (isset($_GET['clear_all']) && $_GET['clear_all'] == 'true') {
-    $delete_all_stmt = $con->prepare("DELETE FROM cart WHERE UserID = ?");
-    $delete_all_stmt->bind_param("i", $user_id);
-    if ($delete_all_stmt->execute()) {
-        header("Location: cart.php?action=cleared");
-        exit();
-    }
-}
-
 // 2. Xử lý thêm/cập nhật sản phẩm từ các trang khác (ví dụ: description.php)
 if (isset($_GET['ID']) && isset($_GET['quantity'])) {
     $product_id = $_GET['ID'];
@@ -66,9 +56,6 @@ if (isset($_GET['action'])) {
             break;
         case 'placed':
             $swal_script = "Swal.fire({icon: 'success', title: 'Đặt hàng thành công!', text: 'Cảm ơn bạn! Chúng tôi sẽ sớm liên hệ để xác nhận đơn hàng.', confirmButtonColor: '#0f172a'});";
-            break;
-        case 'cleared':
-            $swal_script = set_swal('success', 'Đã xóa tất cả sản phẩm!', '', true);
             break;
     }
 }
@@ -299,7 +286,7 @@ while ($row = $result->fetch_assoc()) {
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "cart.php?clear_all=true";
+                window.location.href = "cart_action.php?action=clear_all";
             }
         });
     }

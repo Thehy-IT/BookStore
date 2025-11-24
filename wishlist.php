@@ -1,6 +1,7 @@
 <?php
 include 'header.php'; // Sử dụng header chung
 
+
 // 1. Kiểm tra đăng nhập
 if (!isset($_SESSION['user_id'])) {
     // Nếu chưa đăng nhập, hiển thị thông báo và yêu cầu đăng nhập
@@ -14,57 +15,15 @@ if (!isset($_SESSION['user_id'])) {
 }
 $user_id = $_SESSION['user_id'];
 
-// 3. Xử lý Logic: XÓA SẢN PHẨM KHỎI WISHLIST
-if (isset($_GET['remove'])) {
-    $product_id = $_GET['remove'];
-    $delete_stmt = $con->prepare("DELETE FROM wishlist WHERE UserID = ? AND ProductID = ?");
-    $delete_stmt->bind_param("is", $user_id, $product_id);
-    if ($delete_stmt->execute()) {
-        header("Location: wishlist.php?action=removed");
-        exit();
-    }
-}
-
-// 3.2. Xử lý Logic: XÓA TẤT CẢ SẢN PHẨM KHỎI WISHLIST
-if (isset($_GET['clear_all']) && $_GET['clear_all'] == 'true') {
-    $delete_all_stmt = $con->prepare("DELETE FROM wishlist WHERE UserID = ?");
-    $delete_all_stmt->bind_param("i", $user_id);
-    if ($delete_all_stmt->execute()) {
-        header("Location: wishlist.php?action=cleared");
-        exit();
-    }
-}
-
-
-// 3.5. Xử lý Logic: THÊM SẢN PHẨM VÀO GIỎ HÀNG TỪ WISHLIST
-if (isset($_GET['add_to_cart'])) {
-    $product_id = $_GET['add_to_cart'];
-    $quantity = 1; // Mặc định thêm 1 sản phẩm
-
-    // Logic mới: Tương tác với CSDL thay vì session
-    // 1. Kiểm tra xem sản phẩm đã có trong giỏ hàng của người dùng chưa
-    $check_cart_stmt = $con->prepare("SELECT Quantity FROM cart WHERE UserID = ? AND ProductID = ?");
-    $check_cart_stmt->bind_param("is", $user_id, $product_id);
-    $check_cart_stmt->execute();
-    $cart_result = $check_cart_stmt->get_result();
-
-    if ($cart_result->num_rows > 0) {
-        // Nếu đã có, cập nhật số lượng (cộng thêm 1)
-        $row = $cart_result->fetch_assoc();
-        $new_quantity = $row['Quantity'] + $quantity;
-        $update_cart_stmt = $con->prepare("UPDATE cart SET Quantity = ? WHERE UserID = ? AND ProductID = ?");
-        $update_cart_stmt->bind_param("iis", $new_quantity, $user_id, $product_id);
-        $update_cart_stmt->execute();
-    } else {
-        // Nếu chưa có, thêm mới vào giỏ hàng
-        $insert_cart_stmt = $con->prepare("INSERT INTO cart (UserID, ProductID, Quantity) VALUES (?, ?, ?)");
-        $insert_cart_stmt->bind_param("isi", $user_id, $product_id, $quantity);
-        $insert_cart_stmt->execute();
-    }
-
-    // Chuyển hướng lại trang wishlist để hiển thị thông báo
-    header("Location: wishlist.php?action=cart_added");
-    exit();
+// Hiển thị thông báo flash nếu có (chuyển xuống sau khi kiểm tra login)
+if (isset($_SESSION['flash_message'])) {
+    $swal_script = set_swal(
+        $_SESSION['flash_type'],
+        'Thông báo',
+        $_SESSION['flash_message']
+    );
+    echo $swal_script;
+    unset($_SESSION['flash_message'], $_SESSION['flash_type']);
 }
 
 ?>
@@ -159,6 +118,7 @@ if (isset($_GET['add_to_cart'])) {
         <div class="d-flex align-items-center">
             <?php if ($wishlist_result->num_rows > 0) : ?>
                 <button onclick="confirmClearAll()" class="btn btn-outline-danger rounded-pill me-2"><i class="fas fa-trash-alt me-1"></i> Xóa tất cả</button>
+                <a href="wishlist_action.php?action=add_all_to_cart" class="btn btn-primary rounded-pill me-2"><i class="fas fa-cart-plus me-1"></i> Thêm tất cả vào giỏ</a>
             <?php endif; ?>
             <a href="index.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Quay lại cửa hàng</a>
         </div>
@@ -179,9 +139,9 @@ if (isset($_GET['add_to_cart'])) {
                         <p class="text-muted small mb-2"><i class="fas fa-pen-nib me-1"></i> <?php echo htmlspecialchars($row['Author']); ?></p>
                         <div class="price-tag mb-3"><?php echo number_format($row['Price']); ?> đ</div>
 
-                        <div class="card-footer-actions d-flex gap-2">
-                            <a href="wishlist.php?add_to_cart=<?php echo $row['PID']; ?>" class="btn btn-sm btn-primary flex-grow-1"><i class="fas fa-cart-plus"></i></a>
-                            <a href="wishlist.php?remove=<?php echo $row['PID']; ?>" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash-alt"></i></a>
+                        <div class="card-footer-actions d-flex gap-2" style="z-index: 2; position: relative;">
+                            <a href="wishlist_action.php?action=add_to_cart&id=<?php echo $row['PID']; ?>" class="btn btn-sm btn-primary flex-grow-1" title="Thêm vào giỏ hàng"><i class="fas fa-cart-plus"></i></a>
+                            <a href="wishlist_action.php?action=remove&id=<?php echo $row['PID']; ?>" class="btn btn-sm btn-outline-danger" title="Xóa khỏi danh sách yêu thích"><i class="fas fa-trash-alt"></i></a>
                         </div>
                     </div>
                 </div>
@@ -214,7 +174,7 @@ if (isset($_GET['add_to_cart'])) {
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "wishlist.php?clear_all=true";
+                window.location.href = "wishlist_action.php?action=clear_all";
             }
         })
     }
