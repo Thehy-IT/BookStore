@@ -20,6 +20,58 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 }
 ?>
 
+<!-- ============== Snow Effect ==============-->
+<div id="snow-container"></div>
+<style>
+    #snow-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 9999;
+        overflow: hidden;
+    }
+
+    .snowflake {
+        position: absolute;
+        top: -10px;
+        background-color: white;
+        border-radius: 50%;
+        opacity: 0.7;
+        animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+        0% {
+            transform: translateY(0) translateX(0);
+        }
+        100% {
+            transform: translateY(105vh) translateX(var(--drift));
+        }
+    }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const snowContainer = document.getElementById('snow-container');
+    const numberOfSnowflakes = 150; // Bạn có thể điều chỉnh số lượng bông tuyết
+
+    for (let i = 0; i < numberOfSnowflakes; i++) {
+        const snowflake = document.createElement('div');
+        const size = Math.random() * 4 + 1; // Kích thước từ 1px đến 5px
+        snowflake.className = 'snowflake';
+        snowflake.style.width = `${size}px`;
+        snowflake.style.height = `${size}px`;
+        snowflake.style.left = `${Math.random() * 100}%`;
+        snowflake.style.animationDuration = `${Math.random() * 10 + 5}s`; // Thời gian rơi từ 5s đến 15s
+        snowflake.style.animationDelay = `${Math.random() * 5}s`;
+        snowflake.style.setProperty('--drift', `${Math.random() * 200 - 100}px`); // Độ bay ngang
+        snowContainer.appendChild(snowflake);
+    }
+});
+</script>
+
 <style>
     /* CSS cho hiệu ứng Marquee */
     .marquee-container {
