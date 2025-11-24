@@ -117,9 +117,20 @@
                     opacity: 0.7;
                 }
 
-                .newsletter-input::-webkit-input-placeholder { color: #ffffff !important; opacity: 0.7; }
-                .newsletter-input::-moz-placeholder { color: #ffffff !important; opacity: 0.7; }
-                .newsletter-input:-ms-input-placeholder { color: #ffffff !important; opacity: 0.7; }
+                .newsletter-input::-webkit-input-placeholder {
+                    color: #ffffff !important;
+                    opacity: 0.7;
+                }
+
+                .newsletter-input::-moz-placeholder {
+                    color: #ffffff !important;
+                    opacity: 0.7;
+                }
+
+                .newsletter-input:-ms-input-placeholder {
+                    color: #ffffff !important;
+                    opacity: 0.7;
+                }
             </style>
 
             <div class="container position-relative z-2">
@@ -418,7 +429,11 @@
                 document.getElementById('qv-desc').innerText = bookData.Description || 'Sản phẩm này chưa có mô tả.';
 
                 // Cập nhật link
-                document.getElementById('qv-add-cart').href = 'cart.php?ID=' + bookData.PID + '&quantity=1';
+                const qvAddCartBtn = document.getElementById('qv-add-cart');
+                qvAddCartBtn.removeAttribute('href'); // Xóa href để tránh điều hướng
+                qvAddCartBtn.onclick = function() {
+                    addToCartAjax(bookData.PID, 1);
+                };
                 document.getElementById('qv-detail').href = 'description.php?ID=' + bookData.PID;
 
                 // Hiển thị modal

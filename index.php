@@ -219,19 +219,35 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
     <div class="row g-4 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5" id="new-arrivals-grid">
         <style>
             @keyframes shake {
-                0%, 100% { transform: translateX(0) scale(1.1); }
-                25% { transform: translateX(-2px) scale(1.1); }
-                50% { transform: translateX(2px) scale(1.1); }
-                75% { transform: translateX(-2px) scale(1.1); }
+
+                0%,
+                100% {
+                    transform: translateX(0) scale(1.1);
+                }
+
+                25% {
+                    transform: translateX(-2px) scale(1.1);
+                }
+
+                50% {
+                    transform: translateX(2px) scale(1.1);
+                }
+
+                75% {
+                    transform: translateX(-2px) scale(1.1);
+                }
             }
+
             .book-card-glass .btn-icon {
                 transition: all 0.3s ease;
             }
+
             .book-card-glass .btn-icon:hover {
                 transform: scale(1.1);
                 animation: shake 0.4s ease-in-out;
                 background: var(--accent);
             }
+
             .book-card-glass .btn-icon:hover i {
                 color: white !important;
             }
@@ -264,7 +280,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                     <div class="book-img-wrapper">
                         <img src="<?php echo $img_path; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'" alt="<?php echo htmlspecialchars($book['Title']); ?>">
                         <div class="action-overlay">
-                            <a href="cart.php?ID=<?php echo $pid; ?>&quantity=1" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
+                            <button onclick="addToCartAjax('<?php echo $pid; ?>', 1)" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></button>
                             <button onclick='openQuickView(<?php echo json_encode($book); ?>)' class="btn-icon" title="Xem nhanh"><i class="fas fa-eye"></i></button>
                             <button onclick="addToWishlist('<?php echo $pid; ?>')" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></button>
                         </div>
