@@ -196,6 +196,14 @@
         <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
         <script>
+            // Preloader Logic
+            window.addEventListener('load', function() {
+                const preloader = document.getElementById('preloader');
+                if (preloader) {
+                    preloader.classList.add('hidden');
+                }
+            });
+
             const swiper = new Swiper('.hero-slider', {
                 effect: 'fade',
                 loop: true,
@@ -284,10 +292,13 @@
 
             window.addEventListener('scroll', function() {
                 const nav = document.getElementById('mainNavbar');
+                const headerContainer = nav.closest('.header-container');
                 if (window.scrollY > 50) {
                     nav.classList.add('scrolled');
+                    headerContainer.classList.add('scrolled');
                 } else {
                     nav.classList.remove('scrolled');
+                    headerContainer.classList.remove('scrolled');
                 }
             });
 

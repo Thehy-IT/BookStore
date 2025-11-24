@@ -7,28 +7,105 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 }
 ?>
 
+<style>
+    /* CSS cho hiệu ứng Marquee */
+    .marquee-container {
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        padding: 5px 0;
+    }
+
+    .marquee-track {
+        display: flex;
+        width: fit-content;
+        will-change: transform;
+    }
+
+    .marquee-track-rtl {
+        animation: scroll-rtl 30s linear infinite;
+    }
+
+    .marquee-track-ltr {
+        animation: scroll-ltr 35s linear infinite;
+    }
+
+    .marquee-container:hover .marquee-track {
+        animation-play-state: paused;
+    }
+
+    @keyframes scroll-rtl {
+        from {
+            transform: translateX(0);
+        }
+
+        to {
+            transform: translateX(-50%);
+        }
+    }
+
+    @keyframes scroll-ltr {
+        from {
+            transform: translateX(-50%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    .marquee-track .btn {
+        flex-shrink: 0;
+        margin: 0 5px;
+    }
+</style>
+
 <!-- ============== Hero Section ==============-->
 <div class="container hero-wrapper">
     <div class="row g-4 align-items-center">
         <div class="col-lg-4">
             <div class="p-4">
                 <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill">Bán Chạy Nhất 2025</span>
-                <h1 class="display-4 fw-bold mb-3">Khám Phá Cuốn Sách <span style="color: var(--accent); font-style: italic;">Tuyệt Vời Tiếp Theo</span></h1>
+                <h1 class="display-4 fw-bold mb-3">Khám Phá Cuốn Sách <span style="color: var(--accent); font-style: italic;">Tuyệt Vời</span></h1>
                 <p class="lead text-muted mb-4">Khám phá bộ sưu tập sách cao cấp được tuyển chọn của chúng tôi từ khắp nơi trên thế giới.</p>
                 <a href="#new" class="btn btn-primary-glass btn-lg">Khám Phá Ngay <i class="fas fa-arrow-right ms-2"></i></a>
-                <div class="d-flex flex-wrap gap-2 mt-5">
-                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Tiểu Thuyết</a>
-                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa Học</a>
-                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Lịch Sử</a>
-                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">văn học</a>
-                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">hoạt hình</a>
-                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">kinh dị</a>
-                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">kinh doanh</a>
-                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">triết học</a>
-                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">du lịch</a>
-                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">nấu ăn</a>
-                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">thể dục</a>
-                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">khoa học viễn tưởng</a>
+                <div class="mt-5">
+                    <!-- Hàng 1: 6 nút, chạy từ phải sang trái -->
+                    <div class="marquee-container mb-2">
+                        <div class="marquee-track marquee-track-rtl">
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Tiểu Thuyết</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa Học</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Lịch Sử</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Văn Học</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Hoạt Hình</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Kinh Dị</a>
+                            <!-- Lặp lại để tạo hiệu ứng liền mạch -->
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Tiểu Thuyết</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa Học</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Lịch Sử</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Văn Học</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Hoạt Hình</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Kinh Dị</a>
+                        </div>
+                    </div>
+                    <!-- Hàng 2: Các nút còn lại, chạy từ trái sang phải -->
+                    <div class="marquee-container">
+                        <div class="marquee-track marquee-track-ltr">
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Kinh Doanh</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Triết Học</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Du Lịch</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Nấu Ăn</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Thể Dục</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa Học Viễn Tưởng</a>
+                            <!-- Lặp lại để tạo hiệu ứng liền mạch -->
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Kinh Doanh</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Triết Học</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Du Lịch</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Nấu Ăn</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Thể Dục</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa Học Viễn Tưởng</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -90,7 +167,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
     <div class="row g-4">
         <?php
         $cats = [
-            ['icon' => 'fa-book-open', 'title' => 'Tiểu thuyết', 'slug' => 'fiction','bg' => 'img/new/th1.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-book-open', 'title' => 'Tiểu thuyết', 'slug' => 'fiction', 'bg' => 'img/new/th1.jpg', 'text_color' => '#c8dcdaff'],
             ['icon' => 'fa-brain', 'title' => 'Phát triển bản thân', 'slug' => 'self-help', 'bg' => 'img/new/th2.jpg', 'text_color' => '#c8dcdaff'],
             ['icon' => 'fa-heart', 'title' => 'Lãng mạn', 'slug' => 'romance', 'bg' => 'img/new/th3.jpg', 'text_color' => '#c8dcdaff'],
             ['icon' => 'fa-dragon', 'title' => 'Giả tưởng', 'slug' => 'fantasy', 'bg' => 'img/new/th4.jpg', 'text_color' => '#c8dcdaff'],

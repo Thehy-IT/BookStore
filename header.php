@@ -163,6 +163,36 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
             font-family: 'Playfair Display', serif;
         }
 
+        /* --- Preloader --- */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f4f8; /* Match body background */
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.75s ease, visibility 0.75s ease;
+        }
+
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(15, 23, 42, 0.2); /* --primary with opacity */
+            border-top-color: var(--accent); /* --accent color */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+
         /* --- GLASS & NAVBAR STYLES (KEEP EXISTING) --- */
         .glass-panel {
             background: var(--glass-bg);
@@ -173,26 +203,26 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
         }
 
         .navbar {
-            padding: 15px 0;
             transition: all 0.4s ease;
+            padding: 15px 0; /* Giữ lại padding dọc */
         }
 
         /* Trạng thái header khi cuộn xuống */
         .navbar.scrolled {
-            margin: 15px auto 0;
-            width: 95% !important;
-            border-radius: 50px !important;
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50px;
         }
 
         /* Trạng thái header mặc định (full-width) */
         .navbar {
             width: 100%;
             border-radius: 0;
-            background: rgba(255, 255, 255, 0.85); /* Thêm màu nền trắng đục cho header mặc định */
+            background: rgba(255, 255, 255, 0.85);
+            /* Thêm màu nền trắng đục cho header mặc định */
+            border-radius: 0;
         }
 
         .header-container {
@@ -201,7 +231,14 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
             left: 0;
             width: 100%;
             z-index: 1030;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
+            padding: 0;
+        }
+
+        .header-container.scrolled {
+            padding-top: 15px;
+            padding-left: 2.5%;
+            padding-right: 2.5%;
         }
 
         .navbar-brand span {
@@ -846,12 +883,20 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
         .swiper-button-prev::after {
             font-size: 1.2rem !important;
         }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
 <body>
     <?php echo $swal_script; ?>
 
+    <!-- ============== Preloader ==============-->
+    <div id="preloader"><div class="spinner"></div></div>
     <!-- Container cho tuyết rơi (sẽ được tạo bằng JS) -->
     <div id="snow-container"></div>
 
