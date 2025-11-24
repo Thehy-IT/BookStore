@@ -20,6 +20,15 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                     <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Tiểu Thuyết</a>
                     <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa Học</a>
                     <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Lịch Sử</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">văn học</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">hoạt hình</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">kinh dị</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">kinh doanh</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">triết học</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">du lịch</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">nấu ăn</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">thể dục</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">khoa học viễn tưởng</a>
                 </div>
             </div>
         </div>
@@ -81,17 +90,28 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
     <div class="row g-4">
         <?php
         $cats = [
-            ['icon' => 'fa-book-open', 'title' => 'Tiểu thuyết', 'slug' => 'fiction', 'color' => '#11998e'],
-            ['icon' => 'fa-brain', 'title' => 'Phát triển bản thân', 'slug' => 'self-help', 'color' => '#4e54c8'],
-            ['icon' => 'fa-heart', 'title' => 'Lãng mạn', 'slug' => 'romance', 'color' => '#ee0979'],
-            ['icon' => 'fa-dragon', 'title' => 'Giả tưởng', 'slug' => 'fantasy', 'color' => '#f12711'],
-            ['icon' => 'fa-user-tie', 'title' => 'Tiểu sử', 'slug' => 'biography', 'color' => '#0f172a'],
-            ['icon' => 'fa-mask', 'title' => 'Kinh dị & Giật gân', 'slug' => 'thriller', 'color' => '#6d28d9'],
-            ['icon' => 'fa-briefcase', 'title' => 'Kinh doanh', 'slug' => 'business', 'color' => '#db2777'],
-            ['icon' => 'fa-child', 'title' => 'Thiếu nhi', 'slug' => 'kids', 'color' => '#f59e0b']
+            ['icon' => 'fa-book-open', 'title' => 'Tiểu thuyết', 'slug' => 'fiction','bg' => 'img/new/th1.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-brain', 'title' => 'Phát triển bản thân', 'slug' => 'self-help', 'bg' => 'img/new/th2.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-heart', 'title' => 'Lãng mạn', 'slug' => 'romance', 'bg' => 'img/new/th3.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-dragon', 'title' => 'Giả tưởng', 'slug' => 'fantasy', 'bg' => 'img/new/th4.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-user-tie', 'title' => 'Tiểu sử', 'slug' => 'biography', 'bg' => 'img/new/th5.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-mask', 'title' => 'Kinh dị & Giật gân', 'slug' => 'thriller', 'bg' => 'img/new/th6.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-briefcase', 'title' => 'Kinh doanh', 'slug' => 'business', 'bg' => 'img/new/th7.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-child', 'title' => 'Thiếu nhi', 'slug' => 'kids', 'bg' => 'img/new/th8.jpg', 'text_color' => '#c8dcdaff']
         ];
         foreach ($cats as $c) {
-            echo '<div class="col-6 col-md-3 col-lg-3 mb-4"><a href="Product.php?category=' . urlencode($c['slug']) . '" class="text-decoration-none text-dark"><div class="category-glass-card text-center"><div class="mb-3" style="font-size: 2rem; color: ' . $c['color'] . '"><i class="fas ' . $c['icon'] . '"></i></div><h6 class="fw-bold mb-0">' . $c['title'] . '</h6></div></a></div>';
+            $bg = htmlspecialchars($c['bg'], ENT_QUOTES);
+            $slug = urlencode($c['slug']);
+            $icon = htmlspecialchars($c['icon'], ENT_QUOTES);
+            $title = htmlspecialchars($c['title'], ENT_QUOTES);
+            $text_color = isset($c['text_color']) ? htmlspecialchars($c['text_color'], ENT_QUOTES) : '#ffffff';
+
+            echo '<div class="col-6 col-md-3 col-lg-3 mb-4">';
+            echo '<a href="Product.php?category=' . $slug . '" class="text-decoration-none">';
+            echo '<div class="category-glass-card" style="background: linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.28)), url(\'' . $bg . '\') center/cover no-repeat;">';
+            echo '<div class="cat-icon" style="color: ' . $text_color . ';"><i class="fas ' . $icon . '"></i></div>';
+            echo '<h6 class="cat-title" style="color: ' . $text_color . ';">' . $title . '</h6>';
+            echo '</div></a></div>';
         }
         ?>
     </div>
