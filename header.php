@@ -141,6 +141,29 @@ if (isset($_SESSION['user_id'])) {
         $wishlist_item_count = $row_wishlist_count['total_items'] ?? 0;
         $stmt_wishlist_count->close();
     }
+
+    // --- LẤY THÔNG BÁO CHO HEADER ---
+    $notifications = [];
+    $unread_notification_count = 0;
+    if (isset($_SESSION['user_id'])) {
+        $user_id_for_notif = $_SESSION['user_id'];
+        // Lấy 5 thông báo gần nhất
+        $stmt_notif = $con->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
+        if ($stmt_notif) {
+            $stmt_notif->bind_param("i", $user_id_for_notif);
+            $stmt_notif->execute();
+            $notifications = $stmt_notif->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt_notif->close();
+        }
+        // Đếm số thông báo chưa đọc
+        $stmt_unread_count = $con->prepare("SELECT COUNT(*) as unread_count FROM notifications WHERE user_id = ? AND is_read = 0");
+        if ($stmt_unread_count) {
+            $stmt_unread_count->bind_param("i", $user_id_for_notif);
+            $stmt_unread_count->execute();
+            $unread_notification_count = $stmt_unread_count->get_result()->fetch_assoc()['unread_count'] ?? 0;
+            $stmt_unread_count->close();
+        }
+    }
 }
 ?>
 
@@ -197,7 +220,8 @@ if (isset($_SESSION['user_id'])) {
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="navContent">
+                <div class="collapse navbar-collapse" id
+                ="navContent">
                     <!-- Menu chính -->
                     <ul class="navbar-nav mx-auto">
                         <li class="nav-item"><a class="nav-link active" href="index.php">Trang chủ</a></li>
@@ -256,25 +280,42 @@ if (isset($_SESSION['user_id'])) {
                             <?php endif; ?>
                             <!-- Notification Dropdown -->
                             <li class="nav-item dropdown ms-1">
-                                <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" style="width:40px; height:40px; display: inline-flex; align-items: center; justify-content: center;">
+                                <a id="notificationBell" class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" style="width:40px; height:40px; display: inline-flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-bell fs-5"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="margin-top: 8px; margin-left: -12px;">
-                                        <span class="visually-hidden">Thông báo mới</span>
-                                    </span>
+                                    <?php if ($unread_notification_count > 0) : ?>
+                                        <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="margin-top: 8px; margin-left: -12px;">
+                                            <span class="visually-hidden">Thông báo mới</span>
+                                        </span>
+                                    <?php endif; ?>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-panel mt-2" style="width: 300px;">
                                     <li class="px-3 py-2 fw-bold">Thông báo</li>
                                     <li>
                                         <hr class="dropdown-divider m-0">
                                     </li>
-                                    <li><a class="dropdown-item py-2" href="#">
-                                            <small class="fw-bold">Đơn hàng #12345 đã được giao</small><br>
-                                            <small class="text-muted">15 phút trước</small>
-                                        </a></li>
-                                    <li><a class="dropdown-item py-2" href="#">
-                                            <small class="fw-bold">Khuyến mãi Black Friday sắp bắt đầu!</small><br>
-                                            <small class="text-muted">Hôm qua</small>
-                                        </a></li>
+                                    <div id="notification-list">
+                                        <?php if (empty($notifications)) : ?>
+                                            <li><span class="dropdown-item-text text-center text-muted py-3">Không có thông báo nào.</span></li>
+                                        <?php else : ?>
+                                            <?php foreach ($notifications as $notif) : ?>
+                                                <li>
+                                                    <a class="dropdown-item py-2 <?php echo $notif['is_read'] ? '' : 'bg-light'; ?>" href="<?php echo htmlspecialchars($notif['link'] ?? '#'); ?>">
+                                                        <div class="d-flex align-items-start">
+                                                            <i class="<?php echo htmlspecialchars($notif['icon']); ?> mt-1 me-2 text-primary"></i>
+                                                            <div>
+                                                                <small class="fw-bold"><?php echo htmlspecialchars($notif['title']); ?></small><br>
+                                                                <small class="text-muted"><?php echo htmlspecialchars($notif['message']); ?></small>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </div>
+                                    <li>
+                                        <hr class="dropdown-divider m-0">
+                                    </li>
+                                    <li><a class="dropdown-item text-center small py-2" href="#">Xem tất cả</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown ms-2">

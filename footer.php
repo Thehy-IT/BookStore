@@ -543,6 +543,30 @@
                     })
                     .catch(error => console.error('Error:', error));
             }
+
+            // NEW: Notification read logic
+            document.addEventListener('DOMContentLoaded', function() {
+                const notificationBell = document.getElementById('notificationBell');
+                const notificationBadge = document.getElementById('notification-badge');
+
+                if (notificationBell) {
+                    notificationBell.addEventListener('click', function() {
+                        // Chỉ gửi request nếu có badge (có thông báo chưa đọc)
+                        if (notificationBadge) {
+                            fetch('mark_notifications_read.php', {
+                                    method: 'POST'
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        // Xóa badge sau khi đã đọc
+                                        notificationBadge.remove();
+                                    }
+                                });
+                        }
+                    });
+                }
+            });
         </script>
         </body>
 

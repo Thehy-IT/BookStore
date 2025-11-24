@@ -86,6 +86,15 @@ try {
         $stmt_details->execute();
     }
 
+    // 6.5. Tạo thông báo cho người dùng
+    $notif_title = "Đặt hàng thành công!";
+    $notif_message = "Đơn hàng #" . $order_id . " của bạn đã được tiếp nhận.";
+    $notif_link = "order_history.php"; // Giả sử có trang này
+    $notif_icon = "fas fa-check-circle";
+    $stmt_notif = $con->prepare("INSERT INTO notifications (user_id, icon, title, message, link) VALUES (?, ?, ?, ?, ?)");
+    $stmt_notif->bind_param("issss", $user_id, $notif_icon, $notif_title, $notif_message, $notif_link);
+    $stmt_notif->execute();
+
     // 7. Xóa giỏ hàng sau khi đã đặt hàng thành công
     $sql_delete_cart = "DELETE FROM cart WHERE UserID = ?";
     $stmt_delete = $con->prepare($sql_delete_cart);
