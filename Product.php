@@ -364,7 +364,7 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                                 <div class="card-img-top-wrapper">
                                     <img src="<?php echo $img; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=No+Image'" alt="<?php echo $row['Title']; ?>">
                                     <div class="card-actions">
-                                        <button class="btn-action" onclick="openQuickView('<?php echo $row['PID']; ?>')" title="Xem nhanh" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></button>
+                                        <button class="btn-action" onclick='openQuickView(<?php echo json_encode($row); ?>)' title="Xem nhanh" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></button>
                                         <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn-action" title="Yêu thích" data-bs-toggle="tooltip"><i class="fas fa-heart"></i></a>
                                         <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-action bg-dark text-white" title="Thêm vào giỏ" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></a>
                                     </div>
@@ -490,31 +490,6 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
     var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     })
-
-    // Fake Quick View Logic (In real app, fetch data via AJAX)
-    function openQuickView(id) {
-        // Lấy thông tin từ card sản phẩm đã click
-        const card = document.querySelector(`a[href="description.php?ID=${id}"]`).closest('.product-item');
-        if (!card) return; // Dừng lại nếu không tìm thấy card
-
-        // Điền dữ liệu vào modal
-        document.getElementById('qv-img').src = 'img/books/' + id + '.jpg';
-        document.getElementById('qv-title').innerText = card.querySelector('.book-title').innerText;
-        document.getElementById('qv-author').innerText = card.querySelector('.book-author').innerText;
-        document.getElementById('qv-cat').innerText = card.querySelector('.book-category').innerText;
-        document.getElementById('qv-price').innerText = card.querySelector('.current-price').innerText;
-
-        // Lấy mô tả và cập nhật
-        const descriptionElement = card.querySelector('.book-desc');
-        document.getElementById('qv-desc').innerText = descriptionElement ? descriptionElement.innerText : 'Sản phẩm này chưa có mô tả.';
-
-        document.getElementById('qv-add-cart').href = 'cart.php?ID=' + id + '&quantity=1';
-        document.getElementById('qv-detail').href = 'description.php?ID=' + id;
-
-        // Show modal
-        var myModal = new bootstrap.Modal(document.getElementById('quickViewModal'));
-        myModal.show();
-    }
 
     // Price Slider Logic
     document.addEventListener('DOMContentLoaded', function() {

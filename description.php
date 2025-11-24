@@ -1,6 +1,17 @@
 <?php
 include 'header.php'; // Sử dụng header chung
 
+// Hiển thị thông báo flash nếu có
+if (isset($_SESSION['flash_message'])) {
+    $swal_script = set_swal(
+        $_SESSION['flash_type'],
+        'Thông báo',
+        $_SESSION['flash_message']
+    );
+    echo $swal_script;
+    unset($_SESSION['flash_message'], $_SESSION['flash_type']);
+}
+
 $pid = isset($_GET['ID']) ? $_GET['ID'] : '';
 
 // Query DB (Prepared Statement)
@@ -29,14 +40,35 @@ while ($related_row = $related_result->fetch_assoc()) {
     $related_products[] = $related_row;
 }
 
+// --- LẤY DỮ LIỆU ĐÁNH GIÁ ---
+$reviews = [];
+$total_rating = 0;
+$review_count = 0;
+$review_stmt = $con->prepare("SELECT r.*, u.UserName FROM reviews r JOIN users u ON r.user_id = u.UserID WHERE r.product_id = ? ORDER BY r.created_at DESC");
+$review_stmt->bind_param("s", $pid);
+$review_stmt->execute();
+$review_result = $review_stmt->get_result();
+while ($review_row = $review_result->fetch_assoc()) {
+    $reviews[] = $review_row;
+    $total_rating += $review_row['rating'];
+    $review_count++;
+}
+$average_rating = ($review_count > 0) ? $total_rating / $review_count : 0;
+
 // Lấy mảng dịch thể loại từ header.php
 $category_translations = [
-    'academic and professional' => 'Học thuật & Chuyên ngành', 'biographies and auto biographies' => 'Tiểu sử & Tự truyện',
-    'business and management' => 'Kinh doanh & Quản lý', 'children and teens' => 'Sách thiếu nhi',
-    'health and cooking' => 'Sức khỏe & Nấu ăn', 'literature and fiction' => 'Văn học & Hư cấu',
-    'regional books' => 'Sách tiếng Việt', 'self-help' => 'Phát triển bản thân',
-    'fiction' => 'Tiểu thuyết', 'thriller' => 'Kinh dị & Giật gân',
-    'romance' => 'Lãng mạn', 'fantasy' => 'Giả tưởng',
+    'academic and professional' => 'Học thuật & Chuyên ngành',
+    'biographies and auto biographies' => 'Tiểu sử & Tự truyện',
+    'business and management' => 'Kinh doanh & Quản lý',
+    'children and teens' => 'Sách thiếu nhi',
+    'health and cooking' => 'Sức khỏe & Nấu ăn',
+    'literature and fiction' => 'Văn học & Hư cấu',
+    'regional books' => 'Sách tiếng Việt',
+    'self-help' => 'Phát triển bản thân',
+    'fiction' => 'Tiểu thuyết',
+    'thriller' => 'Kinh dị & Giật gân',
+    'romance' => 'Lãng mạn',
+    'fantasy' => 'Giả tưởng',
 ];
 ?>
 <style>
@@ -185,6 +217,97 @@ $category_translations = [
         color: var(--accent);
         margin-bottom: 15px;
     }
+
+    /* --- NEW: Review Section Styles --- */
+    .rating-summary {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .stars-display {
+        color: #ffc107;
+    }
+
+    .reviews-section {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: var(--glass-border);
+        border-radius: 20px;
+        padding: 30px;
+    }
+
+    .review-item {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+
+    .review-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .review-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+
+    .review-form .form-label {
+        font-weight: 600;
+    }
+
+    /* Star Rating Input */
+    .rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+
+    .rating-input input {
+        display: none;
+    }
+
+    .rating-input label {
+        font-size: 2rem;
+        color: #e0e0e0;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .rating-input input:checked~label,
+    .rating-input label:hover,
+    .rating-input label:hover~label {
+        color: #ffc107;
+    }
+
+    .login-prompt {
+        text-align: center;
+        padding: 40px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 15px;
+        border: 1px dashed #ccc;
+    }
+
+    .btn-submit-review {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .btn-submit-review:hover {
+        background: var(--accent);
+        transform: scale(1.05);
+    }
 </style>
 
 <!-- ============== Product Details ==============-->
@@ -218,6 +341,20 @@ $category_translations = [
             <!-- Right Column: Info -->
             <div class="col-lg-7">
                 <h1 class="book-title"><?php echo $row['Title']; ?></h1>
+
+                <!-- NEW: Rating Summary -->
+                <div class="rating-summary">
+                    <div class="stars-display">
+                        <?php for ($i = 1; $i <= 5; $i++) : ?>
+                            <i class="<?php echo ($i <= $average_rating) ? 'fas' : 'far'; ?> fa-star"></i>
+                        <?php endfor; ?>
+                    </div>
+                    <span class="text-muted fw-bold">
+                        <?php echo number_format($average_rating, 1); ?>
+                    </span>
+                    <a href="#reviews" class="text-muted text-decoration-none">(<?php echo $review_count; ?> đánh giá)</a>
+                </div>
+
 
                 <div class="meta-tags mb-4">
                     <span><i class="fas fa-pen-nib me-1"></i> <?php echo $row['Author']; ?></span>
@@ -287,6 +424,74 @@ $category_translations = [
     </div>
 </div>
 
+<!-- ============== NEW: Reviews Section ==============-->
+<div class="container mb-5" id="reviews">
+    <div class="reviews-section">
+        <h3 class="fw-bold mb-4" style="font-family: 'Playfair Display', serif;">Đánh giá sản phẩm</h3>
+
+        <!-- Review Form -->
+        <div class="mb-5">
+            <?php if (isset($_SESSION['user_id'])) : ?>
+                <h5 class="mb-3">Để lại đánh giá của bạn</h5>
+                <form action="submit_review.php" method="POST" class="review-form">
+                    <input type="hidden" name="product_id" value="<?php echo $pid; ?>">
+                    <div class="mb-3">
+                        <label class="form-label">Xếp hạng:</label>
+                        <div class="rating-input">
+                            <input type="radio" id="star5" name="rating" value="5" required /><label for="star5" title="5 sao"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 sao"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 sao"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 sao"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 sao"><i class="fas fa-star"></i></label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Bình luận của bạn:</label>
+                        <textarea class="form-control bg-light border-0" id="comment" name="comment" rows="4" placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit-review">Gửi đánh giá</button>
+                </form>
+            <?php else : ?>
+                <div class="login-prompt">
+                    <p class="mb-2 fw-bold">Bạn muốn để lại đánh giá?</p>
+                    <p class="text-muted">Vui lòng đăng nhập để chia sẻ cảm nhận của bạn với mọi người.</p>
+                    <button class="btn btn-primary-glass" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập để đánh giá</button>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Reviews List -->
+        <div>
+            <?php if ($review_count > 0) : ?>
+                <?php foreach ($reviews as $review) : ?>
+                    <div class="review-item">
+                        <div class="d-flex mb-2">
+                            <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($review['UserName']); ?>&background=random" class="review-avatar" alt="Avatar">
+                            <div>
+                                <h6 class="fw-bold mb-0"><?php echo htmlspecialchars($review['UserName']); ?></h6>
+                                <small class="text-muted"><?php echo date('d/m/Y', strtotime($review['created_at'])); ?></small>
+                            </div>
+                        </div>
+                        <div class="stars-display mb-2">
+                            <?php for ($i = 1; $i <= 5; $i++) : ?>
+                                <i class="<?php echo ($i <= $review['rating']) ? 'fas' : 'far'; ?> fa-star"></i>
+                            <?php endfor; ?>
+                        </div>
+                        <p class="mb-0">
+                            <?php echo nl2br(htmlspecialchars($review['comment'])); ?>
+                        </p>
+                    </div>
+                <?php endforeach; ?>
+            <?php else : ?>
+                <div class="text-center text-muted py-4">
+                    <i class="far fa-comment-dots fa-2x mb-2"></i>
+                    <p>Chưa có đánh giá nào cho sản phẩm này. <br> Hãy là người đầu tiên để lại đánh giá!</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
 <!-- ============== Services Section ==============-->
 <div class="container mb-5">
     <div class="row g-4">
@@ -343,7 +548,7 @@ $category_translations = [
                                 <img src="img/books/<?php echo $related_book['PID']; ?>.jpg" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'" alt="<?php echo htmlspecialchars($related_book['Title']); ?>">
                                 <div class="action-overlay">
                                     <a href="cart.php?ID=<?php echo $related_book['PID']; ?>&quantity=1" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
-                                    <a href="description.php?ID=<?php echo $related_book['PID']; ?>" class="btn-icon" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
+                                    <button onclick='openQuickView(<?php echo json_encode($related_book); ?>)' class="btn-icon" title="Xem nhanh"><i class="fas fa-eye"></i></button>
                                 </div>
                             </div>
                             <div class="mt-auto">
