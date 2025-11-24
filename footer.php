@@ -51,6 +51,35 @@
             </div>
         </div>
 
+        <!-- ============== Quick View Modal ==============-->
+        <div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 rounded-4 overflow-hidden" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+                    <div class="modal-body p-0">
+                        <div class="row g-0">
+                            <div class="col-md-5 d-flex align-items-center justify-content-center p-4" style="background: #f8f9fa;">
+                                <img id="qv-img" src="" class="img-fluid shadow-lg rounded" style="max-height: 300px;">
+                            </div>
+                            <div class="col-md-7 p-4 position-relative">
+                                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <span class="badge bg-warning text-dark mb-2" id="qv-cat">Thể loại</span>
+                                <h3 class="fw-bold font-playfair mb-1" id="qv-title">Tên sách</h3>
+                                <p class="text-muted fst-italic mb-3" id="qv-author">Tên tác giả</p>
+                                <h4 class="text-primary fw-bold mb-3" id="qv-price">100.000 đ</h4>
+                                <p class="small text-muted mb-4" id="qv-desc" style="max-height: 100px; overflow-y: auto;">Mô tả ngắn của sách sẽ được hiển thị ở đây.</p>
+
+                                <div class="d-flex gap-2">
+                                    <a href="#" id="qv-add-cart" class="btn btn-dark rounded-pill px-4 flex-grow-1">Thêm vào giỏ</a>
+                                    <a href="#" id="qv-detail" class="btn btn-outline-dark rounded-pill px-4">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <!-- ============== Footer ==============-->
         <footer id="contact">
             <div class="footer-wave">
@@ -360,6 +389,33 @@
                     });
                 }
             });
+
+            // Quick View Logic
+            function openQuickView(bookData) {
+                if (!bookData) return;
+
+                // Định dạng giá tiền
+                const formattedPrice = new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(bookData.Price);
+
+                // Điền dữ liệu vào modal
+                document.getElementById('qv-img').src = 'img/books/' + bookData.PID + '.jpg';
+                document.getElementById('qv-title').innerText = bookData.Title;
+                document.getElementById('qv-author').innerText = 'Tác giả: ' + bookData.Author;
+                document.getElementById('qv-cat').innerText = bookData.Category || 'Chưa phân loại';
+                document.getElementById('qv-price').innerText = formattedPrice;
+                document.getElementById('qv-desc').innerText = bookData.Description || 'Sản phẩm này chưa có mô tả.';
+
+                // Cập nhật link
+                document.getElementById('qv-add-cart').href = 'cart.php?ID=' + bookData.PID + '&quantity=1';
+                document.getElementById('qv-detail').href = 'description.php?ID=' + bookData.PID;
+
+                // Hiển thị modal
+                var quickViewModal = new bootstrap.Modal(document.getElementById('quickViewModal'));
+                quickViewModal.show();
+            }
         </script>
         </body>
 

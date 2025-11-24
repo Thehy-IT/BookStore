@@ -205,62 +205,42 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
     </div>
     <div class="row g-4 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5" id="new-arrivals-grid">
         <?php
-        $books = [
-            ['title' => 'Như Một Bản Tình Ca', 'price' => '150.000', 'img' => 'img/new/1.jpg', 'tag' => 'MỚI', 'pid' => 'NEW-01'],
-            ['title' => 'Kiến Thức Tổng Hợp 2017', 'price' => '200.000', 'img' => 'img/new/2.jpg', 'tag' => 'HOT', 'pid' => 'NEW-02'],
-            ['title' => 'Kinh Doanh Gia Đình Ấn Độ', 'price' => '180.000', 'img' => 'img/new/3.png', 'tag' => '-20%', 'pid' => 'NEW-03'],
-            ['title' => 'Toán Học SSC', 'price' => '350.000', 'img' => 'img/new/4.jpg', 'tag' => 'HAY', 'pid' => 'NEW-04'],
-            ['title' => 'Kỳ Quan Vũ Trụ', 'price' => '220.000', 'img' => 'img/new/5.jpg', 'tag' => 'MỚI', 'pid' => 'NEW-05'],
-            ['title' => 'Bệnh Nhân Thầm Lặng', 'price' => '250.000', 'img' => 'img/new/6.jpg', 'tag' => 'HOT', 'pid' => 'NEW-06'],
-            ['title' => 'Thói Quen Nguyên Tử', 'price' => '210.000', 'img' => 'img/new/7.jpg', 'tag' => 'HAY', 'pid' => 'NEW-07'],
-            ['title' => 'Xa Ngoài Kia Nơi Loài Tôm Hát', 'price' => '190.000', 'img' => 'img/new/8.jpg', 'tag' => 'MỚI', 'pid' => 'NEW-08'],
-            ['title' => 'Sapiens: Lược Sử Loài Người', 'price' => '300.000', 'img' => 'img/new/9.jpg', 'tag' => '-15%', 'pid' => 'NEW-09'],
-            ['title' => 'Thư Viện Nửa Đêm', 'price' => '230.000', 'img' => 'img/new/10.jpg', 'tag' => 'HOT', 'pid' => 'NEW-10'],
-            ['title' => 'Được Học', 'price' => '240.000', 'img' => 'img/new/11.jpg', 'tag' => 'MỚI', 'pid' => 'NEW-11'],
-            ['title' => 'Chất Michelle', 'price' => '320.000', 'img' => 'img/new/12.jpg', 'tag' => 'HAY', 'pid' => 'NEW-12'],
-            ['title' => 'Nhà Giả Kim', 'price' => '160.000', 'img' => 'img/new/13.jpg', 'tag' => 'HOT', 'pid' => 'NEW-13'],
-            ['title' => 'Project Hail Mary', 'price' => '280.000', 'img' => 'img/new/14.jpg', 'tag' => '-10%', 'pid' => 'NEW-14'],
-            ['title' => 'Bốn Ngọn Gió', 'price' => '260.000', 'img' => 'img/new/15.jpg', 'tag' => 'MỚI', 'pid' => 'NEW-15']
-        ];
-        foreach ($books as $idx => $book) {
-            // Lấy PID từ mảng book, nếu không có thì tạo một giá trị giả
-            $pid = isset($book['pid']) ? $book['pid'] : 'BOOK-' . str_pad($idx + 1, 2, '0', STR_PAD_LEFT);
+        // Lấy 15 sản phẩm mới nhất từ CSDL
+        $new_arrivals_query = "SELECT * FROM products ORDER BY PID DESC LIMIT 15";
+        $new_arrivals_result = mysqli_query($con, $new_arrivals_query);
 
+        while ($book = mysqli_fetch_assoc($new_arrivals_result)) {
+            $pid = htmlspecialchars($book['PID']);
+            $img_path = "img/books/" . $pid . ".jpg";
 
             // Logic để thêm class màu cho badge
             $badge_class = '';
-            switch (strtoupper($book['tag'])) {
-                case 'MỚI':
-                    $badge_class = 'badge-new';
-                    break;
-                case 'HOT':
-                    $badge_class = 'badge-hot';
-                    break;
-                case 'HAY':
-                    $badge_class = 'badge-best';
-                    break;
-                default: // Mặc định cho các tag có % (giảm giá)
-                    if (strpos($book['tag'], '%') !== false) {
-                        $badge_class = 'badge-sale';
-                    }
-                    break;
+            $badge_text = '';
+
+            if ($book['Discount'] > 0) {
+                $badge_class = 'badge-sale';
+                $badge_text = '-' . $book['Discount'] . '%';
+            } else {
+                // Bạn có thể thêm logic khác ở đây, ví dụ dựa trên ngày thêm sản phẩm để hiện tag "MỚI"
+                $badge_class = 'badge-new';
+                $badge_text = 'MỚI';
             }
         ?>
             <div class="col book-item">
                 <div class="book-card-glass h-100 d-flex flex-column">
-                    <div class="badge-glass <?php echo $badge_class; ?>"><span><?php echo $book['tag']; ?></span></div>
+                    <div class="badge-glass <?php echo $badge_class; ?>"><span><?php echo $badge_text; ?></span></div>
                     <div class="book-img-wrapper">
-                        <img src="<?php echo $book['img']; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'" alt="Book">
+                        <img src="<?php echo $img_path; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'" alt="<?php echo htmlspecialchars($book['Title']); ?>">
                         <div class="action-overlay">
                             <a href="cart.php?ID=<?php echo $pid; ?>&quantity=1" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="description.php?ID=<?php echo $pid; ?>" class="btn-icon" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
+                            <button onclick='openQuickView(<?php echo json_encode($book); ?>)' class="btn-icon" title="Xem nhanh"><i class="fas fa-eye"></i></button>
                             <a href="wishlist.php?ID=<?php echo $pid; ?>" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></a>
                         </div>
                     </div>
                     <div class="mt-auto">
-                        <h6 class="fw-bold text-truncate"><?php echo $book['title']; ?></h6>
+                        <h6 class="fw-bold text-truncate"><?php echo htmlspecialchars($book['Title']); ?></h6>
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-primary fw-bold"><?php echo $book['price']; ?> đ</span>
+                            <span class="text-primary fw-bold"><?php echo number_format($book['Price']); ?> đ</span>
                             <div class="text-warning small"><i class="fas fa-star"></i> 4.8</div>
                         </div>
                     </div>
@@ -287,90 +267,37 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 
         <div class="swiper bestseller-swiper pb-5 position-relative">
             <div class="swiper-wrapper">
-                <!-- Slide 1 -->
-                <div class="swiper-slide">
-                    <div class="bestseller-card position-relative text-center">
-                        <div class="rank-number">01</div>
-                        <div class="book-card-glass border-0 bg-transparent shadow-none">
-                            <div class="book-img-wrapper shadow-lg mb-3">
-                                <img src="img/new/1.jpg" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
+                <?php
+                // Lấy 6 sản phẩm bán chạy (ví dụ: có giảm giá cao nhất)
+                $bestseller_query = "SELECT * FROM products ORDER BY Discount DESC, PID DESC LIMIT 6";
+                $bestseller_result = mysqli_query($con, $bestseller_query);
+                $rank = 1;
+
+                while ($book = mysqli_fetch_assoc($bestseller_result)) {
+                    $pid = htmlspecialchars($book['PID']);
+                    $img_path = "img/books/" . $pid . ".jpg";
+                ?>
+                    <div class="swiper-slide">
+                        <div class="bestseller-card position-relative text-center">
+                            <div class="rank-number"><?php echo str_pad($rank++, 2, '0', STR_PAD_LEFT); ?></div>
+                            <div class="book-card-glass border-0 bg-transparent shadow-none">
+                                <div class="book-img-wrapper shadow-lg mb-3">
+                                    <img src="<?php echo $img_path; ?>" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
+                                </div>
+                                <h5 class="fw-bold mt-3 text-truncate" title="<?php echo htmlspecialchars($book['Title']); ?>"><?php echo htmlspecialchars($book['Title']); ?></h5>
+                                <p class="text-muted small">Tác giả: <?php echo htmlspecialchars($book['Author']); ?></p>
+                                <div class="btn-group">
+                                    <a href="description.php?ID=<?php echo $pid; ?>" class="btn btn-outline-dark rounded-pill btn-sm px-3">Chi tiết</a>
+                                    <button onclick='openQuickView(<?php echo json_encode($book); ?>)' class="btn btn-outline-dark rounded-pill btn-sm px-3" title="Xem nhanh">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <h5 class="fw-bold mt-3">Như Một Bản Tình Ca</h5>
-                            <p class="text-muted small">Tác giả: Nikita Singh</p>
-                            <a href="#" class="btn btn-outline-dark rounded-pill btn-sm">Xem Chi Tiết</a>
                         </div>
                     </div>
-                </div>
-                <!-- Slide 2 -->
-                <div class="swiper-slide">
-                    <div class="bestseller-card position-relative text-center">
-                        <div class="rank-number">02</div>
-                        <div class="book-card-glass border-0 bg-transparent shadow-none">
-                            <div class="book-img-wrapper shadow-lg mb-3">
-                                <img src="img/new/3.png" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
-                            </div>
-                            <h5 class="fw-bold mt-3">Kinh Doanh Gia Đình</h5>
-                            <p class="text-muted small">Tác giả: Peter Leach</p>
-                            <a href="#" class="btn btn-outline-dark rounded-pill btn-sm">Xem Chi Tiết</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 3 -->
-                <div class="swiper-slide">
-                    <div class="bestseller-card position-relative text-center">
-                        <div class="rank-number">03</div>
-                        <div class="book-card-glass border-0 bg-transparent shadow-none">
-                            <div class="book-img-wrapper shadow-lg mb-3">
-                                <img src="img/new/2.jpg" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
-                            </div>
-                            <h5 class="fw-bold mt-3">Kiến Thức Phổ Thông</h5>
-                            <p class="text-muted small">Tác giả: Manohar Pandey</p>
-                            <a href="#" class="btn btn-outline-dark rounded-pill btn-sm">Xem Chi Tiết</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 4 -->
-                <div class="swiper-slide">
-                    <div class="bestseller-card position-relative text-center">
-                        <div class="rank-number">04</div>
-                        <div class="book-card-glass border-0 bg-transparent shadow-none">
-                            <div class="book-img-wrapper shadow-lg mb-3">
-                                <img src="img/new/4.jpg" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
-                            </div>
-                            <h5 class="fw-bold mt-3">Toán Học SSC</h5>
-                            <p class="text-muted small">Tác giả: Kiran</p>
-                            <a href="#" class="btn btn-outline-dark rounded-pill btn-sm">Xem Chi Tiết</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 5 -->
-                <div class="swiper-slide">
-                    <div class="bestseller-card position-relative text-center">
-                        <div class="rank-number">05</div>
-                        <div class="book-card-glass border-0 bg-transparent shadow-none">
-                            <div class="book-img-wrapper shadow-lg mb-3">
-                                <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2000&auto=format&fit=crop" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
-                            </div>
-                            <h5 class="fw-bold mt-3">Tâm Lý Học Về Tiền</h5>
-                            <p class="text-muted small">Tác giả: Morgan Housel</p>
-                            <a href="#" class="btn btn-outline-dark rounded-pill btn-sm">Xem Chi Tiết</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 5 -->
-                <div class="swiper-slide">
-                    <div class="bestseller-card position-relative text-center">
-                        <div class="rank-number">06</div>
-                        <div class="book-card-glass border-0 bg-transparent shadow-none">
-                            <div class="book-img-wrapper shadow-lg mb-3">
-                                <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2000&auto=format&fit=crop" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
-                            </div>
-                            <h5 class="fw-bold mt-3">Tâm Lý Học Về Tiền</h5>
-                            <p class="text-muted small">Tác giả: Morgan Housel</p>
-                            <a href="#" class="btn btn-outline-dark rounded-pill btn-sm">Xem Chi Tiết</a>
-                        </div>
-                    </div>
-                </div>
+                <?php
+                }
+                ?>
             </div>
             <div class="swiper-pagination"></div>
 

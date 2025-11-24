@@ -106,6 +106,31 @@ INSERT INTO `products` (`PID`, `Title`, `Author`, `MRP`, `Price`, `Discount`, `A
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `news`
+--
+
+CREATE TABLE `news` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `author` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `image_url` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `content` text COLLATE utf8_unicode_ci,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `news`
+--
+
+INSERT INTO `news` (`id`, `title`, `author`, `image_url`, `content`, `created_at`) VALUES
+(1, 'Top 10 Sách Nên Đọc Mùa Đông Này', 'Biên tập viên BookZ', 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=2070&auto=format&fit=crop', '<p class=\"lead\">Khi thời tiết trở lạnh, không có gì tuyệt vời hơn là cuộn mình trong chăn ấm cùng một cuốn sách hay. Dưới đây là danh sách 10 cuốn sách mà các biên tập viên của chúng tôi đề xuất cho mùa đông này.</p>\r\n            <p>Từ những câu chuyện bí ẩn ấm cúng đến những cuốn tiểu thuyết lãng mạn cảm động, danh sách này có đủ mọi thể loại để làm hài lòng bất kỳ độc giả nào. Chúng tôi đã lựa chọn cẩn thận những tác phẩm không chỉ có nội dung hấp dẫn mà còn mang lại cảm giác ấm áp, phù hợp với không khí mùa đông.</p>\r\n            <h5>1. Thư Viện Nửa Đêm - Matt Haig</h5>\r\n            <p>Một câu chuyện đầy suy ngẫm về những lựa chọn trong cuộc sống và cơ hội thứ hai. Cuốn sách này sẽ khiến bạn phải suy nghĩ về con đường mình đã chọn và những khả năng vô tận của cuộc đời.</p>\r\n            <h5>2. Bệnh Nhân Thầm Lặng - Alex Michaelides</h5>\r\n            <p>Nếu bạn yêu thích thể loại giật gân, đây là một lựa chọn không thể bỏ qua. Một câu chuyện ly kỳ với những cú twist bất ngờ sẽ giữ bạn đọc đến tận trang cuối cùng.</p>\r\n            <blockquote class=\"blockquote fst-italic my-4 p-3 bg-light border-start border-5 border-warning\">\r\n                \'Một cuốn sách hay trên giá sách là một người bạn, dù có quay lưng lại nhưng vẫn không bao giờ quay mặt đi.\' - Khuyết danh\r\n            </blockquote>\r\n            <p>Ngoài ra, danh sách còn có những tác phẩm kinh điển, sách phát triển bản thân và cả những câu chuyện thiếu nhi ý nghĩa để bạn có thể đọc cùng gia đình. Hãy chuẩn bị một tách trà nóng và bắt đầu khám phá thế giới văn học mùa đông này!</p>', '2025-10-15 10:00:00'),
+(2, 'Phỏng vấn độc quyền J.K. Rowling', 'Jane Doe', 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=2128&auto=format&fit=crop', '<p class=\"lead\">Chúng tôi đã có cơ hội ngồi lại với tác giả huyền thoại J.K. Rowling để trò chuyện về quá trình sáng tạo đằng sau loạt phim Harry Potter và những dự định sắp tới của bà.</p>\r\n            <p>Trong buổi phỏng vấn, J.K. Rowling đã chia sẻ những chi tiết thú vị về việc xây dựng thế giới phù thủy, từ nguồn cảm hứng ban đầu cho đến những khó khăn trong quá trình viết. Bà cũng tiết lộ một vài bí mật nhỏ về các nhân vật mà người hâm mộ chưa từng được biết đến.</p>\r\n            <p>Khi được hỏi về dự án tiếp theo, bà mỉm cười bí ẩn và nói rằng mình luôn có những câu chuyện mới để kể. \'Thế giới luôn đầy ắp những điều kỳ diệu, bạn chỉ cần biết cách tìm kiếm chúng,\' bà chia sẻ.</p>', '2025-10-12 11:30:00'),
+(3, 'Sự Trỗi Dậy Của Thư Viện Số', 'John Smith', 'https://images.unsplash.com/photo-1519682337058-a94d519337bc?q=80&w=2070&auto=format&fit=crop', '<p class=\"lead\">Công nghệ đang định hình lại cách chúng ta tiếp cận và tiêu thụ văn học. Các thư viện số và sách điện tử (ebook) đang ngày càng trở nên phổ biến, mang lại sự tiện lợi chưa từng có cho độc giả.</p>\r\n            <p>Với một thiết bị đọc sách nhỏ gọn, bạn có thể mang theo cả một thư viện hàng ngàn cuốn sách. Điều này không chỉ giúp tiết kiệm không gian mà còn cho phép bạn đọc sách ở bất cứ đâu, bất cứ lúc nào. Các nền tảng như Kindle, Kobo đã thay đổi hoàn toàn thói quen đọc của nhiều người.</p>\r\n            <p>Tuy nhiên, sự trỗi dậy của sách điện tử cũng đặt ra những câu hỏi về tương lai của sách giấy truyền thống. Liệu chúng có biến mất? Hay cả hai sẽ cùng tồn tại, phục vụ những nhu cầu khác nhau của độc giả? Hãy cùng chúng tôi phân tích xu hướng này.</p>', '2025-10-08 14:00:00');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 

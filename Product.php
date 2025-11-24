@@ -291,11 +291,11 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                     <div class="mb-4">
                         <h6 class="fw-bold mb-3">Đánh giá</h6>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="rating" value="4" id="star4" onchange="this.form.submit()" <?php if (isset($_GET['rating']) && $_GET['rating'] == 4) echo 'checked'; ?>> 
+                            <input class="form-check-input" type="radio" name="rating" value="4" id="star4" onchange="this.form.submit()" <?php if (isset($_GET['rating']) && $_GET['rating'] == 4) echo 'checked'; ?>>
                             <label class="form-check-label text-warning" for="star4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i> &amp; trở lên</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="rating" value="3" id="star3" onchange="this.form.submit()" <?php if (isset($_GET['rating']) && $_GET['rating'] == 3) echo 'checked'; ?>> 
+                            <input class="form-check-input" type="radio" name="rating" value="3" id="star3" onchange="this.form.submit()" <?php if (isset($_GET['rating']) && $_GET['rating'] == 3) echo 'checked'; ?>>
                             <label class="form-check-label text-warning" for="star3"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i> &amp; trở lên</label>
                         </div>
                     </div>
@@ -351,9 +351,9 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                                 <div class="card-img-top-wrapper">
                                     <img src="<?php echo $img; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=No+Image'" alt="<?php echo $row['Title']; ?>">
                                     <div class="card-actions">
-                                        <button class="btn-action" onclick="openQuickView('<?php echo $row['PID']; ?>')" title="Xem nhanh" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></button> 
-                                        <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn-action" title="Yêu thích" data-bs-toggle="tooltip"><i class="fas fa-heart"></i></a> 
-                                        <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-action bg-dark text-white" title="Thêm vào giỏ" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></a> 
+                                        <button class="btn-action" onclick="openQuickView('<?php echo $row['PID']; ?>')" title="Xem nhanh" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></button>
+                                        <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn-action" title="Yêu thích" data-bs-toggle="tooltip"><i class="fas fa-heart"></i></a>
+                                        <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-action bg-dark text-white" title="Thêm vào giỏ" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></a>
                                     </div>
                                 </div>
 
