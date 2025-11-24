@@ -226,7 +226,49 @@
                     });
                 });
             });
-        </script>
-    </body>
 
-    </html>
+            // Logic cho nút "Xem thêm" ở mục New Arrivals
+            document.addEventListener('DOMContentLoaded', function() {
+                const viewMoreBtn = document.getElementById('viewMoreBtn');
+                const viewMoreContainer = document.getElementById('viewMoreContainer');
+                const grid = document.getElementById('new-arrivals-grid');
+
+                if (viewMoreBtn && grid && viewMoreContainer) {
+                    const items = grid.querySelectorAll('.book-item');
+                    const itemsToShow = 10; // Hiển thị 2 hàng (5 sản phẩm/hàng)
+                    let isExpanded = false; // Trạng thái: false = thu gọn, true = mở rộng
+
+                    // Ẩn các sản phẩm thừa ban đầu
+                    items.forEach((item, index) => {
+                        if (index >= itemsToShow) {
+                            item.style.display = 'none';
+                        }
+                    });
+
+                    // Nếu không có sản phẩm nào để ẩn, thì ẩn luôn nút "Xem thêm"
+                    if (items.length <= itemsToShow) {
+                        viewMoreContainer.style.display = 'none';
+                        return; // Dừng thực thi nếu không cần nút
+                    }
+
+                    viewMoreBtn.addEventListener('click', function() {
+                        isExpanded = !isExpanded; // Đảo ngược trạng thái
+
+                        if (isExpanded) {
+                            // Mở rộng: Hiển thị tất cả
+                            items.forEach(item => item.style.display = 'block');
+                            viewMoreBtn.innerHTML = 'Thu gọn <i class="fas fa-chevron-up ms-2"></i>';
+                        } else {
+                            // Thu gọn: Ẩn các mục thừa
+                            items.forEach((item, index) => {
+                                if (index >= itemsToShow) item.style.display = 'none';
+                            });
+                            viewMoreBtn.innerHTML = 'Xem thêm sách mới <i class="fas fa-chevron-down ms-2"></i>';
+                        }
+                    });
+                }
+            });
+        </script>
+        </body>
+
+        </html>

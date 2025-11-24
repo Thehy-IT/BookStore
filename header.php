@@ -77,14 +77,23 @@ if ($con) {
 
 // --- Lấy danh sách thể loại tự động từ cơ sở dữ liệu cho menu ---
 $categories_menu = [];
+// Mảng ánh xạ từ giá trị trong DB sang tên hiển thị thân thiện hơn (có thể là tiếng Việt)
+$category_translations = [
+    'self-help' => 'Phát triển bản thân',
+    'fiction' => 'Tiểu thuyết',
+    'thriller' => 'Kinh dị & Giật gân',
+    'romance' => 'Lãng mạn',
+    'fantasy' => 'Giả tưởng',
+    'biography' => 'Tiểu sử',
+];
+
 $sql_categories_menu = "SELECT DISTINCT Category FROM products WHERE Category IS NOT NULL AND Category != '' ORDER BY Category ASC";
 $result_categories_menu = mysqli_query($con, $sql_categories_menu);
 if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
     while ($row_cat_menu = mysqli_fetch_assoc($result_categories_menu)) {
-        // Ở đây, chúng ta có thể tạo một mảng ánh xạ từ tên tiếng Anh sang tiếng Việt nếu cần
-        // Ví dụ: $display_name = $translations[$row_cat_menu['Category']] ?? $row_cat_menu['Category'];
-        // Tạm thời, ta sẽ dùng trực tiếp tên từ DB
-        $categories_menu[$row_cat_menu['Category']] = $row_cat_menu['Category'];
+        // Chuẩn hóa key: chuyển thành chữ thường và loại bỏ khoảng trắng thừa
+        $category_key = strtolower(trim($row_cat_menu['Category']));
+        $categories_menu[$category_key] = $category_translations[$category_key] ?? ucfirst($category_key);
     }
 }
 ?>

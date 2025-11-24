@@ -74,13 +74,17 @@
     <div class="row g-4">
         <?php
         $cats = [
-            ['icon' => 'fa-graduation-cap', 'title' => 'Entrance Exam', 'color' => '#4e54c8'],
-            ['icon' => 'fa-book-open', 'title' => 'Literature', 'color' => '#11998e'],
-            ['icon' => 'fa-briefcase', 'title' => 'Business', 'color' => '#ee0979'],
-            ['icon' => 'fa-child', 'title' => 'Kids & Teens', 'color' => '#f12711']
+            ['icon' => 'fa-book-open', 'title' => 'Tiểu thuyết', 'slug' => 'fiction', 'color' => '#11998e'],
+            ['icon' => 'fa-brain', 'title' => 'Phát triển bản thân', 'slug' => 'self-help', 'color' => '#4e54c8'],
+            ['icon' => 'fa-heart', 'title' => 'Lãng mạn', 'slug' => 'romance', 'color' => '#ee0979'],
+            ['icon' => 'fa-dragon', 'title' => 'Giả tưởng', 'slug' => 'fantasy', 'color' => '#f12711'],
+            ['icon' => 'fa-user-tie', 'title' => 'Tiểu sử', 'slug' => 'biography', 'color' => '#0f172a'],
+            ['icon' => 'fa-mask', 'title' => 'Kinh dị & Giật gân', 'slug' => 'thriller', 'color' => '#6d28d9'],
+            ['icon' => 'fa-briefcase', 'title' => 'Kinh doanh', 'slug' => 'business', 'color' => '#db2777'],
+            ['icon' => 'fa-child', 'title' => 'Thiếu nhi', 'slug' => 'kids', 'color' => '#f59e0b']
         ];
         foreach ($cats as $c) {
-            echo '<div class="col-6 col-md-3"><a href="Product.php?category=' . urlencode($c['title']) . '" class="text-decoration-none text-dark"><div class="category-glass-card text-center"><div class="mb-3" style="font-size: 2rem; color: ' . $c['color'] . '"><i class="fas ' . $c['icon'] . '"></i></div><h6 class="fw-bold mb-0">' . $c['title'] . '</h6></div></a></div>';
+            echo '<div class="col-6 col-md-3 col-lg-3 mb-4"><a href="Product.php?category=' . urlencode($c['slug']) . '" class="text-decoration-none text-dark"><div class="category-glass-card text-center"><div class="mb-3" style="font-size: 2rem; color: ' . $c['color'] . '"><i class="fas ' . $c['icon'] . '"></i></div><h6 class="fw-bold mb-0">' . $c['title'] . '</h6></div></a></div>';
         }
         ?>
     </div>
@@ -95,13 +99,24 @@
         </div>
         <a href="Product.php" class="btn btn-outline-dark rounded-pill px-4">View All</a>
     </div>
-    <div class="row g-4">
+    <div class="row g-4 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5" id="new-arrivals-grid">
         <?php
         $books = [
-            ['title' => 'The Great Adventure', 'price' => '150.000', 'img' => 'img/new/1.jpg', 'tag' => 'NEW'],
-            ['title' => 'Minimalist Living', 'price' => '200.000', 'img' => 'img/new/2.jpg', 'tag' => 'HOT'],
-            ['title' => 'Code Your Future', 'price' => '180.000', 'img' => 'img/new/3.png', 'tag' => '-20%'],
-            ['title' => 'History of Art', 'price' => '350.000', 'img' => 'img/new/4.jpg', 'tag' => 'BEST']
+            ['title' => 'Like A Love Song', 'price' => '150.000', 'img' => 'img/new/1.jpg', 'tag' => 'NEW', 'pid' => 'NEW-01'],
+            ['title' => 'General Knowledge 2017', 'price' => '200.000', 'img' => 'img/new/2.jpg', 'tag' => 'HOT', 'pid' => 'NEW-02'],
+            ['title' => 'Indian Family Business', 'price' => '180.000', 'img' => 'img/new/3.png', 'tag' => '-20%', 'pid' => 'NEW-03'],
+            ['title' => 'SSC Mathematics', 'price' => '350.000', 'img' => 'img/new/4.jpg', 'tag' => 'BEST', 'pid' => 'NEW-04'],
+            ['title' => 'Cosmic Wonders', 'price' => '220.000', 'img' => 'img/new/5.jpg', 'tag' => 'NEW', 'pid' => 'NEW-05'],
+            ['title' => 'The Silent Patient', 'price' => '250.000', 'img' => 'img/new/6.jpg', 'tag' => 'HOT', 'pid' => 'NEW-06'],
+            ['title' => 'Atomic Habits', 'price' => '210.000', 'img' => 'img/new/7.jpg', 'tag' => 'BEST', 'pid' => 'NEW-07'],
+            ['title' => 'Where the Crawdads Sing', 'price' => '190.000', 'img' => 'img/new/8.jpg', 'tag' => 'NEW', 'pid' => 'NEW-08'],
+            ['title' => 'Sapiens: A Brief History', 'price' => '300.000', 'img' => 'img/new/9.jpg', 'tag' => '-15%', 'pid' => 'NEW-09'],
+            ['title' => 'The Midnight Library', 'price' => '230.000', 'img' => 'img/new/10.jpg', 'tag' => 'HOT', 'pid' => 'NEW-10'],
+            ['title' => 'Educated: A Memoir', 'price' => '240.000', 'img' => 'img/new/11.jpg', 'tag' => 'NEW', 'pid' => 'NEW-11'],
+            ['title' => 'Becoming', 'price' => '320.000', 'img' => 'img/new/12.jpg', 'tag' => 'BEST', 'pid' => 'NEW-12'],
+            ['title' => 'The Alchemist', 'price' => '160.000', 'img' => 'img/new/13.jpg', 'tag' => 'HOT', 'pid' => 'NEW-13'],
+            ['title' => 'Project Hail Mary', 'price' => '280.000', 'img' => 'img/new/14.jpg', 'tag' => '-10%', 'pid' => 'NEW-14'],
+            ['title' => 'The Four Winds', 'price' => '260.000', 'img' => 'img/new/15.jpg', 'tag' => 'NEW', 'pid' => 'NEW-15']
         ];
         foreach ($books as $idx => $book) {
             // Logic để thêm class màu cho badge
@@ -123,15 +138,15 @@
                     break;
             }
         ?>
-            <div class="col-6 col-md-3">
+            <div class="col book-item">
                 <div class="book-card-glass h-100 d-flex flex-column">
                     <div class="badge-glass <?php echo $badge_class; ?>"><span><?php echo $book['tag']; ?></span></div>
                     <div class="book-img-wrapper">
                         <img src="<?php echo $book['img']; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'" alt="Book">
                         <div class="action-overlay">
-                            <button class="btn-icon"><i class="fas fa-shopping-cart"></i></button>
-                            <a href="description.php?ID=<?php echo $idx; ?>" class="btn-icon"><i class="fas fa-eye"></i></a>
-                            <a href="wishlist.php?ID=<?php echo $idx; ?>" class="btn-icon"><i class="fas fa-heart"></i></a>
+                            <a href="cart.php?ID=<?php echo $book['pid']; ?>&quantity=1" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
+                            <a href="description.php?ID=<?php echo $book['pid']; ?>" class="btn-icon" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
+                            <a href="wishlist.php?ID=<?php echo $book['pid']; ?>" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></a>
                         </div>
                     </div>
                     <div class="mt-auto">
@@ -141,10 +156,15 @@
                             <div class="text-warning small"><i class="fas fa-star"></i> 4.8</div>
                         </div>
                     </div>
-                    <a href="description.php?ID=<?php echo $idx; ?>" class="stretched-link"></a>
+                    <a href="description.php?ID=<?php echo $book['pid']; ?>" class="stretched-link"></a>
                 </div>
             </div>
         <?php } ?>
+    </div>
+
+    <!-- Nút Xem Thêm -->
+    <div class="text-center mt-5" id="viewMoreContainer">
+        <button id="viewMoreBtn" class="btn btn-primary-glass px-5 py-3">Xem thêm sách mới <i class="fas fa-chevron-down ms-2"></i></button>
     </div>
 </div>
 
