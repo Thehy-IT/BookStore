@@ -144,16 +144,31 @@ $result = mysqli_query($con, $query); // Với ứng dụng lớn, nên dùng pr
         text-decoration: none;
     }
 
-.btn-icon:hover {
-    background: var(--accent);
-    animation: shake 0.4s ease-in-out;
-}
-@keyframes shake {
-    0%, 100% { transform: translateX(0) scale(1.1); }
-    25% { transform: translateX(-2px) scale(1.1); }
-    50% { transform: translateX(2px) scale(1.1); }
-    75% { transform: translateX(-2px) scale(1.1); }
-}
+    .btn-icon:hover {
+        background: var(--accent);
+        animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes shake {
+
+        0%,
+        100% {
+            transform: translateX(0) scale(1.1);
+        }
+
+        25% {
+            transform: translateX(-2px) scale(1.1);
+        }
+
+        50% {
+            transform: translateX(2px) scale(1.1);
+        }
+
+        75% {
+            transform: translateX(-2px) scale(1.1);
+        }
+    }
+
     .btn-icon:hover {
         background: var(--accent);
     }

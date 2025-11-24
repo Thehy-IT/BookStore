@@ -16,6 +16,16 @@ $user_id = $_SESSION['user_id'];
 
 // --- XỬ LÝ LOGIC ---
 
+// NEW: Xử lý xóa tất cả sản phẩm
+if (isset($_GET['clear_all']) && $_GET['clear_all'] == 'true') {
+    $delete_all_stmt = $con->prepare("DELETE FROM cart WHERE UserID = ?");
+    $delete_all_stmt->bind_param("i", $user_id);
+    if ($delete_all_stmt->execute()) {
+        header("Location: cart.php?action=cleared");
+        exit();
+    }
+}
+
 // 2. Xử lý thêm/cập nhật sản phẩm từ các trang khác (ví dụ: description.php)
 if (isset($_GET['ID']) && isset($_GET['quantity'])) {
     $product_id = $_GET['ID'];
@@ -56,6 +66,9 @@ if (isset($_GET['action'])) {
             break;
         case 'placed':
             $swal_script = "Swal.fire({icon: 'success', title: 'Đặt hàng thành công!', text: 'Cảm ơn bạn! Chúng tôi sẽ sớm liên hệ để xác nhận đơn hàng.', confirmButtonColor: '#0f172a'});";
+            break;
+        case 'cleared':
+            $swal_script = "Swal.fire({icon: 'success', title: 'Đã dọn dẹp!', text: 'Tất cả sản phẩm đã được xóa khỏi giỏ hàng.', timer: 2000, showConfirmButton: false});";
             break;
     }
 }
@@ -214,10 +227,13 @@ while ($row = $result->fetch_assoc()) {
                     <?php endforeach; ?>
                 </div>
 
-                <div class="mt-4">
-                    <a href="index.php" class="text-decoration-none text-muted fw-bold">
+                <div class="mt-4 d-flex justify-content-between align-items-center">
+                    <a href="index.php" class="btn btn-light rounded-pill">
                         <i class="fas fa-arrow-left me-2"></i> Tiếp tục mua sắm
                     </a>
+                    <button onclick="confirmClearAll()" class="btn btn-outline-danger rounded-pill">
+                        <i class="fas fa-trash-alt me-1"></i> Xóa tất cả
+                    </button>
                 </div>
             </div>
 
@@ -269,6 +285,25 @@ while ($row = $result->fetch_assoc()) {
 <script>
     const formatter = new Intl.NumberFormat('vi-VN');
     let debounceTimer;
+
+    // NEW: Xác nhận xóa tất cả
+    function confirmClearAll() {
+        Swal.fire({
+            title: 'Bạn chắc chắn?',
+            text: "Hành động này sẽ xóa tất cả sản phẩm khỏi giỏ hàng của bạn!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Vâng, xóa tất cả!',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "cart.php?clear_all=true";
+            }
+        });
+    }
+
 
     // Hàm thay đổi số lượng bằng nút +/-
     function changeQuantity(productId, amount) {

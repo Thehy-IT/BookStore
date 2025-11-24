@@ -172,6 +172,43 @@ $category_translations = [
         color: white;
     }
 
+    /* --- NEW: Quantity Control --- */
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 12px;
+        padding: 4px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        max-width: 150px;
+    }
+
+    .quantity-control .form-control {
+        width: 60px;
+        text-align: center;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .quantity-control .btn-qty {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        border: none;
+        background-color: white;
+        color: var(--primary);
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .quantity-control .btn-qty:hover {
+        background-color: var(--primary);
+        color: white;
+    }
+
     /* --- Detail Table --- */
     .details-list {
         list-style: none;
@@ -377,20 +414,17 @@ $category_translations = [
 
                 <!-- Quantity & Add to Cart Form -->
                 <div class="row align-items-end mb-5">
-                    <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="col-md-5 mb-3 mb-md-0">
                         <label class="form-label fw-bold small text-uppercase">Số lượng</label>
-                        <select class="form-select form-select-lg border-0 bg-light rounded-3" id="qtySelect">
-                            <?php
-                            $max_qty = ($row['Available'] > 10) ? 10 : $row['Available'];
-                            for ($i = 1; $i <= $max_qty; $i++) {
-                                echo "<option value='$i'>$i</option>";
-                            }
-                            ?>
-                        </select>
+                        <div class="quantity-control">
+                            <button class="btn-qty" onclick="changeQuantity(-1)">-</button>
+                            <input type="number" class="form-control" id="quantity-input" value="1" min="1" max="<?php echo htmlspecialchars($row['Available']); ?>">
+                            <button class="btn-qty" onclick="changeQuantity(1)">+</button>
+                        </div>
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-7">
                         <div class="d-flex gap-2">
-                            <button onclick="addToCartAjax('<?php echo $row['PID']; ?>', document.getElementById('qtySelect').value)" class="btn-add-cart flex-grow-1">
+                            <button onclick="addToCartAjax('<?php echo $row['PID']; ?>', document.getElementById('quantity-input').value)" class="btn-add-cart flex-grow-1">
                                 <i class="fas fa-shopping-bag me-2"></i> Thêm vào giỏ hàng
                             </button>
                             <button onclick="addToWishlist('<?php echo $row['PID']; ?>')" class="btn btn-outline-danger rounded-3 d-flex align-items-center px-3" title="Thêm vào yêu thích"><i class="fas fa-heart fs-5"></i></button>
@@ -573,6 +607,25 @@ $category_translations = [
 
 <!-- Logic Add to Cart (đã có trong footer.php) -->
 <script>
+    // NEW: Quantity change logic
+    function changeQuantity(amount) {
+        const input = document.getElementById('quantity-input');
+        let currentValue = parseInt(input.value);
+        let newValue = currentValue + amount;
+        const max = parseInt(input.max);
+        const min = parseInt(input.min);
+
+        if (newValue < min) {
+            newValue = min;
+        }
+        if (newValue > max) {
+            newValue = max;
+            // Có thể thêm thông báo cho người dùng ở đây
+            // Swal.fire('Thông báo', `Chỉ còn ${max} sản phẩm trong kho.`, 'info');
+        }
+        input.value = newValue;
+    }
+
     // Init Related Products Swiper
     document.addEventListener('DOMContentLoaded', function() {
         const relatedSwiper = new Swiper('.related-products-swiper', {
