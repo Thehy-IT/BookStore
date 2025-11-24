@@ -213,8 +213,8 @@ if (isset($_SESSION['user_id'])) {
                                 ?>
                             </ul>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="#new">Sách mới</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#bestseller">Bán chạy</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.php#new">Sách mới</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.php#bestseller">Bán chạy</a></li>
                         <li class="nav-item"><a class="nav-link" href="deals.php">Khuyến mãi</a></li>
                         <li class="nav-item"><a class="nav-link" href="author.php">Tác giả</a></li>
                         <li class="nav-item"><a class="nav-link" href="news.php">Tin tức</a></li>
