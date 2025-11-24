@@ -71,6 +71,17 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
         flex-shrink: 0;
         margin: 0 5px;
     }
+
+    .marquee-track .btn:hover {
+        background-color: var(--accent) !important;
+        color: var(--primary);
+        transform: translateY(-2px);
+        transition: all 0.2s ease-in-out;
+    }
+
+    .marquee-track .btn {
+        transition: all 0.2s ease-in-out;
+    }
 </style>
 
 <!-- ============== Hero Section ==============-->
@@ -139,41 +150,83 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 </div>
 
 <!-- ============== Promotions Cards ==============-->
-<div class="container mt-n4 mb-5">
-    <div class="row g-4">
-        <div class="col-lg-4 col-md-6">
-            <a href="deals.php" class="text-decoration-none">
-                <div class="promo-card">
-                    <div class="promo-icon"><i class="fas fa-shipping-fast"></i></div>
-                    <div>
-                        <h6 class="fw-bold mb-1 text-dark">Miễn Phí Vận Chuyển</h6>
-                        <p class="small text-muted mb-0">Cho đơn hàng trên 500.000đ</p>
-                    </div>
-                </div>
-            </a>
+<div class="container mt-5 mb-5">
+    <div class="row g-5 align-items-center">
+        <!-- Cột trái: Châm ngôn -->
+        <div class="col-lg-6">
+            <div id="quote-container" class="text-center p-4 d-flex flex-column justify-content-center" style="transition: opacity 0.5s ease-in-out; min-height: 250px;">
+                <i class="fas fa-quote-left fa-2x mb-3" style="color: var(--accent);"></i>
+                <h3 id="quote-text" class="fw-normal fst-italic" style="font-family: 'Playfair Display', serif; line-height: 1.7;">Một cuốn sách hay trên giá sách là một người bạn dù quay lưng lại nhưng vẫn là bạn tốt.</h3>
+                <p id="quote-author" class="text-muted mt-3">— Ngạn ngữ Anh</p>
+            </div>
         </div>
-        <div class="col-lg-4 col-md-6">
-            <a href="deals.php" class="text-decoration-none">
-                <div class="promo-card">
-                    <div class="promo-icon"><i class="fas fa-tags"></i></div>
-                    <div>
-                        <h6 class="fw-bold mb-1 text-dark">Ưu Đãi Đặc Biệt</h6>
-                        <p class="small text-muted mb-0">Giảm giá đến 30% cho sách mới</p>
+
+        <!-- Cột phải: Thẻ khuyến mãi -->
+        <div class="col-lg-6">
+            <div class="vstack gap-4">
+                <!-- Card 1 -->
+                <a href="deals.php" class="text-decoration-none">
+                    <div class="promo-card">
+                        <div class="promo-icon"><i class="fas fa-shipping-fast"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1 text-dark">Miễn Phí Vận Chuyển</h6>
+                            <p class="small text-muted mb-0">Cho đơn hàng trên 500.000đ</p>
+                        </div>
                     </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-lg-4 col-md-12">
-            <div class="promo-card bg-primary text-white" style="background: var(--primary);">
-                <div class="promo-icon text-warning" style="color: var(--accent) !important;"><i class="fas fa-gift"></i></div>
-                <div>
-                    <h6 class="fw-bold mb-1 text-white">Quà Tặng Độc Quyền</h6>
-                    <p class="small text-white-50 mb-0">Khi đăng ký thành viên mới</p>
+                </a>
+                <!-- Card 2 -->
+                <a href="deals.php" class="text-decoration-none">
+                    <div class="promo-card">
+                        <div class="promo-icon"><i class="fas fa-tags"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1 text-dark">Ưu Đãi Đặc Biệt</h6>
+                            <p class="small text-muted mb-0">Giảm giá đến 30% cho sách mới</p>
+                        </div>
+                    </div>
+                </a>
+                <!-- Card 3 -->
+                <div class="promo-card bg-primary text-white" style="background: var(--primary);">
+                    <div class="promo-icon text-warning" style="color: var(--accent) !important;"><i class="fas fa-gift"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-white">Quà Tặng Độc Quyền</h6>
+                        <p class="small text-white-50 mb-0">Khi đăng ký thành viên mới</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const quotes = [{
+            text: "Một cuốn sách hay trên giá sách là một người bạn dù quay lưng lại nhưng vẫn là bạn tốt.",
+            author: "Ngạn ngữ Anh"
+        }, {
+            text: "Đằng sau sự thành công của một người đàn ông, là hình bóng của một người phụ nữ. Còn đằng sau sự thành công của bất kì ai, là ít nhất một cuốn sách.",
+            author: "Khuyết danh"
+        }, {
+            text: "Việc đọc rất quan trọng. Nếu bạn biết cách đọc, cả thế giới sẽ mở ra cho bạn.",
+            author: "Barack Obama"
+        }, {
+            text: "Một căn phòng không có sách cũng giống như một cơ thể không có linh hồn.",
+            author: "Marcus Tullius Cicero"
+        }, ];
+        const quoteContainer = document.getElementById('quote-container');
+        const quoteTextEl = document.getElementById('quote-text');
+        const quoteAuthorEl = document.getElementById('quote-author');
+        let currentQuoteIndex = 0;
+        setInterval(() => {
+            quoteContainer.style.opacity = 0;
+            setTimeout(() => {
+                currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+                quoteTextEl.textContent = quotes[currentQuoteIndex].text;
+                quoteAuthorEl.textContent = "— " + quotes[currentQuoteIndex].author;
+                quoteContainer.style.opacity = 1;
+            }, 500);
+        }, 7000);
+    });
+</script>
 
 <!-- ============== Categories Cards ==============-->
 <div class="container my-5">
