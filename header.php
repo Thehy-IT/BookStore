@@ -102,6 +102,21 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
         $categories_menu[$category_key] = $category_translations[$category_key] ?? ucfirst($category_key);
     }
 }
+
+// --- Lấy số lượng sản phẩm trong giỏ hàng cho header ---
+$cart_item_count = 0;
+if (isset($_SESSION['user_id'])) {
+    $user_id_for_cart = $_SESSION['user_id'];
+    $stmt_cart_count = $con->prepare("SELECT SUM(Quantity) as total_items FROM cart WHERE UserID = ?");
+    if ($stmt_cart_count) {
+        $stmt_cart_count->bind_param("i", $user_id_for_cart);
+        $stmt_cart_count->execute();
+        $result_cart_count = $stmt_cart_count->get_result();
+        $row_cart_count = $result_cart_count->fetch_assoc();
+        $cart_item_count = $row_cart_count['total_items'] ?? 0;
+        $stmt_cart_count->close();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -200,7 +215,14 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
                                 <li class="nav-item"><a href="admin.php" class="btn btn-warning btn-sm rounded-pill fw-bold shadow-sm px-3"><i class="fas fa-user-shield me-1"></i> Admin</a></li>
                             <?php else: ?>
                                 <li class="nav-item"><a href="wishlist.php" class="btn btn-outline-dark rounded-circle border-0" style="width:40px; height:40px;" title="Danh sách yêu thích"><i class="fas fa-heart"></i></a></li>
-                                <li class="nav-item ms-1"><a href="cart.php" class="btn btn-outline-dark rounded-circle position-relative border-0" style="width:40px; height:40px;" title="Giỏ hàng"><i class="fas fa-shopping-bag"></i></a></li>
+                                <li class="nav-item ms-1">
+                                    <a href="cart.php" class="btn btn-outline-dark rounded-circle position-relative border-0" style="width:40px; height:40px;" title="Giỏ hàng">
+                                        <i class="fas fa-shopping-bag"></i>
+                                        <?php if ($cart_item_count > 0): ?>
+                                            <span id="header-cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"><?php echo $cart_item_count; ?></span>
+                                        <?php endif; ?>
+                                    </a>
+                                </li>
                             <?php endif; ?>
                             <!-- Notification Dropdown -->
                             <li class="nav-item dropdown ms-1">
