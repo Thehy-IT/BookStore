@@ -1,12 +1,11 @@
-<?php include 'header.php'; ?>
-<?php 
-include 'header.php'; 
+<?php
+include 'header.php';
 
 // Hiển thị thông báo flash nếu có
 if (isset($_SESSION['flash_message'])) {
     $swal_script = set_swal(
-        $_SESSION['flash_type'], 
-        'Thông báo', 
+        $_SESSION['flash_type'],
+        'Thông báo',
         $_SESSION['flash_message']
     );
     echo $swal_script;

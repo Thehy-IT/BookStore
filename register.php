@@ -39,8 +39,10 @@ if (isset($_POST['submit']) && $_POST['submit'] == "register") {
             $insert_stmt->bind_param("ss", $username, $hashed_password);
 
             if ($insert_stmt->execute()) {
-                $message = "Đăng ký thành công! Bạn có thể đăng nhập ngay.";
-                $message_type = "success";
+                // Đặt session flash để hiển thị thông báo trên trang đăng nhập
+                $_SESSION['flash_message'] = "Đăng ký thành công! Bây giờ bạn có thể đăng nhập.";
+                $_SESSION['flash_type'] = "success";
+                header("Location: login.php");
                 // Tự động chuyển hướng sau 2 giây (Xử lý bằng JS bên dưới)
             } else {
                 $message = "Lỗi hệ thống: " . $con->error;
@@ -202,15 +204,9 @@ if (isset($_POST['submit']) && $_POST['submit'] == "register") {
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     icon: '<?php echo $message_type; ?>',
-                    title: '<?php echo ($message_type == "success" ? "Success!" : "Notice"); ?>',
+                    title: 'Thông báo',
                     text: '<?php echo $message; ?>',
-                    confirmButtonColor: '#0f172a',
-                    background: 'rgba(255, 255, 255, 0.95)',
-                }).then((result) => {
-                    // Nếu đăng ký thành công, chuyển hướng về trang login
-                    if ('<?php echo $message_type; ?>' === 'success') {
-                        window.location.href = 'login.php';
-                    }
+                    confirmButtonColor: '#0f172a'
                 });
             });
         </script>

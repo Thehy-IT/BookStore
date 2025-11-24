@@ -106,6 +106,29 @@ INSERT INTO `products` (`PID`, `Title`, `Author`, `MRP`, `Price`, `Discount`, `A
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `authors`
+--
+
+CREATE TABLE `authors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `biography` text COLLATE utf8_unicode_ci,
+  `image_url` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `authors`
+--
+-- This will auto-populate authors from the products table
+--
+
+INSERT INTO `authors` (name) SELECT DISTINCT Author FROM products WHERE Author IS NOT NULL AND Author != '' ORDER BY Author;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `news`
 --
 
@@ -149,6 +172,21 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`UserID`, `UserName`, `Password`, `Role`) VALUES
 (1, 'admin', '$2y$10$z1GCPdWGeSMrTdPAAdbXiOjRAVdM14IDhjBmVtFuUwJw9l.aCBOwq', 'admin'); -- password is 'admin123'
 ALTER TABLE `users` ADD `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `wishlist`
+--
+
+CREATE TABLE `wishlist` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `UserID` int(11) NOT NULL,
+  `ProductID` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
+  `added_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_product` (`UserID`,`ProductID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

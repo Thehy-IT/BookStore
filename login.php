@@ -33,7 +33,10 @@ if (isset($_POST['submit']) && $_POST['submit'] == "login") {
         if ($row['Role'] == 'admin') {
           header("Location: admin.php");
         } else {
-          header("Location: index.php?response=success_login");
+          // Đặt một session flash để hiển thị thông báo trên trang chủ
+          $_SESSION['flash_message'] = "Đăng nhập thành công! Chào mừng trở lại, " . htmlspecialchars($row['UserName']) . ".";
+          $_SESSION['flash_type'] = "success";
+          header("Location: index.php");
         }
         exit();
       } else {

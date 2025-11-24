@@ -1,9 +1,20 @@
 <?php
 include 'header.php'; // Sử dụng header chung
 
-// 1. Kiểm tra đăng nhập
-$user_id = $_SESSION['user_id'];
 $swal_script = ""; // Biến chứa script thông báo
+
+// 1. Kiểm tra đăng nhập
+if (!isset($_SESSION['user_id'])) {
+    // Nếu chưa đăng nhập, hiển thị thông báo và yêu cầu đăng nhập
+    echo "<div class='container text-center py-5' style='margin-top: 80px; min-height: 60vh;'>
+            <h3>Vui lòng đăng nhập</h3>
+            <p class='text-muted'>Bạn cần đăng nhập để xem danh sách yêu thích.</p>
+            <button class='btn btn-primary-glass' data-bs-toggle='modal' data-bs-target='#loginModal'>Đăng nhập ngay</button>
+          </div>";
+    include 'footer.php';
+    exit();
+}
+$user_id = $_SESSION['user_id'];
 
 // 2. Xử lý Logic: THÊM SẢN PHẨM VÀO WISHLIST
 if (isset($_GET['ID'])) {
