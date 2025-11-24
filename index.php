@@ -217,6 +217,25 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
         <a href="Product.php" class="btn btn-outline-dark rounded-pill px-4">Xem Tất Cả</a>
     </div>
     <div class="row g-4 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5" id="new-arrivals-grid">
+        <style>
+            @keyframes shake {
+                0%, 100% { transform: translateX(0) scale(1.1); }
+                25% { transform: translateX(-2px) scale(1.1); }
+                50% { transform: translateX(2px) scale(1.1); }
+                75% { transform: translateX(-2px) scale(1.1); }
+            }
+            .book-card-glass .btn-icon {
+                transition: all 0.3s ease;
+            }
+            .book-card-glass .btn-icon:hover {
+                transform: scale(1.1);
+                animation: shake 0.4s ease-in-out;
+                background: var(--accent);
+            }
+            .book-card-glass .btn-icon:hover i {
+                color: white !important;
+            }
+        </style>
         <?php
         // Lấy 15 sản phẩm mới nhất từ CSDL
         $new_arrivals_query = "SELECT * FROM products ORDER BY PID DESC LIMIT 15";
@@ -247,17 +266,18 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                         <div class="action-overlay">
                             <a href="cart.php?ID=<?php echo $pid; ?>&quantity=1" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
                             <button onclick='openQuickView(<?php echo json_encode($book); ?>)' class="btn-icon" title="Xem nhanh"><i class="fas fa-eye"></i></button>
-                            <a href="wishlist.php?ID=<?php echo $pid; ?>" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></a>
+                            <button onclick="addToWishlist('<?php echo $pid; ?>')" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></button>
                         </div>
                     </div>
                     <div class="mt-auto">
-                        <h6 class="fw-bold text-truncate"><?php echo htmlspecialchars($book['Title']); ?></h6>
+                        <h6 class="fw-bold text-truncate" title="<?php echo htmlspecialchars($book['Title']); ?>">
+                            <a href="description.php?ID=<?php echo $pid; ?>" class="text-decoration-none text-dark"><?php echo htmlspecialchars($book['Title']); ?></a>
+                        </h6>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-primary fw-bold"><?php echo number_format($book['Price']); ?> đ</span>
                             <div class="text-warning small"><i class="fas fa-star"></i> 4.8</div>
                         </div>
                     </div>
-                    <a href="description.php?ID=<?php echo $pid; ?>" class="stretched-link"></a>
                 </div>
             </div>
         <?php } ?>
@@ -334,15 +354,15 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 
                     <div class="mb-5 d-flex flex-wrap">
                         <div class="deal-timer-box">
-                            <span class="deal-timer-number" id="d-hours">05</span>
+                            <span class="deal-timer-number">05</span>
                             <span class="deal-timer-label">Giờ</span>
                         </div>
                         <div class="deal-timer-box">
-                            <span class="deal-timer-number" id="d-minutes">42</span>
+                            <span class="deal-timer-number">42</span>
                             <span class="deal-timer-label">Phút</span>
                         </div>
                         <div class="deal-timer-box">
-                            <span class="deal-timer-number" id="d-seconds">18</span>
+                            <span class="deal-timer-number">18</span>
                             <span class="deal-timer-label">Giây</span>
                         </div>
                     </div>
@@ -407,5 +427,4 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
     </div>
 </div>
 
-<script src="js/script.js"></script>
 <?php include 'footer.php'; ?>

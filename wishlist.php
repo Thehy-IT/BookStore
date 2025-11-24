@@ -14,38 +14,6 @@ if (!isset($_SESSION['user_id'])) {
 }
 $user_id = $_SESSION['user_id'];
 
-// 2. Xử lý Logic: THÊM SẢN PHẨM VÀO WISHLIST
-if (isset($_GET['ID'])) {
-    $product_id = $_GET['ID'];
-
-    // Lấy URL của trang trước đó để quay lại
-    $redirect_url = $_SERVER['HTTP_REFERER'] ?? 'index.php';
-
-    // Kiểm tra xem sản phẩm đã có trong wishlist chưa
-    $check_stmt = $con->prepare("SELECT * FROM wishlist WHERE UserID = ? AND ProductID = ?");
-    $check_stmt->bind_param("is", $user_id, $product_id);
-    $check_stmt->execute();
-    $result = $check_stmt->get_result();
-
-    if ($result->num_rows == 0) {
-        // Nếu chưa có, thêm vào
-        $insert_stmt = $con->prepare("INSERT INTO wishlist (UserID, ProductID) VALUES (?, ?)");
-        $insert_stmt->bind_param("is", $user_id, $product_id);
-        if ($insert_stmt->execute()) {
-            $_SESSION['flash_message'] = "Đã thêm vào danh sách yêu thích!";
-            $_SESSION['flash_type'] = "success";
-        }
-    } else {
-        // Nếu đã có, đặt thông báo cho người dùng biết
-        $_SESSION['flash_message'] = "Sách này đã có trong danh sách yêu thích của bạn.";
-        $_SESSION['flash_type'] = "info";
-    }
-
-    // Luôn chuyển hướng về trang trước đó sau khi xử lý
-    header("Location: " . $redirect_url);
-    exit();
-}
-
 // 3. Xử lý Logic: XÓA SẢN PHẨM KHỎI WISHLIST
 if (isset($_GET['remove'])) {
     $product_id = $_GET['remove'];

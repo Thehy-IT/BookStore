@@ -144,9 +144,18 @@ $result = mysqli_query($con, $query); // Với ứng dụng lớn, nên dùng pr
         text-decoration: none;
     }
 
+.btn-icon:hover {
+    background: var(--accent);
+    animation: shake 0.4s ease-in-out;
+}
+@keyframes shake {
+    0%, 100% { transform: translateX(0) scale(1.1); }
+    25% { transform: translateX(-2px) scale(1.1); }
+    50% { transform: translateX(2px) scale(1.1); }
+    75% { transform: translateX(-2px) scale(1.1); }
+}
     .btn-icon:hover {
         background: var(--accent);
-        transform: scale(1.1) rotate(15deg);
     }
 
     .discount-badge {
@@ -331,7 +340,7 @@ $result = mysqli_query($con, $query); // Với ứng dụng lớn, nên dùng pr
                             <img src="<?php echo $path; ?>" alt="<?php echo htmlspecialchars($row['Title']); ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'">
                             <div class="action-overlay"> <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
                                 <button onclick='openQuickView(<?php echo json_encode($row); ?>)' class="btn-icon" title="Xem nhanh"><i class="fas fa-eye"></i></button>
-                                <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></a>
+                                <button onclick="addToWishlist('<?php echo $row['PID']; ?>')" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></button>
                             </div>
                         </div>
 
@@ -349,7 +358,6 @@ $result = mysqli_query($con, $query); // Với ứng dụng lớn, nên dùng pr
                                 <div class="text-warning small"><i class="fas fa-star"></i> 4.8</div>
                             </div>
                         </div>
-                        <a href="<?php echo $link; ?>" class="stretched-link"></a>
                     </div>
                 </div>
             <?php endwhile; ?>

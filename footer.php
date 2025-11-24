@@ -11,7 +11,7 @@
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control rounded-4 bg-light border-0" id="uLogin" name="login_username" placeholder="Username" required>
                                 <label for="uLogin">Username</label>
-                            </div> 
+                            </div>
                             <div class="form-floating mb-4">
                                 <input type="password" class="form-control rounded-4 bg-light border-0" id="pLogin" name="login_password" placeholder="Password" required>
                                 <label for="pLogin">Password</label>
@@ -159,7 +159,7 @@
                     </div>
                     <div class="col-lg-2 col-6">
                         <h5 class="text-warning mb-3">Support</h5>
-                        <ul class="list-unstyled text-white-50"> 
+                        <ul class="list-unstyled text-white-50">
                             <li class="mb-2"><a href="#" class="text-decoration-none text-white-50 footer-link">Về BookZ</a></li>
                             <li class="mb-2"><a href="#contact" class="text-decoration-none text-white-50 footer-link">Liên hệ</a></li>
                             <li class="mb-2"><a href="#" class="text-decoration-none text-white-50 footer-link">FAQs</a></li>
@@ -415,6 +415,50 @@
                 // Hiển thị modal
                 var quickViewModal = new bootstrap.Modal(document.getElementById('quickViewModal'));
                 quickViewModal.show();
+            }
+
+            // NEW: Add to Wishlist AJAX Logic
+            function addToWishlist(productId) {
+                fetch('add_to_wishlist_ajax.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `product_id=${productId}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                text: data.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            // Nếu yêu cầu đăng nhập, mở modal
+                            if (data.type === 'login_required') {
+                                var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                                loginModal.show();
+                            } else {
+                                // Hiển thị các lỗi khác (đã tồn tại, lỗi server,...)
+                                Swal.fire({
+                                    icon: data.type, // 'info', 'error'
+                                    title: 'Thông báo',
+                                    text: data.message,
+                                });
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi kết nối',
+                            text: 'Không thể kết nối đến máy chủ. Vui lòng thử lại.'
+                        });
+                    });
             }
         </script>
         </body>

@@ -393,7 +393,7 @@ $category_translations = [
                             <button onclick="addToCart('<?php echo $row['PID']; ?>')" class="btn-add-cart flex-grow-1">
                                 <i class="fas fa-shopping-bag me-2"></i> Thêm vào giỏ hàng
                             </button>
-                            <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn btn-outline-danger rounded-3 d-flex align-items-center px-3" title="Thêm vào yêu thích"><i class="fas fa-heart fs-5"></i></a>
+                            <button onclick="addToWishlist('<?php echo $row['PID']; ?>')" class="btn btn-outline-danger rounded-3 d-flex align-items-center px-3" title="Thêm vào yêu thích"><i class="fas fa-heart fs-5"></i></button>
                         </div>
                     </div>
                 </div>

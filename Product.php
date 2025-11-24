@@ -4,37 +4,47 @@ include 'header.php'; // Sử dụng header chung
 // --- XỬ LÝ LOGIC LỌC, TÌM KIẾM VÀ SẮP XẾP ---
 $whereClauses = [];
 $urlParams = []; // Mảng để giữ các tham số trên URL cho phân trang
+$bindTypes = ''; // Chuỗi chứa kiểu dữ liệu cho bind_param
+$bindValues = []; // Mảng chứa các giá trị cho bind_param
 
 // 1. Lọc theo Thể loại
 if (isset($_GET['category']) && !empty($_GET['category'])) {
-    $cat = mysqli_real_escape_string($con, $_GET['category']);
-    $whereClauses[] = "Category = '$cat'";
-    $urlParams['category'] = $cat;
+    $whereClauses[] = "Category = ?";
+    $bindTypes .= 's';
+    $bindValues[] = $_GET['category'];
+    $urlParams['category'] = $_GET['category'];
 }
 // 2. Lọc theo Từ khóa
 if (isset($_GET['keyword']) && !empty($_GET['keyword'])) {
-    $key = mysqli_real_escape_string($con, $_GET['keyword']);
-    $whereClauses[] = "(Title LIKE '%$key%' OR Author LIKE '%$key%')";
-    $urlParams['keyword'] = $key;
+    $keyword = '%' . $_GET['keyword'] . '%';
+    $whereClauses[] = "(Title LIKE ? OR Author LIKE ?)";
+    $bindTypes .= 'ss';
+    $bindValues[] = $keyword;
+    $bindValues[] = $keyword;
+    $urlParams['keyword'] = $_GET['keyword'];
 }
 // 3. Lọc theo Khoảng giá
 $min_price_get = isset($_GET['min_price']) && is_numeric($_GET['min_price']) ? (int)$_GET['min_price'] : null;
 $max_price_get = isset($_GET['max_price']) && is_numeric($_GET['max_price']) ? (int)$_GET['max_price'] : null;
 
 if ($min_price_get !== null && $max_price_get !== null && $min_price_get > $max_price_get) {
-    // Hoán đổi giá trị nếu min > max để đảm bảo logic đúng
     list($min_price_get, $max_price_get) = [$max_price_get, $min_price_get];
 }
 
 if ($min_price_get !== null) {
-    $min_price = $min_price_get;
-    $whereClauses[] = "Price >= $min_price";
-    $urlParams['min_price'] = $min_price;
+    $whereClauses[] = "Price >= ?";
+    $bindTypes .= 'i';
+    $bindValues[] = $min_price_get;
+    $urlParams['min_price'] = $min_price_get;
 }
 if ($max_price_get !== null) {
-    $max_price = $max_price_get;
-    $whereClauses[] = "Price <= $max_price";
-    $urlParams['max_price'] = $max_price;
+    // Thêm điều kiện để không lấy các sản phẩm có giá 1,000,000 nếu thanh trượt ở mức max
+    if ($max_price_get < 1000000) {
+        $whereClauses[] = "Price <= ?";
+        $bindTypes .= 'i';
+        $bindValues[] = $max_price_get;
+    }
+    $urlParams['max_price'] = $max_price_get;
 }
 // 4. Lọc theo Đánh giá (Giả định có cột Rating trong DB)
 if (isset($_GET['rating']) && is_numeric($_GET['rating'])) {
@@ -47,9 +57,10 @@ if (isset($_GET['rating']) && is_numeric($_GET['rating'])) {
 }
 // 5. Lọc theo Nhà xuất bản
 if (isset($_GET['publisher']) && !empty($_GET['publisher'])) {
-    $pub = mysqli_real_escape_string($con, $_GET['publisher']);
-    $whereClauses[] = "Publisher = '$pub'";
-    $urlParams['publisher'] = $pub;
+    $whereClauses[] = "Publisher = ?";
+    $bindTypes .= 's';
+    $bindValues[] = $_GET['publisher'];
+    $urlParams['publisher'] = $_GET['publisher'];
 }
 
 // 5. Sắp xếp
@@ -72,26 +83,39 @@ switch ($sort_option) {
 }
 
 // --- Ghép câu truy vấn SQL ---
-$sql = "SELECT * FROM products";
+// Tối ưu hóa: Sử dụng SQL_CALC_FOUND_ROWS để đếm tổng số dòng mà không cần truy vấn lần 2
+$sql = "SELECT SQL_CALC_FOUND_ROWS * FROM products";
 if (count($whereClauses) > 0) {
     $sql .= " WHERE " . implode(' AND ', $whereClauses);
 }
 $sql .= " " . $sql_sort;
 
 // --- PHÂN TRANG (PAGINATION) ---
-$results_per_page = 9;
-$result_count = mysqli_query($con, $sql);
-$number_of_results = mysqli_num_rows($result_count);
-$number_of_pages = ceil($number_of_results / $results_per_page);
-
+$results_per_page = 9; // Số sản phẩm mỗi trang
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
-if ($page > $number_of_pages) $page = $number_of_pages;
 if ($page < 1) $page = 1;
 
 $this_page_first_result = ($page - 1) * $results_per_page;
 
-$sql .= " LIMIT " . $this_page_first_result . ',' . $results_per_page;
-$result = mysqli_query($con, $sql);
+$sql .= " LIMIT ?, ?";
+$bindTypes .= 'ii';
+$bindValues[] = $this_page_first_result;
+$bindValues[] = $results_per_page;
+
+// --- Thực thi truy vấn chính bằng Prepared Statement ---
+$stmt = $con->prepare($sql);
+if ($stmt) {
+    if (!empty($bindTypes)) {
+        $stmt->bind_param($bindTypes, ...$bindValues);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Lấy tổng số kết quả (không tính LIMIT)
+    $count_res = $con->query("SELECT FOUND_ROWS()");
+    $number_of_results = $count_res->fetch_row()[0];
+    $number_of_pages = ceil($number_of_results / $results_per_page);
+}
 
 // --- Lấy danh sách thể loại tự động từ cơ sở dữ liệu ---
 // Mảng ánh xạ từ giá trị trong DB sang tên hiển thị tiếng Việt
@@ -207,6 +231,22 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
         display: flex;
         justify-content: space-between;
         align-items: center;
+    }
+
+    @keyframes shake-action {
+        0%, 100% { transform: translateX(0) scale(1.1); }
+        25% { transform: translateX(-2px) scale(1.1); }
+        50% { transform: translateX(2px) scale(1.1); }
+        75% { transform: translateX(-2px) scale(1.1); }
+    }
+    .product-card .btn-action {
+        transition: all 0.3s ease;
+    }
+    .product-card .btn-action:hover {
+        transform: scale(1.1);
+        animation: shake-action 0.4s ease-in-out;
+        background: var(--accent);
+        color: white;
     }
 </style>
 
@@ -365,16 +405,16 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                                     <img src="<?php echo $img; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=No+Image'" alt="<?php echo $row['Title']; ?>">
                                     <div class="card-actions">
                                         <button class="btn-action" onclick='openQuickView(<?php echo json_encode($row); ?>)' title="Xem nhanh" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></button>
-                                        <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn-action" title="Yêu thích" data-bs-toggle="tooltip"><i class="fas fa-heart"></i></a>
-                                        <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-action bg-dark text-white" title="Thêm vào giỏ" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></a>
+                                        <button onclick="addToWishlist('<?php echo $row['PID']; ?>')" class="btn-action" title="Yêu thích" data-bs-toggle="tooltip"><i class="fas fa-heart"></i></button>
+                                        <button onclick="addToCartAjax('<?php echo $row['PID']; ?>')" class="btn-action" title="Thêm vào giỏ" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></button>
                                     </div>
                                 </div>
 
                                 <div class="card-body-glass">
                                     <div class="book-category"><?php echo $category_translations[strtolower($row['Category'])] ?? ucfirst($row['Category']); ?></div>
-                                    <a href="description.php?ID=<?php echo $row['PID']; ?>" class="text-decoration-none text-dark">
-                                        <h5 class="book-title text-truncate"><?php echo $row['Title']; ?></h5>
-                                    </a>
+                                    <h5 class="book-title text-truncate" title="<?php echo htmlspecialchars($row['Title']); ?>">
+                                        <a href="description.php?ID=<?php echo $row['PID']; ?>" class="text-decoration-none text-dark"><?php echo $row['Title']; ?></a>
+                                    </h5>
                                     <div class="book-author text-truncate">Tác giả: <?php echo $row['Author']; ?></div>
 
                                     <!-- Mô tả ngắn chỉ hiện ở List View -->
