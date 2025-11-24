@@ -1,299 +1,228 @@
 <?php
-// 1. Include header chung
-// File header.php sẽ khởi tạo session và kết nối CSDL ($con)
 include 'header.php';
 
-// 2. Xử lý Logic Tác giả & Sắp xếp (SAU KHI ĐÃ CÓ KẾT NỐI CSDL)
-$author = ""; // Khởi tạo biến
+// --- Lấy tên tác giả từ URL ---
+$author_name = isset($_GET['value']) ? trim($_GET['value']) : '';
 
-// Ưu tiên lấy từ GET (khi click link), nếu không thì lấy từ Session, nếu không nữa thì báo lỗi
-if (isset($_GET['value'])) {
-    $author = $_GET['value'];
-    $_SESSION['author'] = $author;
-} elseif (isset($_SESSION['author'])) {
-    $author = $_SESSION['author'];
+if (empty($author_name)) {
+    // --- Nếu không có tên tác giả, hiển thị tất cả tác giả ---
+    $all_authors = [];
+    $result_all_authors = $con->query("SELECT name, image_url FROM authors ORDER BY name ASC");
+    if ($result_all_authors && $result_all_authors->num_rows > 0) {
+        while ($row = $result_all_authors->fetch_assoc()) {
+            $all_authors[] = $row;
+        }
+    }
+    // Đặt tiêu đề trang
+    $page_title = "Tất cả tác giả";
 } else {
-    $author = "Unknown Author";
+    // --- Xử lý cho một tác giả cụ thể ---
+    $page_title = "Tác giả: " . htmlspecialchars($author_name);
+    // --- Truy vấn thông tin tác giả ---
+    $author_info = null;
+    $stmt_author = $con->prepare("SELECT name, biography, image_url FROM authors WHERE name = ?");
+    $stmt_author->bind_param("s", $author_name);
+    $stmt_author->execute();
+    $result_author = $stmt_author->get_result();
+    if ($result_author && $result_author->num_rows > 0) {
+        $author_info = $result_author->fetch_assoc();
+    }
+
+    // --- Truy vấn sách của tác giả ---
+    $books = [];
+    $stmt_books = $con->prepare("SELECT PID, Title, Price, MRP, Category FROM products WHERE Author = ? ORDER BY Title ASC");
+    $stmt_books->bind_param("s", $author_name);
+    $stmt_books->execute();
+    $result_books = $stmt_books->get_result();
+    if ($result_books && $result_books->num_rows > 0) {
+        while ($row = $result_books->fetch_assoc()) {
+            $books[] = $row;
+        }
+    }
+
+    // Nếu không có thông tin tác giả và không có sách nào, hiển thị lỗi
+    if (!$author_info && empty($books)) {
+        echo "<div class='container text-center py-5 vh-100 d-flex flex-column justify-content-center align-items-center'>
+                <div class='text-muted mb-3' style='font-size: 4rem;'><i class='fas fa-question-circle'></i></div>
+                <h3>Không tìm thấy thông tin cho tác giả này.</h3>
+                <p class='text-muted'>Có thể tác giả bạn tìm kiếm không tồn tại hoặc chưa có sách trong cửa hàng.</p>
+                <a href='author.php' class='btn btn-primary-glass mt-3'>Xem tất cả tác giả</a>
+              </div>";
+        include 'footer.php';
+        exit;
+    }
+
+    // Xử lý ảnh đại diện: ưu tiên ảnh từ DB, nếu không có thì dùng ảnh mặc định
+    $avatar_url = !empty($author_info['image_url'])
+        ? htmlspecialchars($author_info['image_url'])
+        : "https://ui-avatars.com/api/?name=" . urlencode($author_name) . "&background=d2af37&color=fff&size=150&font-size=0.33&bold=true";
 }
-
-// 3. Xử lý Sắp xếp (Tối ưu hóa switch-case)
-$sort_option = isset($_POST['sort']) ? $_POST['sort'] : 'default';
-$sql_sort = "";
-
-switch ($sort_option) {
-    case 'price_asc':
-        $sql_sort = "ORDER BY Price ASC";
-        break;
-    case 'price_desc':
-        $sql_sort = "ORDER BY Price DESC";
-        break;
-    case 'discount_asc':
-        $sql_sort = "ORDER BY Discount ASC";
-        break; // Sửa lại logic cũ (Low to High)
-    case 'discount_desc':
-        $sql_sort = "ORDER BY Discount DESC";
-        break;
-    default:
-        $sql_sort = "";
-        break;
-}
-
-// 4. Truy vấn CSDL (Prepared Statement)
-$query = "SELECT * FROM products WHERE Author = ? " . $sql_sort;
-$stmt = $con->prepare($query);
-$stmt->bind_param("s", $author);
-$stmt->execute();
-$result = $stmt->get_result();
 ?>
 
 <style>
-    /* Kế thừa các biến CSS từ header.php */
-    :root {
-        --primary: #0f172a;
-        --accent: #d4af37;
-        --glass-bg: rgba(255, 255, 255, 0.65);
-        --glass-border: 1px solid rgba(255, 255, 255, 0.5);
-        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    .author-header {
+        margin-top: 80px;
+        padding: 50px 0;
+        background: var(--glass-bg);
+        border-bottom: var(--glass-border);
     }
 
-    /* --- NEW: Author Header Section --- */
-    .author-hero {
-        margin-top: 80px;
-        /* Khoảng cách từ navbar */
-        padding: 60px 0;
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.05), transparent),
-            linear-gradient(225deg, rgba(212, 175, 55, 0.05), transparent);
-        border-radius: 24px;
-        margin-bottom: 50px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
+    .author-avatar-lg {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
 
     .author-title {
         font-family: 'Playfair Display', serif;
-        font-size: 3.5rem;
+        font-size: 3rem;
         font-weight: 700;
         color: var(--primary);
-        margin-bottom: 15px;
     }
 
-    /* --- NEW: Sort Bar --- */
-    .sort-bar {
-        background: rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(8px);
-        border-radius: 50px;
+    .author-bio {
+        font-size: 1.1rem;
+        color: #475569;
+        line-height: 1.7;
+    }
+
+    .book-count-badge {
+        display: inline-block;
         padding: 8px 15px;
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        display: inline-flex;
-        align-items: center;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        background-color: rgba(212, 175, 55, 0.1);
+        color: var(--accent);
+        border-radius: 50px;
+        font-weight: 600;
     }
 
-    .form-select-glass {
-        background: transparent;
-        border: none;
-        font-weight: 500;
-        color: var(--primary);
-        cursor: pointer;
-        padding-right: 30px;
-        padding-left: 5px;
-    }
-
-    .form-select-glass:focus {
-        box-shadow: none;
-    }
-
-    /* --- NEW: Modern Book Card (Consistent with index.php) --- */
-    .book-card-glass {
-        background: var(--glass-bg);
-        backdrop-filter: blur(15px);
-        border: var(--glass-border);
-        border-radius: 20px;
-        padding: 15px;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .book-card-glass:hover {
-        transform: translateY(-10px);
-        background: rgba(255, 255, 255, 0.95);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-        border-color: var(--accent);
-    }
-
-    .book-img-wrapper {
-        position: relative;
+    /* Sử dụng lại style từ product_card.css hoặc định nghĩa lại nếu cần */
+    .product-card {
+        transition: all 0.3s ease;
         border-radius: 15px;
         overflow: hidden;
-        margin-bottom: 15px;
-        aspect-ratio: 2/3;
+        background: white;
+        border: 1px solid #e2e8f0;
     }
 
-    .book-img-wrapper img {
-        width: 100%;
-        height: 100%;
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .product-img img {
+        height: 250px;
         object-fit: cover;
-        transition: transform 0.5s ease;
     }
 
-    .book-card-glass:hover .book-img-wrapper img {
-        transform: scale(1.1);
+    .product-title {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 1rem;
     }
 
-    .action-overlay {
-        position: absolute;
-        bottom: -50px;
-        /* Start hidden */
-        left: 0;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        transition: bottom 0.3s ease;
-        padding-bottom: 10px;
-    }
-
-    .book-card-glass:hover .action-overlay {
-        bottom: 10px;
-        /* Slide in on hover */
-    }
-
-    .btn-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--primary);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        transition: all 0.3s ease;
-        text-decoration: none;
-    }
-
-    .btn-icon:hover {
-        background: var(--accent);
-        transform: scale(1.1) rotate(15deg);
-    }
-
-    .discount-badge {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: linear-gradient(45deg, #ef4444, #f87171);
-        color: white;
-        font-weight: 700;
-        font-size: 0.75rem;
-        padding: 4px 10px;
-        border-radius: 20px;
-        z-index: 2;
-        box-shadow: 0 3px 8px rgba(239, 68, 68, 0.4);
-    }
-
-    .book-title {
-        font-family: 'Playfair Display', serif;
-        font-weight: 700;
-        font-size: 1.15rem;
-        margin-bottom: 8px;
-    }
-
-    .price-current {
-        font-weight: 700;
-        font-size: 1.1rem;
+    .product-price {
         color: var(--primary);
+        font-weight: 700;
     }
 
-    .price-old {
+    .product-mrp {
         text-decoration: line-through;
-        color: #94a3b8;
         font-size: 0.9rem;
-        margin-left: 5px;
     }
 </style>
 
-<!-- ============== Author Content ==============-->
 <div class="container">
-
-    <!-- Header -->
-    <div class="author-hero">
-        <h5 class="text-muted text-uppercase letter-spacing-2 mb-3">Bộ sưu tập của tác giả</h5>
-        <h1 class="author-title"><?php echo htmlspecialchars($author); ?></h1>
-        <p class="lead text-muted col-md-6 mx-auto">Khám phá những tác phẩm đặc sắc nhất từ một trong những tác giả được yêu thích.</p>
-
-        <!-- Sort Dropdown -->
-        <div class="sort-bar mt-4">
-            <form action="<?php echo $_SERVER['PHP_SELF']; ?>?value=<?php echo urlencode($author); ?>" method="post" id="sortForm">
-                <i class="fas fa-sort-amount-down text-muted me-2"></i>
-                <label class="me-2 small text-uppercase fw-bold text-muted">Sắp xếp:</label>
-                <select name="sort" class="form-select form-select-glass" onchange="document.getElementById('sortForm').submit()">
-                    <option value="default" <?php if ($sort_option == 'default') echo 'selected'; ?>>Mặc định</option>
-                    <option value="price_asc" <?php if ($sort_option == 'price_asc') echo 'selected'; ?>>Giá: Thấp đến Cao</option>
-                    <option value="price_desc" <?php if ($sort_option == 'price_desc') echo 'selected'; ?>>Giá: Cao đến Thấp</option>
-                    <option value="discount_desc" <?php if ($sort_option == 'discount_desc') echo 'selected'; ?>>Giảm giá tốt nhất</option>
-                </select>
-            </form>
+    <?php if (empty($author_name)) : ?>
+        <!-- Hiển thị danh sách tất cả tác giả -->
+        <div class="py-5" style="margin-top: 80px;">
+            <h1 class="author-title text-center mb-5">Tất Cả Tác Giả</h1>
+            <?php if (!empty($all_authors)) : ?>
+                <div class="row g-4">
+                    <?php foreach ($all_authors as $author) : ?>
+                        <?php
+                        $author_avatar = !empty($author['image_url'])
+                            ? htmlspecialchars($author['image_url'])
+                            : "https://ui-avatars.com/api/?name=" . urlencode($author['name']) . "&background=d2af37&color=fff&size=150&font-size=0.33&bold=true";
+                        ?>
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <div class="card product-card h-100 text-center">
+                                <a href="author.php?value=<?php echo urlencode($author['name']); ?>" class="text-decoration-none">
+                                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                                        <img src="<?php echo $author_avatar; ?>" alt="Ảnh của <?php echo htmlspecialchars($author['name']); ?>" class="author-avatar-lg mb-3">
+                                        <h6 class="product-title text-dark"><?php echo htmlspecialchars($author['name']); ?></h6>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else : ?>
+                <p class="text-center text-muted">Chưa có tác giả nào trong cửa hàng.</p>
+            <?php endif; ?>
         </div>
-    </div>
-
-    <!-- Products Grid -->
-    <div class="row g-4 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 pb-5">
-        <?php if ($result->num_rows > 0): ?>
-            <?php while ($row = $result->fetch_assoc()):
-                $path = "img/books/" . $row['PID'] . ".jpg";
-                $link = "description.php?ID=" . $row["PID"];
-            ?>
-                <div class="col">
-                    <div class="book-card-glass h-100 d-flex flex-column">
-                        <!-- Discount -->
-                        <?php if ($row['Discount'] > 0): ?>
-                            <div class="discount-badge">-<?php echo $row['Discount']; ?>%</div>
-                        <?php endif; ?>
-
-                        <!-- Image -->
-                        <div class="book-img-wrapper">
-                            <img src="<?php echo $path; ?>" alt="<?php echo htmlspecialchars($row['Title']); ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'">
-                            <div class="action-overlay">
-                                <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
-                                <a href="<?php echo $link; ?>" class="btn-icon" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
-                                <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></a>
-                            </div>
-                        </div>
-
-                        <!-- Content -->
-                        <div class="mt-auto">
-                            <h6 class="book-title fw-bold text-truncate" title="<?php echo htmlspecialchars($row['Title']); ?>">
-                                <a href="<?php echo $link; ?>" class="text-decoration-none text-dark"><?php echo $row['Title']; ?></a>
-                            </h6>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="price-current">
-                                    <?php echo number_format($row['Price']); ?> đ
-                                    <?php if ($row['MRP'] > $row['Price']): ?>
-                                        <span class="price-old"><?php echo number_format($row['MRP']); ?> đ</span>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="text-warning small"><i class="fas fa-star"></i> 4.8</div>
-                            </div>
-                        </div>
-                        <a href="<?php echo $link; ?>" class="stretched-link"></a>
+    <?php else : ?>
+        <!-- Hiển thị chi tiết một tác giả -->
+        <!-- Author Header -->
+        <div class="author-header">
+            <div class="row align-items-center">
+                <div class="col-md-3 text-center">
+                    <img src="<?php echo $avatar_url; ?>" alt="Ảnh của <?php echo htmlspecialchars($author_name); ?>" class="author-avatar-lg">
+                </div>
+                <div class="col-md-9">
+                    <h5 class="text-muted text-uppercase letter-spacing-2 mb-2">Tác giả</h5>
+                    <h1 class="author-title mb-3"><?php echo htmlspecialchars($author_name); ?></h1>
+                    <?php if (!empty($author_info['biography'])) : ?>
+                        <p class="author-bio"><?php echo htmlspecialchars($author_info['biography']); ?></p>
+                    <?php else : ?>
+                        <p class="author-bio fst-italic text-muted">Chưa có thông tin tiểu sử cho tác giả này.</p>
+                    <?php endif; ?>
+                    <div class="book-count-badge mt-3">
+                        <i class="fas fa-book me-2"></i>
+                        Tìm thấy <?php echo count($books); ?> tác phẩm trong cửa hàng
                     </div>
                 </div>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <!-- Empty State -->
-            <div class="col-12 text-center py-5">
-                <div class="text-muted mb-3" style="font-size: 4rem;"><i class="fas fa-feather-alt"></i></div>
-                <h3>Không tìm thấy sách của tác giả này.</h3>
-                <p class="text-muted">Chúng tôi đang cập nhật bộ sưu tập. Vui lòng quay lại sau.</p>
-                <a href="index.php" class="btn btn-primary-glass mt-3">Quay về Trang chủ</a>
             </div>
-        <?php endif; ?>
-    </div>
+        </div>
+
+        <!-- Books by Author -->
+        <div class="py-5">
+            <h2 class="mb-4">Các tác phẩm của <?php echo htmlspecialchars($author_name); ?></h2>
+            <?php if (!empty($books)) : ?>
+                <div class="row g-4">
+                    <?php foreach ($books as $book) : ?>
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <div class="card product-card h-100">
+                                <a href="product.php?pid=<?php echo $book['PID']; ?>">
+                                    <div class="product-img">
+                                        <img src="img/books/<?php echo $book['PID']; ?>.jpg" class="card-img-top" alt="<?php echo htmlspecialchars($book['Title']); ?>">
+                                    </div>
+                                </a>
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="product-title mb-2">
+                                        <a href="product.php?pid=<?php echo $book['PID']; ?>" class="text-decoration-none text-dark"><?php echo htmlspecialchars($book['Title']); ?></a>
+                                    </h6>
+                                    <div class="mt-auto">
+                                        <p class="text-muted small mb-1"><?php echo htmlspecialchars($book['Category']); ?></p>
+                                        <div class="d-flex align-items-center">
+                                            <p class="product-price mb-0"><?php echo number_format($book['Price']); ?>đ</p>
+                                            <p class="product-mrp text-muted ms-2 mb-0"><?php echo number_format($book['MRP']); ?>đ</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else : ?>
+                <p class="text-center text-muted">Chưa có sách nào của tác giả này được thêm vào cửa hàng.</p>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
 </div>
 
 <?php
-include 'footer.php'; // Thêm footer để hoàn thiện trang
+include 'footer.php';
 ?>

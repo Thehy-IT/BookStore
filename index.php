@@ -1,4 +1,18 @@
 <?php include 'header.php'; ?>
+<?php 
+include 'header.php'; 
+
+// Hiển thị thông báo flash nếu có
+if (isset($_SESSION['flash_message'])) {
+    $swal_script = set_swal(
+        $_SESSION['flash_type'], 
+        'Thông báo', 
+        $_SESSION['flash_message']
+    );
+    echo $swal_script;
+    unset($_SESSION['flash_message'], $_SESSION['flash_type']);
+}
+?>
 <?php
 // Xử lý chuyển hướng khi nhấn vào nút khuyến mãi
 if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
