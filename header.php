@@ -52,10 +52,10 @@ if ($con) {
                         exit();
                     }
                 } else {
-                    $swal_script = set_swal('error', 'Login Failed', 'Sai mật khẩu.');
+                    $swal_script = set_swal('error', 'Đăng nhập thất bại', 'Sai mật khẩu.');
                 }
             } else {
-                $swal_script = set_swal('error', 'Login Failed', 'Tài khoản không tồn tại.');
+                $swal_script = set_swal('error', 'Đăng nhập thất bại', 'Tài khoản không tồn tại.');
             }
             $stmt->close();
         }
@@ -68,9 +68,9 @@ if ($con) {
         $stmt->bind_param("ss", $username, $hashed_password);
 
         if ($stmt->execute()) {
-            $swal_script = set_swal('success', 'Registered!', 'Tài khoản đã tạo thành công. Vui lòng đăng nhập.');
+            $swal_script = set_swal('success', 'Đăng ký thành công!', 'Tài khoản đã tạo thành công. Vui lòng đăng nhập.');
         } else {
-            $swal_script = set_swal('warning', 'Registration Failed', 'Tên đăng nhập đã tồn tại.');
+            $swal_script = set_swal('warning', 'Đăng ký thất bại', 'Tên đăng nhập đã tồn tại.');
         }
     }
 }
@@ -79,12 +79,18 @@ if ($con) {
 $categories_menu = [];
 // Mảng ánh xạ từ giá trị trong DB sang tên hiển thị thân thiện hơn (có thể là tiếng Việt)
 $category_translations = [
-    'self-help' => 'Phát triển bản thân',
-    'fiction' => 'Tiểu thuyết',
-    'thriller' => 'Kinh dị & Giật gân',
-    'romance' => 'Lãng mạn',
-    'fantasy' => 'Giả tưởng',
-    'biography' => 'Tiểu sử',
+    'academic and professional' => 'Học thuật & Chuyên ngành',
+    'biographies and auto biographies' => 'Tiểu sử & Tự truyện',
+    'business and management' => 'Kinh doanh & Quản lý',
+    'children and teens' => 'Sách thiếu nhi',
+    'health and cooking' => 'Sức khỏe & Nấu ăn',
+    'literature and fiction' => 'Văn học & Hư cấu',
+    'regional books' => 'Sách tiếng Việt',
+    'self-help' => 'Phát triển bản thân', // Giữ lại các mục đã có
+    'fiction' => 'Tiểu thuyết', // Giữ lại các mục đã có
+    'thriller' => 'Kinh dị & Giật gân', // Giữ lại các mục đã có
+    'romance' => 'Lãng mạn', // Giữ lại các mục đã có
+    'fantasy' => 'Giả tưởng', // Giữ lại các mục đã có
 ];
 
 $sql_categories_menu = "SELECT DISTINCT Category FROM products WHERE Category IS NOT NULL AND Category != '' ORDER BY Category ASC";
@@ -104,7 +110,7 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>BookZ | Premium Glassmorphism Store</title>
+    <title>BookZ | Cửa hàng sách cao cấp</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -915,24 +921,24 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
                         </li>
 
                         <?php if (!isset($_SESSION['user'])): ?>
-                            <li class="nav-item"><button class="btn btn-primary-glass btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">Sign In</button></li>
+                            <li class="nav-item"><button class="btn btn-primary-glass btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</button></li>
                         <?php else: ?>
                             <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
                                 <li class="nav-item"><a href="admin.php" class="btn btn-warning btn-sm rounded-pill fw-bold shadow-sm px-3"><i class="fas fa-user-shield me-1"></i> Admin</a></li>
                             <?php else: ?>
-                                <li class="nav-item"><a href="wishlist.php" class="btn btn-outline-dark rounded-circle border-0" style="width:40px; height:40px;" title="Wishlist"><i class="fas fa-heart"></i></a></li>
-                                <li class="nav-item ms-1"><a href="cart.php" class="btn btn-outline-dark rounded-circle position-relative border-0" style="width:40px; height:40px;"><i class="fas fa-shopping-bag"></i></a></li>
+                                <li class="nav-item"><a href="wishlist.php" class="btn btn-outline-dark rounded-circle border-0" style="width:40px; height:40px;" title="Danh sách yêu thích"><i class="fas fa-heart"></i></a></li>
+                                <li class="nav-item ms-1"><a href="cart.php" class="btn btn-outline-dark rounded-circle position-relative border-0" style="width:40px; height:40px;" title="Giỏ hàng"><i class="fas fa-shopping-bag"></i></a></li>
                             <?php endif; ?>
                             <!-- Notification Dropdown -->
                             <li class="nav-item dropdown ms-1">
                                 <a class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" style="width:40px; height:40px; display: inline-flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-bell fs-5"></i>
                                     <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="margin-top: 8px; margin-left: -12px;">
-                                        <span class="visually-hidden">New alerts</span>
+                                        <span class="visually-hidden">Thông báo mới</span>
                                     </span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-panel mt-2" style="width: 300px;">
-                                    <li class="px-3 py-2 fw-bold">Notifications</li>
+                                    <li class="px-3 py-2 fw-bold">Thông báo</li>
                                     <li>
                                         <hr class="dropdown-divider m-0">
                                     </li>
@@ -951,11 +957,11 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
                                     <img src="https://ui-avatars.com/api/?name=<?php echo $_SESSION['user']; ?>&background=random" class="rounded-circle" width="35">
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-panel mt-2">
-                                    <li><span class="dropdown-item-text text-muted small">Signed in as<br><strong class="text-dark"><?php echo $_SESSION['user']; ?></strong></span></li>
+                                    <li><span class="dropdown-item-text text-muted small">Đăng nhập với tên<br><strong class="text-dark"><?php echo $_SESSION['user']; ?></strong></span></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
-                                    <li><a class="dropdown-item text-danger" href="destroy.php">Logout</a></li>
+                                    <li><a class="dropdown-item text-danger" href="destroy.php">Đăng xuất</a></li>
                                 </ul>
                             </li>
                         <?php endif; ?>
