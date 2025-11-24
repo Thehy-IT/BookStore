@@ -251,7 +251,7 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
 </style>
 
 <!-- Header Banner -->
-<div class="container" style="padding-top: 20px;">
+<div class="container" style="padding-top: 100px;">
     <div class="p-5 rounded-4 text-white position-relative overflow-hidden shadow-lg"
         style="background: linear-gradient(135deg, #0f172a 0%, #334155 100%);">
         <div class="position-relative" style="z-index: 2;">

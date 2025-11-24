@@ -74,7 +74,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 </style>
 
 <!-- ============== Hero Section ==============-->
-<div class="container hero-wrapper">
+<div class="container hero-wrapper" style="padding-top: 100px;">
     <div class="row g-4 align-items-center">
         <div class="col-lg-4">
             <div class="p-4">

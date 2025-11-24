@@ -116,7 +116,7 @@ if (isset($_SESSION['flash_message'])) {
 <?php if ($swal_script) echo $swal_script; ?>
 
 <!-- ============== Checkout Content ==============-->
-<div class="container" style="padding-top: 40px; padding-bottom: 50px;">
+<div class="container" style="padding-top: 100px; padding-bottom: 50px;">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
         <ol class="breadcrumb mb-0">

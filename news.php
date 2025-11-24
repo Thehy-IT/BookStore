@@ -147,7 +147,7 @@ function formatDate($dateString)
 </div>
 
 <!-- ============== News Content ==============-->
-<div class="container my-5" style="padding-top: 60px;">
+<div class="container my-5" style="padding-top: 40px;">
     <!-- NEW: Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
         <ol class="breadcrumb mb-0">
