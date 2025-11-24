@@ -305,6 +305,82 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
     </div>
 </div>
 
+<!-- ============== Featured Authors Section ==============-->
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h6 class="text-uppercase text-primary fw-bold ls-2">Gương mặt tiêu biểu</h6>
+        <h2 class="fw-bold display-6">Tác giả nổi bật</h2>
+        <div style="width: 50px; height: 3px; background: var(--accent); margin: 15px auto;"></div>
+    </div>
+
+    <style>
+        .author-card {
+            position: relative;
+            text-align: center;
+            padding: 20px;
+            border-radius: 20px;
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .author-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--glass-shadow);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .author-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 15px auto;
+            border: 4px solid white;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .author-card:hover .author-avatar {
+            transform: scale(1.05);
+        }
+
+        .author-name {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .author-book-count {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+    </style>
+
+    <div class="row g-4">
+        <?php
+        // Lấy 4 tác giả có nhiều sách nhất trong cửa hàng
+        $featured_authors_query = "SELECT a.name, a.image_url, COUNT(p.PID) as book_count FROM products p JOIN authors a ON p.Author = a.name GROUP BY a.name, a.image_url ORDER BY book_count DESC LIMIT 4";
+        $featured_authors_result = mysqli_query($con, $featured_authors_query);
+
+        while ($author = mysqli_fetch_assoc($featured_authors_result)) :
+            $author_avatar = !empty($author['image_url']) ? htmlspecialchars($author['image_url']) : "https://ui-avatars.com/api/?name=" . urlencode($author['name']) . "&background=d2af37&color=fff&size=120&font-size=0.33&bold=true";
+        ?>
+            <div class="col-lg-3 col-md-6">
+                <a href="author.php?value=<?php echo urlencode($author['name']); ?>" class="text-decoration-none">
+                    <div class="author-card h-100">
+                        <img src="<?php echo $author_avatar; ?>" alt="Tác giả <?php echo htmlspecialchars($author['name']); ?>" class="author-avatar">
+                        <h5 class="author-name mb-1"><?php echo htmlspecialchars($author['name']); ?></h5>
+                        <p class="author-book-count mb-0"><?php echo $author['book_count']; ?> tác phẩm</p>
+                    </div>
+                </a>
+            </div>
+        <?php endwhile; ?>
+    </div>
+</div>
+
 <!-- ============== SECTION 1: BESTSELLERS (LAYOUT: CAROUSEL) ==============-->
 <div class="bestseller-section" id="bestseller">
     <div class="container">
