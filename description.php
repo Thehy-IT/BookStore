@@ -1,12 +1,5 @@
 <?php
-session_start();
-include "dbconnect.php";
-
-// Kiểm tra đăng nhập
-if (!isset($_SESSION['user'])) {
-    header("location: index.php?Message=Login To Continue");
-    exit();
-}
+include 'header.php'; // Sử dụng header chung
 
 $pid = isset($_GET['ID']) ? $_GET['ID'] : '';
 
@@ -23,57 +16,12 @@ if (!$row) {
     exit();
 }
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php echo htmlspecialchars($row['Title']); ?> | BookZ Store</title>
-
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <style>
-        :root {
-            --primary: #0f172a;
-            --accent: #d4af37;
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
-        }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #f0f4f8;
-            color: var(--primary);
-            overflow-x: hidden;
-        }
-
-        /* --- Background Blobs --- */
-        .bg-blobs {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle at 5% 10%, rgba(212, 175, 55, 0.15), transparent 40%),
-                radial-gradient(circle at 95% 90%, rgba(15, 23, 42, 0.15), transparent 40%);
-        }
-
-        /* --- Navbar Glass --- */
-        .navbar {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
+<style>
+        /* Các style này đặc thù cho trang chi tiết sản phẩm */
+        
         /* --- Main Product Card --- */
         .product-glass-card {
-            margin-top: 100px;
+            padding-top: 40px; /* Thêm khoảng đệm thay cho margin-top cũ */
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border: var(--glass-border);
@@ -215,36 +163,6 @@ if (!$row) {
             margin-bottom: 15px;
         }
     </style>
-</head>
-
-<body>
-
-    <!-- Background -->
-    <div class="bg-blobs"></div>
-
-    <!-- ============== Navbar ==============-->
-    <nav class="navbar navbar-expand-lg fixed-top shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold fs-3" href="index.php">
-                <img src="img/logo.png" height="40" alt="Logo">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navContent">
-                <form class="d-flex mx-auto my-3 my-lg-0" style="max-width: 400px; width: 100%;" action="Result.php" method="POST">
-                    <div class="input-group">
-                        <input class="form-control rounded-pill bg-light border-0 px-3" type="search" name="keyword" placeholder="Search books...">
-                    </div>
-                </form>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a href="cart.php" class="btn btn-outline-dark rounded-pill px-4"><i class="fas fa-shopping-cart me-1"></i> Cart</a></li>
-                    <li class="nav-item ms-2"><a href="destroy.php" class="btn btn-danger rounded-pill px-4"><i class="fas fa-sign-out-alt me-1"></i> Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
 
     <!-- ============== Product Details ==============-->
     <div class="container pb-5">
@@ -367,10 +285,7 @@ if (!$row) {
         </div>
     </div>
 
-    <!-- JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Logic Add to Cart -->
+    <!-- Logic Add to Cart (đã có trong footer.php) -->
     <script>
         function addToCart(pid) {
             var qty = document.getElementById('qtySelect').value;
@@ -378,6 +293,6 @@ if (!$row) {
             window.location.href = "cart.php?ID=" + pid + "&quantity=" + qty;
         }
     </script>
-</body>
-
-</html>
+<?php
+include 'footer.php'; // Sử dụng footer chung
+?>

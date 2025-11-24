@@ -1,415 +1,187 @@
 <?php
-session_start();
-include "dbconnect.php"; // Giả định file kết nối DB
+include 'header.php'; // Sử dụng header chung
 
-// --- Xử lý Logic Lọc & Tìm kiếm ---
+// --- XỬ LÝ LOGIC LỌC, TÌM KIẾM VÀ SẮP XẾP ---
 $whereClauses = [];
+$urlParams = []; // Mảng để giữ các tham số trên URL cho phân trang
+
+// 1. Lọc theo Thể loại
 if (isset($_GET['category']) && !empty($_GET['category'])) {
     $cat = mysqli_real_escape_string($con, $_GET['category']);
     $whereClauses[] = "Category = '$cat'";
+    $urlParams['category'] = $cat;
 }
+// 2. Lọc theo Từ khóa
 if (isset($_GET['keyword']) && !empty($_GET['keyword'])) {
     $key = mysqli_real_escape_string($con, $_GET['keyword']);
     $whereClauses[] = "(Title LIKE '%$key%' OR Author LIKE '%$key%')";
+    $urlParams['keyword'] = $key;
+}
+// 3. Lọc theo Khoảng giá
+if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
+    $min_price = (int)$_GET['min_price'];
+    $whereClauses[] = "Price >= $min_price";
+    $urlParams['min_price'] = $min_price;
+}
+if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
+    $max_price = (int)$_GET['max_price'];
+    $whereClauses[] = "Price <= $max_price";
+    $urlParams['max_price'] = $max_price;
+}
+// 4. Lọc theo Đánh giá (Giả định có cột Rating trong DB)
+if (isset($_GET['rating']) && is_numeric($_GET['rating'])) {
+    $rating = (int)$_GET['rating'];
+    // Giả định bảng products có cột 'Rating'
+    // $whereClauses[] = "Rating >= $rating"; 
+    $urlParams['rating'] = $rating;
+    // Do chưa có cột Rating, logic này sẽ được comment lại ở phần truy vấn
+    // nhưng vẫn giữ để bạn dễ dàng mở rộng sau này.
 }
 
-// Ghép câu truy vấn
+// 5. Sắp xếp
+$sort_option = isset($_GET['sort']) ? $_GET['sort'] : 'newest';
+$urlParams['sort'] = $sort_option;
+$sql_sort = "";
+switch ($sort_option) {
+    case 'price_asc':
+        $sql_sort = "ORDER BY Price ASC";
+        break;
+    case 'price_desc':
+        $sql_sort = "ORDER BY Price DESC";
+        break;
+    case 'bestseller':
+        $sql_sort = "ORDER BY PID ASC";
+        break; // Giả định bán chạy theo PID
+    default:
+        $sql_sort = "ORDER BY PID DESC";
+        break; // Mới nhất
+}
+
+// --- Ghép câu truy vấn SQL ---
 $sql = "SELECT * FROM products";
 if (count($whereClauses) > 0) {
     $sql .= " WHERE " . implode(' AND ', $whereClauses);
 }
-// Mặc định sắp xếp mới nhất
-$sql .= " ORDER BY PID DESC";
+$sql .= " " . $sql_sort;
 
-// --- Phân trang (Pagination) ---
-$results_per_page = 9; // Hiển thị 9 cuốn mỗi trang
+// --- PHÂN TRANG (PAGINATION) ---
+$results_per_page = 9;
 $result_count = mysqli_query($con, $sql);
 $number_of_results = mysqli_num_rows($result_count);
 $number_of_pages = ceil($number_of_results / $results_per_page);
 
-if (!isset($_GET['page'])) {
-    $page = 1;
-} else {
-    $page = $_GET['page'];
-}
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page > $number_of_pages) $page = $number_of_pages;
+if ($page < 1) $page = 1;
+
 $this_page_first_result = ($page - 1) * $results_per_page;
 
 $sql .= " LIMIT " . $this_page_first_result . ',' . $results_per_page;
 $result = mysqli_query($con, $sql);
 
 // --- Lấy danh sách thể loại tự động từ cơ sở dữ liệu ---
+// Mảng ánh xạ từ giá trị trong DB sang tên hiển thị tiếng Việt
+$category_translations = [
+    'academic and professional' => 'Học thuật & Chuyên ngành',
+    'biographies and auto biographies' => 'Tiểu sử & Tự truyện',
+    'business and management' => 'Kinh doanh & Quản lý',
+    'children and teens' => 'Sách thiếu nhi',
+    'health and cooking' => 'Sức khỏe & Nấu ăn',
+    'literature and fiction' => 'Văn học & Hư cấu',
+    'regional books' => 'Sách tiếng Việt',
+    'self-help' => 'Phát triển bản thân',
+    'fiction' => 'Tiểu thuyết',
+    'thriller' => 'Kinh dị & Giật gân',
+    'romance' => 'Lãng mạn',
+    'fantasy' => 'Giả tưởng',
+];
+
 $categories = [];
 $sql_categories = "SELECT DISTINCT Category FROM products WHERE Category IS NOT NULL AND Category != '' ORDER BY Category ASC";
 $result_categories = mysqli_query($con, $sql_categories);
 if ($result_categories && mysqli_num_rows($result_categories) > 0) {
     while ($row_cat = mysqli_fetch_assoc($result_categories)) {
-        // Sử dụng tên thể loại làm cả key và value để tương thích với code hiện tại
-        // Giả định tên thể loại trong DB là tiếng Anh, và chúng ta sẽ hiển thị nó
-        // Nếu bạn có bảng riêng cho thể loại với tên Tiếng Việt, logic sẽ khác
-        $categories[$row_cat['Category']] = $row_cat['Category'];
+        $category_key = strtolower(trim($row_cat['Category']));
+        // Lấy tên đã dịch, nếu không có thì dùng tên gốc và viết hoa chữ cái đầu
+        $categories[$category_key] = $category_translations[$category_key] ?? ucfirst($category_key);
     }
 }
 
 // Lấy category hiện tại từ URL để đánh dấu 'active'
 $current_category = isset($_GET['category']) ? $_GET['category'] : '';
+
+// Tạo chuỗi query cho URL phân trang
+$pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '']));
+
 ?>
+<script src="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css">
 
-<!DOCTYPE html>
-<html lang="en">
+<style>
+    /* --- List View Mode Styles --- */
+    .list-view .product-card {
+        flex-direction: row;
+        height: 220px;
+    }
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>BookZ | Bộ Sưu Tập Sách</title>
+    .list-view .card-img-top-wrapper {
+        width: 160px;
+        padding-top: 0;
+        flex-shrink: 0;
+    }
 
-    <!-- Google Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    .list-view .card-body-glass {
+        align-items: flex-start;
+        justify-content: center;
+    }
 
-    <!-- Libraries -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css"> <!-- Range Slider -->
+    .list-view .book-desc {
+        display: block !important;
+        font-size: 0.9rem;
+        color: #64748b;
+        margin: 10px 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
 
-    <style>
-        :root {
-            --primary: #0f172a;
-            --accent: #d4af37;
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
-            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-        }
+    .list-view .card-actions {
+        position: static;
+        transform: none;
+        opacity: 1;
+        margin-top: 15px;
+    }
+    
+    /* --- Sidebar Filter Style --- */
+    .sidebar-glass {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        border-radius: 20px;
+        padding: 25px;
+        border: var(--glass-border);
+        box-shadow: var(--glass-shadow);
+        position: sticky;
+        top: 120px; /* Sticky sidebar */
+    }
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(to bottom right, #e0e8f0, #f8fafc);
-            color: var(--primary);
-            min-height: 100vh;
-        }
-
-        /* --- Background Decoration --- */
-        .bg-decoration {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background:
-                radial-gradient(circle at 15% 50%, rgba(212, 175, 55, 0.05), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(15, 23, 42, 0.05), transparent 25%);
-        }
-
-        /* --- Navbar Reuse Style (Simplified) --- */
-        .navbar-glass {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        /* --- Sidebar Filter Style --- */
-        .sidebar-glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            border-radius: 20px;
-            padding: 25px;
-            border: var(--glass-border);
-            box-shadow: var(--glass-shadow);
-            position: sticky;
-            top: 100px;
-            /* Sticky sidebar */
-        }
-
-        .filter-title {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-            border-bottom: 2px solid var(--accent);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .form-check-input:checked {
-            background-color: var(--primary);
-            border-color: var(--primary);
-        }
-
-        /* --- Product Card Modern Style --- */
-        .product-card {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
-            border: var(--glass-border);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            height: 100%;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.95);
-            z-index: 2;
-        }
-
-        .card-img-top-wrapper {
-            position: relative;
-            overflow: hidden;
-            padding-top: 150%;
-            /* Aspect Ratio 2:3 */
-        }
-
-        .card-img-top-wrapper img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-
-        .product-card:hover .card-img-top-wrapper img {
-            transform: scale(1.08);
-        }
-
-        /* Hover Actions Overlay */
-        .card-actions {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            gap: 10px;
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 3;
-        }
-
-        .product-card:hover .card-actions {
-            opacity: 1;
-            top: 50%;
-        }
-
-        .btn-action {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: white;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transition: 0.2s;
-            text-decoration: none;
-        }
-
-        .btn-action:hover {
-            background: var(--primary);
-            color: var(--accent);
-            transform: scale(1.1);
-        }
-
-        /* Card Body */
-        .card-body-glass {
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .book-category {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #64748b;
-            margin-bottom: 5px;
-        }
-
-        .book-title {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-            line-height: 1.3;
-        }
-
-        .book-author {
-            font-size: 0.9rem;
-            color: #64748b;
-        }
-
-        .price-wrapper {
-            margin-top: auto;
-            padding-top: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .current-price {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--primary);
-        }
-
-        .old-price {
-            text-decoration: line-through;
-            font-size: 0.85rem;
-            color: #94a3b8;
-            margin-left: 5px;
-        }
-
-        /* --- List View Mode Styles --- */
-        .list-view .product-card {
-            flex-direction: row;
-            height: 220px;
-        }
-
-        .list-view .card-img-top-wrapper {
-            width: 160px;
-            padding-top: 0;
-            flex-shrink: 0;
-        }
-
-        .list-view .card-body-glass {
-            align-items: flex-start;
-            justify-content: center;
-        }
-
-        .list-view .book-desc {
-            display: block !important;
-            font-size: 0.9rem;
-            color: #64748b;
-            margin: 10px 0;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .list-view .card-actions {
-            position: static;
-            transform: none;
-            opacity: 1;
-            margin-top: 15px;
-        }
-
-        /* Pagination Modern */
-        .pagination .page-link {
-            border: none;
-            background: rgba(255, 255, 255, 0.5);
-            color: var(--primary);
-            margin: 0 5px;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        }
-
-        .pagination .page-item.active .page-link {
-            background: var(--primary);
-            color: var(--accent);
-            box-shadow: 0 5px 15px rgba(15, 23, 42, 0.3);
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="bg-decoration"></div>
-
-    <!-- ============== Navbar (from index.php) ==============-->
-    <header class="header-container navbar-glass">
-        <nav class="navbar navbar-expand-lg">
-            <div class="container">
-                <a class="navbar-brand" href="index.php">
-                    <i class="fas fa-book-open text-warning me-2"></i>
-                    <span>BOOK<span style="color: var(--accent)">Z</span></span>
-                </a>
-
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="collapse navbar-collapse" id="navContent">
-                    <!-- Menu chính -->
-                    <ul class="navbar-nav mx-auto">
-                        <li class="nav-item"><a class="nav-link" href="index.php">Trang chủ</a></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">Thể loại</a>
-                            <ul class="dropdown-menu glass-panel border-0 shadow-lg">
-                                <?php
-                                foreach ($categories as $cat_slug => $cat_name) {
-                                    echo '<li><a class="dropdown-item" href="Product.php?category=' . urlencode($cat_slug) . '">' . $cat_name . '</a></li>';
-                                }
-                                ?>
-                            </ul>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="index.php#new">Sách mới</a></li>
-                        <li class="nav-item"><a class="nav-link" href="index.php#bestseller">Bán chạy</a></li>
-                        <li class="nav-item"><a class="nav-link" href="index.php#deals">Khuyến mãi</a></li>
-                        <li class="nav-item"><a class="nav-link" href="index.php#news">Tin tức</a></li>
-                        <li class="nav-item"><a class="nav-link" href="index.php#contact">Liên hệ</a></li>
-                    </ul>
-
-                    <!-- User Actions -->
-                    <ul class="navbar-nav ms-auto flex-row align-items-center">
-                        <!-- Search Icon with Hover Effect -->
-                        <li class="nav-item me-2">
-                            <form action="Result.php" method="POST" class="search-form-hover">
-                                <input type="search" name="keyword" class="search-input" placeholder="Tìm kiếm sách...">
-                                <button type="submit" class="search-button">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </form>
-                        </li>
-
-                        <?php if (!isset($_SESSION['user'])): ?>
-                            <li class="nav-item"><button class="btn btn-primary-glass btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">Sign In</button></li>
-                        <?php else: ?>
-                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                                <li class="nav-item"><a href="admin.php" class="btn btn-warning btn-sm rounded-pill fw-bold shadow-sm px-3"><i class="fas fa-user-shield me-1"></i> Admin</a></li>
-                            <?php else: ?>
-                                <li class="nav-item"><a href="wishlist.php" class="btn btn-outline-dark rounded-circle border-0" style="width:40px; height:40px;" title="Wishlist"><i class="fas fa-heart"></i></a></li>
-                                <li class="nav-item ms-1"><a href="cart.php" class="btn btn-outline-dark rounded-circle position-relative border-0" style="width:40px; height:40px;"><i class="fas fa-shopping-bag"></i></a></li>
-                            <?php endif; ?>
-                            <li class="nav-item dropdown ms-2">
-                                <a class="nav-link dropdown-toggle p-0" href="#" role="button" data-bs-toggle="dropdown">
-                                    <img src="https://ui-avatars.com/api/?name=<?php echo $_SESSION['user']; ?>&background=random" class="rounded-circle" width="35">
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-panel mt-2">
-                                    <li><span class="dropdown-item-text text-muted small">Signed in as<br><strong class="text-dark"><?php echo $_SESSION['user']; ?></strong></span></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li><a class="dropdown-item text-danger" href="destroy.php">Logout</a></li>
-                                </ul>
-                            </li>
-                        <?php endif; ?>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
+    .filter-title {
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        border-bottom: 2px solid var(--accent);
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
 
     <!-- Header Banner -->
-    <div class="container mt-4">
+    <div class="container" style="padding-top: 20px;">
         <div class="p-5 rounded-4 text-white position-relative overflow-hidden shadow-lg"
             style="background: linear-gradient(135deg, #0f172a 0%, #334155 100%);">
-            <div class="position-relative z-2">
+            <div class="position-relative" style="z-index: 2;">
                 <h1 class="display-5 fw-bold font-playfair">Khám Phá Tri Thức</h1>
                 <p class="lead opacity-75 col-md-8">Hàng ngàn đầu sách thuộc mọi lĩnh vực đang chờ bạn khám phá.</p>
             </div>
@@ -425,12 +197,12 @@ $current_category = isset($_GET['category']) ? $_GET['category'] : '';
             <div class="col-lg-3">
                 <div class="sidebar-glass">
                     <div class="filter-title">
-                        <span><i class="fas fa-filter me-2"></i>Bộ Lọc</span>
+                        <span><i class="fas fa-filter me-2"></i>Bộ lọc</span>
                         <a href="Product.php" class="text-decoration-none text-muted small" style="font-size: 0.8rem;">Xóa lọc</a>
                     </div>
 
                     <!-- Search -->
-                    <form action="Product.php" method="GET" class="mb-4">
+                    <form action="Product.php" method="GET" class="mb-4" id="searchFormSidebar">
                         <div class="input-group">
                             <input type="text" name="keyword" class="form-control border-end-0 bg-light" placeholder="Tìm trong trang..." value="<?php echo isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : ''; ?>">
                             <button class="btn btn-light border border-start-0" type="submit"><i class="fas fa-search text-muted"></i></button>
@@ -439,37 +211,46 @@ $current_category = isset($_GET['category']) ? $_GET['category'] : '';
 
                     <!-- Categories -->
                     <div class="mb-4">
-                        <h6 class="fw-bold mb-3">Thể Loại</h6>
+                        <h6 class="fw-bold mb-3">Thể loại</h6>
                         <?php
                         foreach ($categories as $cat_slug => $cat_name) {
-                            $active_class = ($current_category == $cat_slug) ? 'fw-bold text-primary' : 'text-muted';
-                            echo '<div class="mb-2"><a href="Product.php?category=' . urlencode($cat_slug) . '" class="text-decoration-none ' . $active_class . ' d-flex justify-content-between"><span>' . $cat_name . '</span> <small class="bg-white px-2 rounded-pill shadow-sm">' . rand(10, 50) . '</small></a></div>';
+                            $active_class = ($current_category == $cat_slug) ? 'fw-bold text-primary' : 'text-dark';
+                            echo '<div class="mb-2"><a href="Product.php?category=' . urlencode($cat_slug) . '" class="text-decoration-none ' . $active_class . ' d-flex justify-content-between"><span>' . ucfirst($cat_name) . '</span></a></div>';
                         }
                         ?>
                     </div>
 
-                    <!-- Price Range (Demo UI) -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold mb-3">Khoảng Giá</h6>
-                        <input type="range" class="form-range" id="priceRange">
-                        <div class="d-flex justify-content-between small text-muted">
-                            <span>0đ</span>
-                            <span>500k+</span>
-                        </div>
-                    </div>
+                    <form id="filterForm" action="Product.php" method="GET">
+                        <!-- Hidden inputs for existing filters -->
+                        <?php if (!empty($current_category)) echo '<input type="hidden" name="category" value="' . htmlspecialchars($current_category) . '">'; ?>
+                        <?php if (isset($_GET['keyword'])) echo '<input type="hidden" name="keyword" value="' . htmlspecialchars($_GET['keyword']) . '">'; ?>
 
-                    <!-- Rating -->
-                    <div>
-                        <h6 class="fw-bold mb-3">Đánh Giá</h6>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="star5">
-                            <label class="form-check-label text-warning" for="star5"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></label>
+                        <!-- Price Range -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Khoảng giá</h6>
+                            <div id="price-slider" class="my-4"></div>
+                            <div class="d-flex justify-content-between small text-muted">
+                                <span id="min-price-display">0đ</span>
+                                <span id="max-price-display">1,000,000đ</span>
+                            </div>
+                            <input type="hidden" name="min_price" id="min_price" value="<?php echo isset($_GET['min_price']) ? $_GET['min_price'] : '0'; ?>">
+                            <input type="hidden" name="max_price" id="max_price" value="<?php echo isset($_GET['max_price']) ? $_GET['max_price'] : '1000000'; ?>">
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="star4">
-                            <label class="form-check-label text-warning" for="star4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i> & Up</label>
+
+                        <!-- Rating -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Đánh giá</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="rating" value="4" id="star4" onchange="this.form.submit()" <?php if (isset($_GET['rating']) && $_GET['rating'] == 4) echo 'checked'; ?>>
+                                <label class="form-check-label text-warning" for="star4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i> &amp; Up</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="rating" value="3" id="star3" onchange="this.form.submit()" <?php if (isset($_GET['rating']) && $_GET['rating'] == 3) echo 'checked'; ?>>
+                                <label class="form-check-label text-warning" for="star3"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i> &amp; Up</label>
+                            </div>
                         </div>
-                    </div>
+                        <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort_option); ?>">
+                    </form>
                 </div>
             </div>
 
@@ -478,16 +259,21 @@ $current_category = isset($_GET['category']) ? $_GET['category'] : '';
                 <!-- Toolbar -->
                 <div class="d-flex justify-content-between align-items-center mb-4 p-3 rounded-3" style="background: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.5);">
                     <div class="text-muted small">
-                        Hiển thị <b><?php echo $number_of_results; ?></b> kết quả
+                        Tìm thấy <b><?php echo $number_of_results; ?></b> kết quả
                     </div>
                     <div class="d-flex gap-2 align-items-center">
-                        <select class="form-select form-select-sm border-0 bg-white shadow-sm" style="width: 150px;">
-                            <option>Mới nhất</option>
-                            <option>Giá tăng dần</option>
-                            <option>Giá giảm dần</option>
-                            <option>Bán chạy</option>
-                        </select>
-                        <div class="btn-group shadow-sm">
+                        <form id="sortForm" action="Product.php" method="GET" class="d-flex align-items-center">
+                            <?php foreach ($urlParams as $key => $value) {
+                                if ($key != 'sort') echo '<input type="hidden" name="' . htmlspecialchars($key) . '" value="' . htmlspecialchars($value) . '">';
+                            } ?>
+                            <select name="sort" class="form-select form-select-sm border-0 bg-white shadow-sm" style="width: 150px;" onchange="this.form.submit()">
+                                <option value="newest" <?php if ($sort_option == 'newest') echo 'selected'; ?>>Mới nhất</option>
+                                <option value="price_asc" <?php if ($sort_option == 'price_asc') echo 'selected'; ?>>Giá tăng dần</option>
+                                <option value="price_desc" <?php if ($sort_option == 'price_desc') echo 'selected'; ?>>Giá giảm dần</option>
+                                <option value="bestseller" <?php if ($sort_option == 'bestseller') echo 'selected'; ?>>Bán chạy</option>
+                            </select>
+                        </form>
+                        <div class="btn-group shadow-sm ms-2">
                             <button class="btn btn-white btn-sm active" id="btnGridView"><i class="fas fa-th-large"></i></button>
                             <button class="btn btn-white btn-sm" id="btnListView"><i class="fas fa-list"></i></button>
                         </div>
@@ -522,11 +308,11 @@ $current_category = isset($_GET['category']) ? $_GET['category'] : '';
                                     </div>
 
                                     <div class="card-body-glass">
-                                        <div class="book-category"><?php echo $row['Category']; ?></div>
+                                        <div class="book-category"><?php echo $category_translations[strtolower($row['Category'])] ?? ucfirst($row['Category']); ?></div>
                                         <a href="description.php?ID=<?php echo $row['PID']; ?>" class="text-decoration-none text-dark">
                                             <h5 class="book-title text-truncate"><?php echo $row['Title']; ?></h5>
                                         </a>
-                                        <div class="book-author text-truncate">by <?php echo $row['Author']; ?></div>
+                                        <div class="book-author text-truncate">Tác giả: <?php echo $row['Author']; ?></div>
 
                                         <!-- Mô tả ngắn chỉ hiện ở List View -->
                                         <p class="book-desc d-none">
@@ -550,7 +336,7 @@ $current_category = isset($_GET['category']) ? $_GET['category'] : '';
                     <?php
                         }
                     } else {
-                        echo '<div class="col-12 text-center py-5"><h4 class="text-muted">Không tìm thấy sách nào!</h4><i class="fas fa-box-open fa-3x text-black-50 mt-3"></i></div>';
+                        echo '<div class="col-12 text-center py-5"><h4 class="text-muted">Không tìm thấy sách nào phù hợp!</h4><p class="text-muted">Vui lòng thử lại với bộ lọc khác.</p><i class="fas fa-box-open fa-3x text-black-50 mt-3"></i></div>';
                     }
                     ?>
                 </div>
@@ -560,18 +346,18 @@ $current_category = isset($_GET['category']) ? $_GET['category'] : '';
                     <nav>
                         <ul class="pagination">
                             <?php if ($page > 1) { ?>
-                                <li class="page-item"><a class="page-link" href="Product.php?page=<?php echo $page - 1; ?>"><i class="fas fa-chevron-left"></i></a></li>
+                                <li class="page-item"><a class="page-link" href="Product.php?<?php echo $pagination_query_string . ($page - 1); ?>"><i class="fas fa-chevron-left"></i></a></li>
                             <?php } ?>
 
                             <?php
                             for ($i = 1; $i <= $number_of_pages; $i++) {
                                 $active = ($i == $page) ? 'active' : '';
-                                echo '<li class="page-item ' . $active . '"><a class="page-link" href="Product.php?page=' . $i . '">' . $i . '</a></li>';
+                                echo '<li class="page-item ' . $active . '"><a class="page-link" href="Product.php?' . $pagination_query_string . $i . '">' . $i . '</a></li>';
                             }
                             ?>
 
-                            <?php if ($page < $number_of_pages) { ?>
-                                <li class="page-item"><a class="page-link" href="Product.php?page=<?php echo $page + 1; ?>"><i class="fas fa-chevron-right"></i></a></li>
+                            <?php if ($page < $number_of_pages && $number_of_pages > 1) { ?>
+                                <li class="page-item"><a class="page-link" href="Product.php?<?php echo $pagination_query_string . ($page + 1); ?>"><i class="fas fa-chevron-right"></i></a></li>
                             <?php } ?>
                         </ul>
                     </nav>
@@ -587,16 +373,16 @@ $current_category = isset($_GET['category']) ? $_GET['category'] : '';
             <div class="modal-content border-0 rounded-4 overflow-hidden" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
                 <div class="modal-body p-0">
                     <div class="row g-0">
-                        <div class="col-md-5 bg-light d-flex align-items-center justify-content-center p-4">
+                        <div class="col-md-5 d-flex align-items-center justify-content-center p-4" style="background: #f8f9fa;">
                             <img id="qv-img" src="" class="img-fluid shadow-lg rounded" style="max-height: 300px;">
                         </div>
                         <div class="col-md-7 p-4">
                             <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
-                            <span class="badge bg-warning text-dark mb-2" id="qv-cat">Category</span>
-                            <h3 class="fw-bold font-playfair mb-1" id="qv-title">Book Title</h3>
-                            <p class="text-muted fst-italic mb-3" id="qv-author">Author Name</p>
+                            <span class="badge bg-warning text-dark mb-2" id="qv-cat">Thể loại</span>
+                            <h3 class="fw-bold font-playfair mb-1" id="qv-title">Tên sách</h3>
+                            <p class="text-muted fst-italic mb-3" id="qv-author">Tên tác giả</p>
                             <h4 class="text-primary fw-bold mb-3" id="qv-price">100.000 đ</h4>
-                            <p class="small text-muted mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                            <p class="small text-muted mb-4" id="qv-desc">Mô tả ngắn của sách sẽ được hiển thị ở đây để người dùng có cái nhìn tổng quan nhanh chóng.</p>
 
                             <div class="d-flex gap-2">
                                 <a href="#" id="qv-add-cart" class="btn btn-dark rounded-pill px-4 flex-grow-1">Thêm vào giỏ</a>
@@ -609,7 +395,6 @@ $current_category = isset($_GET['category']) ? $_GET['category'] : '';
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Grid/List View Toggle Logic
         const container = document.getElementById('productsContainer');
@@ -645,32 +430,66 @@ $current_category = isset($_GET['category']) ? $_GET['category'] : '';
 
         // Fake Quick View Logic (In real app, fetch data via AJAX)
         function openQuickView(id) {
-            // Demo data population
+            // Lấy thông tin từ card sản phẩm đã click
+            const card = document.querySelector(`a[href="description.php?ID=${id}"]`).closest('.product-card');
+
+            // Điền dữ liệu vào modal
             document.getElementById('qv-img').src = 'img/books/' + id + '.jpg';
-            document.getElementById('qv-title').innerText = 'Book Title #' + id;
+            document.getElementById('qv-title').innerText = card.querySelector('.book-title').innerText;
             document.getElementById('qv-add-cart').href = 'cart.php?ID=' + id + '&quantity=1';
+            document.getElementById('qv-detail').href = 'description.php?ID=' + id;
 
             // Show modal
             var myModal = new bootstrap.Modal(document.getElementById('quickViewModal'));
             myModal.show();
         }
 
-        // Thêm các style cần thiết cho header mới
-        const style = document.createElement('style');
-        style.innerHTML = `
-            .header-container { position: sticky; top: 0; z-index: 1030; transition: all 0.3s ease; }
-            .search-form-hover { position: relative; display: flex; align-items: center; transition: all 0.4s ease; }
-            .search-form-hover .search-input { width: 0; padding: 8px 0; border: none; border-bottom: 2px solid var(--primary); background-color: transparent; outline: none; font-size: 1rem; color: var(--primary); transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); opacity: 0; }
-            .search-form-hover .search-button { background: transparent; border: none; font-size: 1.2rem; color: var(--primary); cursor: pointer; padding: 8px; }
-            .search-form-hover:hover .search-input { width: 200px; padding: 8px 10px; opacity: 1; }
-            .nav-link { font-weight: 600; color: var(--primary) !important; position: relative; padding: 10px 15px !important; border-radius: 8px; transition: all 0.3s; }
-            .nav-link:hover, .nav-link.active { background: rgba(0, 0, 0, 0.05); color: var(--accent) !important; }
-            .dropdown-menu.glass-panel { background: var(--glass-bg); backdrop-filter: blur(16px); border: var(--glass-border); box-shadow: var(--glass-shadow); }
-            .btn-primary-glass { background: var(--primary); color: white; border-radius: 50px; padding: 5px 20px; font-weight: 600; transition: 0.3s; box-shadow: 0 5px 15px rgba(15, 23, 42, 0.2); border: none; }
-            .btn-primary-glass:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3); }
-        `;
-        document.head.appendChild(style);
-    </script>
-</body>
+        // Price Slider Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const priceSlider = document.getElementById('price-slider');
+            if (priceSlider) {
+                const minPriceInput = document.getElementById('min_price');
+                const maxPriceInput = document.getElementById('max_price');
+                const minPriceDisplay = document.getElementById('min-price-display');
+                const maxPriceDisplay = document.getElementById('max-price-display');
 
-</html>
+                noUiSlider.create(priceSlider, {
+                    start: [parseInt(minPriceInput.value), parseInt(maxPriceInput.value)],
+                    connect: true,
+                    range: {
+                        'min': 0,
+                        'max': 1000000
+                    },
+                    step: 10000,
+                    format: {
+                        to: function(value) {
+                            return Math.round(value);
+                        },
+                        from: function(value) {
+                            return Number(value);
+                        }
+                    }
+                });
+
+                priceSlider.noUiSlider.on('update', function(values, handle) {
+                    minPriceInput.value = values[0];
+                    maxPriceInput.value = values[1];
+                    minPriceDisplay.innerHTML = new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                    }).format(values[0]);
+                    maxPriceDisplay.innerHTML = new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                    }).format(values[1]);
+                });
+                priceSlider.noUiSlider.on('end', function() {
+                    document.getElementById('filterForm').submit();
+                });
+            }
+        });
+
+    </script>
+<?php
+include 'footer.php'; // Sử dụng footer chung
+?>
