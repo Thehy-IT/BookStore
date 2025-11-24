@@ -53,13 +53,51 @@ if (isset($_GET['remove'])) {
     }
 }
 
+// 3.2. Xử lý Logic: XÓA TẤT CẢ SẢN PHẨM KHỎI WISHLIST
+if (isset($_GET['clear_all']) && $_GET['clear_all'] == 'true') {
+    $delete_all_stmt = $con->prepare("DELETE FROM wishlist WHERE UserID = ?");
+    $delete_all_stmt->bind_param("i", $user_id);
+    if ($delete_all_stmt->execute()) {
+        header("Location: wishlist.php?action=cleared");
+        exit();
+    }
+}
+
+
+// 3.5. Xử lý Logic: THÊM SẢN PHẨM VÀO GIỎ HÀNG TỪ WISHLIST
+if (isset($_GET['add_to_cart'])) {
+    $product_id = $_GET['add_to_cart'];
+    $quantity = 1; // Mặc định thêm 1 sản phẩm
+
+    // Khởi tạo giỏ hàng nếu chưa có
+    if (!isset($_SESSION['cart'])) {
+        $_SESSION['cart'] = [];
+    }
+
+    // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
+    if (isset($_SESSION['cart'][$product_id])) {
+        // Nếu có, tăng số lượng
+        $_SESSION['cart'][$product_id] += $quantity;
+    } else {
+        // Nếu chưa, thêm mới vào giỏ
+        $_SESSION['cart'][$product_id] = $quantity;
+    }
+
+    // Chuyển hướng lại trang wishlist để hiển thị thông báo
+    header("Location: wishlist.php?action=cart_added");
+    exit();
+}
+
 // 4. Xử lý thông báo dựa trên 'action'
 if (isset($_GET['action'])) {
     if ($_GET['action'] == 'added') {
         $swal_script = "Swal.fire({icon: 'success', title: 'Đã thêm!', text: 'Sách đã được thêm vào danh sách yêu thích.', timer: 2000, showConfirmButton: false});";
-    }
-    if ($_GET['action'] == 'removed') {
+    } elseif ($_GET['action'] == 'cart_added') {
+        $swal_script = "Swal.fire({icon: 'success', title: 'Thành công!', text: 'Sách đã được thêm vào giỏ hàng.', timer: 2000, showConfirmButton: false});";
+    } elseif ($_GET['action'] == 'removed') {
         $swal_script = "Swal.fire({icon: 'info', title: 'Đã xóa', text: 'Sách đã được xóa khỏi danh sách yêu thích.', timer: 2000, showConfirmButton: false});";
+    } elseif ($_GET['action'] == 'cleared') {
+        $swal_script = "Swal.fire({icon: 'success', title: 'Đã xóa tất cả!', text: 'Danh sách yêu thích của bạn đã được dọn dẹp.', timer: 2000, showConfirmButton: false});";
     }
 }
 
@@ -139,14 +177,6 @@ if (isset($_GET['action'])) {
         </ol>
     </nav>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="fw-bold" style="font-family: 'Playfair Display', serif;">Danh sách yêu thích</h1>
-            <p class="text-muted">Bộ sưu tập những cuốn sách bạn yêu thích.</p>
-        </div>
-        <a href="index.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Quay lại cửa hàng</a>
-    </div>
-
     <?php
     // Lấy dữ liệu wishlist
     $query = "SELECT p.* FROM products p JOIN wishlist w ON p.PID = w.ProductID WHERE w.UserID = ?";
@@ -155,6 +185,19 @@ if (isset($_GET['action'])) {
     $stmt->execute();
     $wishlist_result = $stmt->get_result();
     ?>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold" style="font-family: 'Playfair Display', serif;">Danh sách yêu thích</h1>
+            <p class="text-muted">Bộ sưu tập những cuốn sách bạn yêu thích.</p>
+        </div>
+        <div class="d-flex align-items-center">
+            <?php if ($wishlist_result->num_rows > 0) : ?>
+                <button onclick="confirmClearAll()" class="btn btn-outline-danger rounded-pill me-2"><i class="fas fa-trash-alt me-1"></i> Xóa tất cả</button>
+            <?php endif; ?>
+            <a href="index.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Quay lại cửa hàng</a>
+        </div>
+    </div>
 
     <div class="row g-4">
         <?php if ($wishlist_result->num_rows > 0) : ?>
@@ -172,7 +215,7 @@ if (isset($_GET['action'])) {
                         <div class="price-tag mb-3"><?php echo number_format($row['Price']); ?> đ</div>
 
                         <div class="card-footer-actions d-flex gap-2">
-                            <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn btn-sm btn-primary flex-grow-1"><i class="fas fa-cart-plus"></i></a>
+                            <a href="wishlist.php?add_to_cart=<?php echo $row['PID']; ?>" class="btn btn-sm btn-primary flex-grow-1"><i class="fas fa-cart-plus"></i></a>
                             <a href="wishlist.php?remove=<?php echo $row['PID']; ?>" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash-alt"></i></a>
                         </div>
                     </div>
@@ -191,6 +234,26 @@ if (isset($_GET['action'])) {
         <?php endif; ?>
     </div>
 </div>
+
+<script>
+    // Xác nhận xóa tất cả sản phẩm khỏi wishlist
+    function confirmClearAll() {
+        Swal.fire({
+            title: 'Bạn chắc chắn?',
+            text: "Hành động này sẽ xóa tất cả sách khỏi danh sách yêu thích của bạn!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Vâng, xóa tất cả!',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "wishlist.php?clear_all=true";
+            }
+        })
+    }
+</script>
 
 <?php
 include 'footer.php'; // Sử dụng footer chung

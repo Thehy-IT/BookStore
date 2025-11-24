@@ -329,8 +329,8 @@ $result = mysqli_query($con, $query); // Với ứng dụng lớn, nên dùng pr
 
                         <div class="book-img-wrapper">
                             <img src="<?php echo $path; ?>" alt="<?php echo htmlspecialchars($row['Title']); ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'">
-                            <div class="action-overlay">
-                                <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
+                            <div class="action-overlay">                                <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
+                                <button onclick="addToCartAjax('<?php echo $row['PID']; ?>')" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></button>
                                 <button onclick='openQuickView(<?php echo json_encode($row); ?>)' class="btn-icon" title="Xem nhanh"><i class="fas fa-eye"></i></button>
                                 <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></a>
                             </div>

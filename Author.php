@@ -212,13 +212,16 @@ if (empty($author_name)) {
                                 </a>
                                 <div class="card-body d-flex flex-column">
                                     <h6 class="product-title mb-2">
-                                        <a href="product.php?pid=<?php echo $book['PID']; ?>" class="text-decoration-none text-dark"><?php echo htmlspecialchars($book['Title']); ?></a>
+                                        <a href="description.php?ID=<?php echo $book['PID']; ?>" class="text-decoration-none text-dark"><?php echo htmlspecialchars($book['Title']); ?></a>
                                     </h6>
                                     <div class="mt-auto">
                                         <p class="text-muted small mb-1"><?php echo htmlspecialchars($book['Category']); ?></p>
-                                        <div class="d-flex align-items-center">
+                                        <div class="d-flex justify-content-between align-items-center">
                                             <p class="product-price mb-0"><?php echo number_format($book['Price']); ?>đ</p>
-                                            <p class="product-mrp text-muted ms-2 mb-0"><?php echo number_format($book['MRP']); ?>đ</p>
+                                            <div>
+                                                <a href="cart.php?ID=<?php echo $book['PID']; ?>&quantity=1" class="btn btn-sm btn-outline-dark border-0" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
+                                                <a href="wishlist.php?ID=<?php echo $book['PID']; ?>" class="btn btn-sm btn-outline-danger border-0" title="Yêu thích"><i class="fas fa-heart"></i></a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
