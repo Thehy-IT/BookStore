@@ -757,6 +757,30 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
                 transform: translateY(105vh);
             }
         }
+
+        /* --- Swiper Navigation Buttons --- */
+        .swiper-button-next,
+        .swiper-button-prev {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            color: var(--primary) !important;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .swiper-button-next:hover,
+        .swiper-button-prev:hover {
+            background: var(--primary);
+            color: white !important;
+        }
+
+        .swiper-button-next::after,
+        .swiper-button-prev::after {
+            font-size: 1.2rem !important;
+        }
     </style>
 </head>
 

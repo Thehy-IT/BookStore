@@ -119,6 +119,10 @@
             ['title' => 'The Four Winds', 'price' => '260.000', 'img' => 'img/new/15.jpg', 'tag' => 'NEW', 'pid' => 'NEW-15']
         ];
         foreach ($books as $idx => $book) {
+            // Lấy PID từ mảng book, nếu không có thì tạo một giá trị giả
+            $pid = isset($book['pid']) ? $book['pid'] : 'BOOK-' . str_pad($idx + 1, 2, '0', STR_PAD_LEFT);
+
+
             // Logic để thêm class màu cho badge
             $badge_class = '';
             switch (strtoupper($book['tag'])) {
@@ -144,9 +148,9 @@
                     <div class="book-img-wrapper">
                         <img src="<?php echo $book['img']; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'" alt="Book">
                         <div class="action-overlay">
-                            <a href="cart.php?ID=<?php echo $book['pid']; ?>&quantity=1" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
-                            <a href="description.php?ID=<?php echo $book['pid']; ?>" class="btn-icon" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
-                            <a href="wishlist.php?ID=<?php echo $book['pid']; ?>" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></a>
+                            <a href="cart.php?ID=<?php echo $pid; ?>&quantity=1" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
+                            <a href="description.php?ID=<?php echo $pid; ?>" class="btn-icon" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
+                            <a href="wishlist.php?ID=<?php echo $pid; ?>" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></a>
                         </div>
                     </div>
                     <div class="mt-auto">
@@ -156,7 +160,7 @@
                             <div class="text-warning small"><i class="fas fa-star"></i> 4.8</div>
                         </div>
                     </div>
-                    <a href="description.php?ID=<?php echo $book['pid']; ?>" class="stretched-link"></a>
+                    <a href="description.php?ID=<?php echo $pid; ?>" class="stretched-link"></a>
                 </div>
             </div>
         <?php } ?>
@@ -177,7 +181,7 @@
             <p class="text-muted">Top rated books chosen by our community</p>
         </div>
 
-        <div class="swiper bestseller-swiper pb-5">
+        <div class="swiper bestseller-swiper pb-5 position-relative">
             <div class="swiper-wrapper">
                 <!-- Slide 1 -->
                 <div class="swiper-slide">
@@ -249,8 +253,27 @@
                         </div>
                     </div>
                 </div>
+                <!-- Slide 5 -->
+                <div class="swiper-slide">
+                    <div class="bestseller-card position-relative text-center">
+                        <div class="rank-number">06</div>
+                        <div class="book-card-glass border-0 bg-transparent shadow-none">
+                            <div class="book-img-wrapper shadow-lg mb-3">
+                                <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2000&auto=format&fit=crop" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
+                            </div>
+                            <h5 class="fw-bold mt-3">The Psychology of Money</h5>
+                            <p class="text-muted small">Morgan Housel</p>
+                            <a href="#" class="btn btn-outline-dark rounded-pill btn-sm">View Details</a>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="swiper-pagination"></div>
+
+            <!-- Navigation Buttons -->
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+
         </div>
     </div>
 </div>
