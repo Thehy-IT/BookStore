@@ -55,18 +55,6 @@ if (isset($_GET['remove'])) {
     }
 }
 
-// 4. Xử lý Logic: ĐẶT HÀNG (Place Order)
-if (isset($_POST['place_order'])) {
-    // Xóa sạch giỏ hàng của user đó
-    $clear = $con->prepare("DELETE FROM cart WHERE Customer=?");
-    $clear->bind_param("s", $customer);
-
-    if ($clear->execute()) {
-        header("Location: cart.php?action=placed");
-        exit();
-    }
-}
-
 // 5. Xử lý thông báo dựa trên tham số 'action'
 if (isset($_GET['action'])) {
     if ($_GET['action'] == 'added') $swal_script = "Swal.fire({icon: 'success', title: 'Đã cập nhật!', text: 'Giỏ hàng đã được cập nhật thành công.', timer: 2000, showConfirmButton: false});";
@@ -265,12 +253,9 @@ if (isset($_GET['action'])) {
                     </div>
 
                     <!-- Form đặt hàng -->
-                    <form method="POST" id="orderForm">
-                        <input type="hidden" name="place_order" value="1">
-                        <button type="button" onclick="confirmOrder()" class="btn-checkout">
-                            Thanh toán <i class="fas fa-arrow-right ms-2"></i>
-                        </button>
-                    </form>
+                    <a href="checkout.php" class="btn-checkout text-center text-decoration-none">
+                        Tiến hành thanh toán <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
 
                     <div class="mt-3 text-center small text-muted">
                         <i class="fas fa-shield-alt me-1"></i> Thanh toán an toàn
@@ -310,23 +295,6 @@ if (isset($_GET['action'])) {
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = "cart.php?remove=" + pid;
-            }
-        })
-    }
-
-    // Xác nhận đặt hàng
-    function confirmOrder() {
-        Swal.fire({
-            title: 'Xác nhận đặt hàng?',
-            text: "Bạn sắp hoàn tất đơn hàng. Thanh toán sẽ được thực hiện khi nhận hàng.",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#0f172a',
-            confirmButtonText: 'Xác nhận',
-            cancelButtonText: 'Hủy'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('orderForm').submit();
             }
         })
     }
