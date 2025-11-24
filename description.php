@@ -390,7 +390,7 @@ $category_translations = [
                     </div>
                     <div class="col-md-8">
                         <div class="d-flex gap-2">
-                            <button onclick="addToCart('<?php echo $row['PID']; ?>')" class="btn-add-cart flex-grow-1">
+                            <button onclick="addToCartAjax('<?php echo $row['PID']; ?>', document.getElementById('qtySelect').value)" class="btn-add-cart flex-grow-1">
                                 <i class="fas fa-shopping-bag me-2"></i> Thêm vào giỏ hàng
                             </button>
                             <button onclick="addToWishlist('<?php echo $row['PID']; ?>')" class="btn btn-outline-danger rounded-3 d-flex align-items-center px-3" title="Thêm vào yêu thích"><i class="fas fa-heart fs-5"></i></button>
@@ -573,12 +573,6 @@ $category_translations = [
 
 <!-- Logic Add to Cart (đã có trong footer.php) -->
 <script>
-    function addToCart(pid) {
-        var qty = document.getElementById('qtySelect').value;
-        // Chuyển hướng đến trang xử lý giỏ hàng
-        window.location.href = "cart.php?ID=" + pid + "&quantity=" + qty;
-    }
-
     // Init Related Products Swiper
     document.addEventListener('DOMContentLoaded', function() {
         const relatedSwiper = new Swiper('.related-products-swiper', {

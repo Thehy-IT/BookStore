@@ -470,6 +470,50 @@
                     });
             }
         </script>
+        <script>
+            // NEW: Add to Cart AJAX Logic
+            function addToCartAjax(productId, quantity = 1) {
+                fetch('add_to_cart_ajax.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `product_id=${productId}&quantity=${quantity}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                text: data.message,
+                                timer: 1500,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
+                            // Cập nhật số lượng trên icon giỏ hàng ở header
+                            const headerCartBadge = document.getElementById('header-cart-count');
+                            if (headerCartBadge) {
+                                headerCartBadge.innerText = data.new_total_items;
+                                headerCartBadge.style.display = 'inline-block';
+                            }
+                        } else {
+                            if (data.type === 'login_required') {
+                                var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                                loginModal.show();
+                            } else {
+                                Swal.fire({
+                                    icon: data.type || 'error',
+                                    title: 'Thông báo',
+                                    text: data.message,
+                                });
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        </script>
         </body>
 
         </html>

@@ -406,7 +406,7 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                                     <div class="card-actions">
                                         <button class="btn-action" onclick='openQuickView(<?php echo json_encode($row); ?>)' title="Xem nhanh" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></button>
                                         <button onclick="addToWishlist('<?php echo $row['PID']; ?>')" class="btn-action" title="Yêu thích" data-bs-toggle="tooltip"><i class="fas fa-heart"></i></button>
-                                        <button onclick="addToCartAjax('<?php echo $row['PID']; ?>')" class="btn-action" title="Thêm vào giỏ" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></button>
+                                        <button onclick="addToCartAjax('<?php echo $row['PID']; ?>', 1)" class="btn-action" title="Thêm vào giỏ" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></button>
                                     </div>
                                 </div>
 
