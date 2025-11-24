@@ -148,6 +148,11 @@ if (isset($_GET['action'])) {
         color: #cbd5e1;
         margin-bottom: 20px;
     }
+
+    .quantity-input {
+        width: 70px;
+        margin-bottom: 20px;
+    }
 </style>
 <?php if ($swal_script) echo "<script>$swal_script</script>"; ?>
 
@@ -211,7 +216,13 @@ if (isset($_GET['action'])) {
                                         </td>
                                         <td class="fw-bold"><?php echo number_format($row['Price']); ?></td>
                                         <td>
-                                            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fs-6"><?php echo $row['Quantity']; ?></span>
+                                            <!-- Thay đổi: Input cho số lượng -->
+                                            <input type="number"
+                                                class="form-control form-control-sm quantity-input"
+                                                value="<?php echo $row['Quantity']; ?>"
+                                                min="1"
+                                                onchange="updateQuantity('<?php echo $row['ProductID']; ?>', this.value, <?php echo $row['Price']; ?>, this)">
+                                            <small class="text-success d-none" id="update-success-<?php echo $row['ProductID']; ?>">Đã cập nhật!</small>
                                         </td>
                                         <td class="text-end fw-bold text-primary"><?php echo number_format($subtotal); ?></td>
                                         <td class="text-end">
@@ -239,17 +250,17 @@ if (isset($_GET['action'])) {
                     <h5 class="fw-bold mb-4">Tóm tắt đơn hàng</h5>
 
                     <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted">Tạm tính (<?php echo $count; ?> sản phẩm)</span>
-                        <span class="fw-bold"><?php echo number_format($total); ?> đ</span>
+                        <span class="text-muted">Tạm tính (<span id="total-items"><?php echo $count; ?></span> sản phẩm)</span>
+                        <span class="fw-bold"><span id="subtotal-amount"><?php echo number_format($total); ?></span> đ</span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-muted">Phí vận chuyển</span>
                         <span class="text-success fw-bold">Miễn phí</span>
                     </div>
                     <hr>
-                    <div class="d-flex justify-content-between mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
                         <span class="fs-5 fw-bold">Tổng cộng</span>
-                        <span class="fs-4 fw-bold" style="color: var(--accent);"><?php echo number_format($total); ?> đ</span>
+                        <span class="fs-4 fw-bold" style="color: var(--accent);"><span id="total-amount"><?php echo number_format($total); ?></span> đ</span>
                     </div>
 
                     <!-- Form đặt hàng -->
@@ -281,6 +292,7 @@ if (isset($_GET['action'])) {
 </div>
 
 <script>
+    const formatter = new Intl.NumberFormat('vi-VN');
     // Xác nhận xóa sản phẩm
     function confirmRemove(pid) {
         Swal.fire({
@@ -297,6 +309,72 @@ if (isset($_GET['action'])) {
                 window.location.href = "cart.php?remove=" + pid;
             }
         })
+    }
+
+    // Cập nhật số lượng bằng AJAX
+    function updateQuantity(productId, newQuantity, price, element) {
+        const successMessage = document.getElementById('update-success-' + productId);
+
+        fetch('update_cart_quantity.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `product_id=${productId}&quantity=${newQuantity}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 1. Cập nhật tổng phụ của dòng sản phẩm
+                    const row = element.closest('tr');
+                    const subtotalCell = row.querySelector('.text-primary');
+                    subtotalCell.textContent = formatter.format(price * newQuantity);
+
+                    // 2. Cập nhật tóm tắt đơn hàng
+                    document.getElementById('subtotal-amount').textContent = formatter.format(data.new_total_amount);
+                    document.getElementById('total-amount').textContent = formatter.format(data.new_total_amount);
+                    document.getElementById('total-items').textContent = data.new_total_items;
+
+                // 3. Cập nhật badge số lượng trên header
+                const headerCartBadge = document.getElementById('header-cart-count');
+                if (headerCartBadge) {
+                    if (data.new_total_items > 0) {
+                        headerCartBadge.textContent = data.new_total_items;
+                        headerCartBadge.classList.remove('d-none');
+                    } else {
+                        headerCartBadge.classList.add('d-none'); // Ẩn badge nếu giỏ hàng trống
+                    }
+                }
+
+                    // 3. Hiển thị thông báo thành công nhỏ
+                    successMessage.classList.remove('d-none');
+                    setTimeout(() => {
+                        successMessage.classList.add('d-none');
+                    }, 2000); // Ẩn sau 2 giây
+
+                } else {
+                    // Xử lý lỗi (ví dụ: hiển thị thông báo lỗi)
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi cập nhật',
+                        text: data.message || 'Không thể cập nhật giỏ hàng. Vui lòng thử lại.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    // Khôi phục giá trị cũ nếu cập nhật thất bại
+                    element.value = data.old_quantity || element.value;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi kết nối',
+                    text: 'Đã xảy ra lỗi khi kết nối đến máy chủ.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            });
     }
 </script>
 <?php

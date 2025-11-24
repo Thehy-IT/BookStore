@@ -1,8 +1,6 @@
 <?php
 include 'header.php'; // Sử dụng header chung
 
-$swal_script = ""; // Biến chứa script thông báo
-
 // 1. Kiểm tra đăng nhập
 if (!isset($_SESSION['user_id'])) {
     // Nếu chưa đăng nhập, hiển thị thông báo và yêu cầu đăng nhập
@@ -20,6 +18,9 @@ $user_id = $_SESSION['user_id'];
 if (isset($_GET['ID'])) {
     $product_id = $_GET['ID'];
 
+    // Lấy URL của trang trước đó để quay lại
+    $redirect_url = $_SERVER['HTTP_REFERER'] ?? 'index.php';
+
     // Kiểm tra xem sản phẩm đã có trong wishlist chưa
     $check_stmt = $con->prepare("SELECT * FROM wishlist WHERE UserID = ? AND ProductID = ?");
     $check_stmt->bind_param("is", $user_id, $product_id);
@@ -31,15 +32,18 @@ if (isset($_GET['ID'])) {
         $insert_stmt = $con->prepare("INSERT INTO wishlist (UserID, ProductID) VALUES (?, ?)");
         $insert_stmt->bind_param("is", $user_id, $product_id);
         if ($insert_stmt->execute()) {
-            // Thêm thành công, chuyển hướng để xóa param trên URL
-            header("Location: wishlist.php?action=added");
-            exit();
+            $_SESSION['flash_message'] = "Đã thêm vào danh sách yêu thích!";
+            $_SESSION['flash_type'] = "success";
         }
     } else {
-        // Đã có sẵn, chỉ cần chuyển hướng
-        header("Location: wishlist.php");
-        exit();
+        // Nếu đã có, đặt thông báo cho người dùng biết
+        $_SESSION['flash_message'] = "Sách này đã có trong danh sách yêu thích của bạn.";
+        $_SESSION['flash_type'] = "info";
     }
+
+    // Luôn chuyển hướng về trang trước đó sau khi xử lý
+    header("Location: " . $redirect_url);
+    exit();
 }
 
 // 3. Xử lý Logic: XÓA SẢN PHẨM KHỎI WISHLIST
@@ -69,36 +73,30 @@ if (isset($_GET['add_to_cart'])) {
     $product_id = $_GET['add_to_cart'];
     $quantity = 1; // Mặc định thêm 1 sản phẩm
 
-    // Khởi tạo giỏ hàng nếu chưa có
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = [];
-    }
+    // Logic mới: Tương tác với CSDL thay vì session
+    // 1. Kiểm tra xem sản phẩm đã có trong giỏ hàng của người dùng chưa
+    $check_cart_stmt = $con->prepare("SELECT Quantity FROM cart WHERE UserID = ? AND ProductID = ?");
+    $check_cart_stmt->bind_param("is", $user_id, $product_id);
+    $check_cart_stmt->execute();
+    $cart_result = $check_cart_stmt->get_result();
 
-    // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
-    if (isset($_SESSION['cart'][$product_id])) {
-        // Nếu có, tăng số lượng
-        $_SESSION['cart'][$product_id] += $quantity;
+    if ($cart_result->num_rows > 0) {
+        // Nếu đã có, cập nhật số lượng (cộng thêm 1)
+        $row = $cart_result->fetch_assoc();
+        $new_quantity = $row['Quantity'] + $quantity;
+        $update_cart_stmt = $con->prepare("UPDATE cart SET Quantity = ? WHERE UserID = ? AND ProductID = ?");
+        $update_cart_stmt->bind_param("iis", $new_quantity, $user_id, $product_id);
+        $update_cart_stmt->execute();
     } else {
-        // Nếu chưa, thêm mới vào giỏ
-        $_SESSION['cart'][$product_id] = $quantity;
+        // Nếu chưa có, thêm mới vào giỏ hàng
+        $insert_cart_stmt = $con->prepare("INSERT INTO cart (UserID, ProductID, Quantity) VALUES (?, ?, ?)");
+        $insert_cart_stmt->bind_param("isi", $user_id, $product_id, $quantity);
+        $insert_cart_stmt->execute();
     }
 
     // Chuyển hướng lại trang wishlist để hiển thị thông báo
     header("Location: wishlist.php?action=cart_added");
     exit();
-}
-
-// 4. Xử lý thông báo dựa trên 'action'
-if (isset($_GET['action'])) {
-    if ($_GET['action'] == 'added') {
-        $swal_script = "Swal.fire({icon: 'success', title: 'Đã thêm!', text: 'Sách đã được thêm vào danh sách yêu thích.', timer: 2000, showConfirmButton: false});";
-    } elseif ($_GET['action'] == 'cart_added') {
-        $swal_script = "Swal.fire({icon: 'success', title: 'Thành công!', text: 'Sách đã được thêm vào giỏ hàng.', timer: 2000, showConfirmButton: false});";
-    } elseif ($_GET['action'] == 'removed') {
-        $swal_script = "Swal.fire({icon: 'info', title: 'Đã xóa', text: 'Sách đã được xóa khỏi danh sách yêu thích.', timer: 2000, showConfirmButton: false});";
-    } elseif ($_GET['action'] == 'cleared') {
-        $swal_script = "Swal.fire({icon: 'success', title: 'Đã xóa tất cả!', text: 'Danh sách yêu thích của bạn đã được dọn dẹp.', timer: 2000, showConfirmButton: false});";
-    }
 }
 
 ?>
@@ -165,7 +163,6 @@ if (isset($_GET['action'])) {
         border-radius: 20px;
     }
 </style>
-<?php if ($swal_script) echo "<script>$swal_script</script>"; ?>
 
 <!-- ============== Wishlist Content ==============-->
 <div class="container" style="padding-top: 40px; padding-bottom: 50px;">
