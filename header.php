@@ -5,8 +5,18 @@ include "dbconnect.php";
 
 $swal_script = "";
 
-function set_swal($icon, $title, $text = "")
+function set_swal($icon, $title, $text = "", $is_toast = false)
 {
+    if ($is_toast) {
+        return "
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
+                Toast.fire({ icon: '$icon', title: '$title' });
+            });
+        </script>";
+    }
+
     return "
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -15,7 +25,7 @@ function set_swal($icon, $title, $text = "")
                     title: '$title',
                     text: '$text',
                     background: 'rgba(255, 255, 255, 0.9)',
-                    backdrop: `rgba(0,0,123,0.1)`,
+                    backdrop: `rgba(0,0,0,0.4)`,
                     confirmButtonColor: '#0f172a',
                     customClass: { popup: 'glass-modal-alert' }
                 });
@@ -117,6 +127,21 @@ if (isset($_SESSION['user_id'])) {
         $stmt_cart_count->close();
     }
 }
+
+// --- Lấy số lượng sản phẩm trong wishlist cho header ---
+$wishlist_item_count = 0;
+if (isset($_SESSION['user_id'])) {
+    $user_id_for_wishlist = $_SESSION['user_id'];
+    $stmt_wishlist_count = $con->prepare("SELECT COUNT(*) as total_items FROM wishlist WHERE UserID = ?");
+    if ($stmt_wishlist_count) {
+        $stmt_wishlist_count->bind_param("i", $user_id_for_wishlist);
+        $stmt_wishlist_count->execute();
+        $result_wishlist_count = $stmt_wishlist_count->get_result();
+        $row_wishlist_count = $result_wishlist_count->fetch_assoc();
+        $wishlist_item_count = $row_wishlist_count['total_items'] ?? 0;
+        $stmt_wishlist_count->close();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -214,7 +239,12 @@ if (isset($_SESSION['user_id'])) {
                             <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
                                 <li class="nav-item"><a href="admin.php" class="btn btn-warning btn-sm rounded-pill fw-bold shadow-sm px-3"><i class="fas fa-user-shield me-1"></i> Admin</a></li>
                             <?php else: ?>
-                                <li class="nav-item"><a href="wishlist.php" class="btn btn-outline-dark rounded-circle border-0" style="width:40px; height:40px;" title="Danh sách yêu thích"><i class="fas fa-heart"></i></a></li>
+                                <li class="nav-item">
+                                    <a href="wishlist.php" class="btn btn-outline-dark rounded-circle position-relative border-0" style="width:40px; height:40px;" title="Danh sách yêu thích">
+                                        <i class="fas fa-heart"></i>
+                                        <span id="header-wishlist-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger <?php echo ($wishlist_item_count > 0) ? '' : 'd-none'; ?>"><?php echo $wishlist_item_count; ?></span>
+                                    </a>
+                                </li>
                                 <li class="nav-item ms-1">
                                     <a href="cart.php" class="btn btn-outline-dark rounded-circle position-relative border-0" style="width:40px; height:40px;" title="Giỏ hàng">
                                         <i class="fas fa-shopping-bag"></i>

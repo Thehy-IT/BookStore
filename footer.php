@@ -453,12 +453,21 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true
+                            });
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Thành công!',
                                 text: data.message,
-                                timer: 1500,
-                                showConfirmButton: false
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 1500
                             });
                         } else {
                             // Nếu yêu cầu đăng nhập, mở modal
@@ -498,14 +507,20 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 1500,
+                                timerProgressBar: true
+                            });
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Thành công!',
-                                text: data.message,
-                                timer: 1500,
-                                showConfirmButton: false,
+                                title: data.message,
                                 toast: true,
-                                position: 'top-end'
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 1500
                             });
                             // Cập nhật số lượng trên icon giỏ hàng ở header
                             const headerCartBadge = document.getElementById('header-cart-count');

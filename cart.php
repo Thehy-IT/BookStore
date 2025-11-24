@@ -62,13 +62,13 @@ $swal_script = "";
 if (isset($_GET['action'])) {
     switch ($_GET['action']) {
         case 'added':
-            $swal_script = "Swal.fire({icon: 'success', title: 'Thành công!', text: 'Sản phẩm đã được thêm vào giỏ hàng.', timer: 2000, showConfirmButton: false});";
+            $swal_script = set_swal('success', 'Đã thêm vào giỏ hàng!', '', true);
             break;
         case 'placed':
             $swal_script = "Swal.fire({icon: 'success', title: 'Đặt hàng thành công!', text: 'Cảm ơn bạn! Chúng tôi sẽ sớm liên hệ để xác nhận đơn hàng.', confirmButtonColor: '#0f172a'});";
             break;
         case 'cleared':
-            $swal_script = "Swal.fire({icon: 'success', title: 'Đã dọn dẹp!', text: 'Tất cả sản phẩm đã được xóa khỏi giỏ hàng.', timer: 2000, showConfirmButton: false});";
+            $swal_script = set_swal('success', 'Đã xóa tất cả sản phẩm!', '', true);
             break;
     }
 }
