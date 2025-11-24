@@ -122,10 +122,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`UserID`, `UserName`, `Password`, `Role`) VALUES
-(1, 'admin', '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', 'admin'),
-(2, 'user', '$2y$10$k.VL.o.O8gKv7A.d/pG3b.1cR8Q8rY9C8t7s6u5v4w3x2z1y0a9b', 'user'),
-(3, 'nguyenvana', '$2y$10$k.VL.o.O8gKv7A.d/pG3b.1cR8Q8rY9C8t7s6u5v4w3x2z1y0a9b', 'user'),
-(4, 'tranvanb', '$2y$10$k.VL.o.O8gKv7A.d/pG3b.1cR8Q8rY9C8t7s6u5v4w3x2z1y0a9b', 'user');
+(1, 'admin', '$2y$10$z1GCPdWGeSMrTdPAAdbXiOjRAVdM14IDhjBmVtFuUwJw9l.aCBOwq', 'admin'); -- password is 'admin123'
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
