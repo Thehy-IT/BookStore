@@ -58,6 +58,31 @@
                     <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#f0f4f8"></path>
                 </svg>
             </div>
+            <style>
+                .footer-logos-section {
+                    padding-top: 20px;
+                    border-top: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
+                .footer-logo-group h6 {
+                    color: var(--accent);
+                    font-size: 0.9rem;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    margin-bottom: 15px;
+                }
+
+                .footer-logo-item img {
+                    max-height: 30px;
+                    max-width: 60px;
+                    object-fit: contain;
+                    transition: all 0.3s ease;
+                }
+
+                .footer-logo-item:hover img {
+                    transform: scale(1.15);
+                }
+            </style>
 
             <div class="container position-relative z-2">
                 <div class="row gy-4">
@@ -67,11 +92,31 @@
                             <span>BOOK<span style="color: var(--accent)">Z</span></span>
                         </a>
                         <p class="text-white-50 mt-3">Khám phá thế giới tri thức với bộ sưu tập sách chọn lọc, mang đến trải nghiệm đọc cao cấp cho độc giả hiện đại.</p>
-                        <div class="mt-4">
-                            <a href="#" class="text-white-50 me-3 fs-5 social-icon social-icon-facebook" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#" class="text-white-50 me-3 fs-5 social-icon social-icon-instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="text-white-50 me-3 fs-5 social-icon social-icon-twitter" title="Twitter"><i class="fab fa-twitter"></i></a>
-                            <a href="#" class="text-white-50 fs-5 social-icon social-icon-youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <div class="mt-4 d-flex flex-row flex-wrap align-items-center gap-3">
+                            <a href="#" class="text-white-50 fs-5 social-icon social-icon-facebook">
+                                <i class="fab fa-facebook-f fa-fw"></i>
+                                <span class="social-name">Facebook</span>
+                            </a>
+                            <a href="#" class="text-white-50 fs-5 social-icon social-icon-instagram">
+                                <i class="fab fa-instagram fa-fw"></i>
+                                <span class="social-name">Instagram</span>
+                            </a>
+                            <a href="#" class="text-white-50 fs-5 social-icon social-icon-twitter">
+                                <i class="fab fa-twitter fa-fw"></i>
+                                <span class="social-name">Twitter</span>
+                            </a>
+                            <a href="#" class="text-white-50 fs-5 social-icon social-icon-youtube">
+                                <i class="fab fa-youtube fa-fw"></i>
+                                <span class="social-name">YouTube</span>
+                            </a>
+                            <a href="#" class="text-white-50 fs-5 social-icon social-icon-pinterest">
+                                <i class="fab fa-pinterest fa-fw"></i>
+                                <span class="social-name">Pinterest</span>
+                            </a>
+                            <a href="#" class="text-white-50 fs-5 social-icon social-icon-tiktok">
+                                <i class="fab fa-tiktok fa-fw"></i>
+                                <span class="social-name">TikTok</span>
+                            </a>
                         </div>
                     </div>
                     <div class="col-lg-2 col-6 offset-lg-1">
@@ -101,6 +146,40 @@
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </form>
+                    </div>
+                </div>
+
+                <!-- NEW: Payment, Shipping, and App Logos -->
+                <div class="row footer-logos-section mt-5">
+                    <!-- Payment Methods -->
+                    <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                        <h6 class="fw-bold">Phương thức thanh toán</h6>
+                        <div class="d-flex flex-wrap align-items-center">
+                            <a href="#" class="footer-logo-item me-3 mb-2"><img src="img/footer/momo.png" alt="Momo"></a>
+                            <a href="#" class="footer-logo-item me-3 mb-2"><img src="img/footer/zalopay.png" alt="ZaloPay"></a>
+                            <a href="#" class="footer-logo-item me-3 mb-2"><img src="img/footer/vnpay.png" alt="VNPAY"></a>
+                            <a href="#" class="footer-logo-item me-3 mb-2"><img src="img/footer/shopee.png" alt="ShopeePay"></a>
+                        </div>
+                    </div>
+                    <!-- Shipping Partners -->
+                    <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                        <h6 class="fw-bold">Đối tác vận chuyển</h6>
+                        <div class="d-flex flex-wrap align-items-center">
+                            <a href="#" class="footer-logo-item me-3 mb-2"><img src="img/footer/vietnampost.png" alt="Vietnam Post"></a>
+                            <a href="#" class="footer-logo-item me-3 mb-2"><img src="img/footer/ex.png" alt="Partner"></a>
+                        </div>
+                    </div>
+                    <!-- App Download -->
+                    <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                        <h6 class="fw-bold">Tải ứng dụng</h6>
+                        <div class="d-flex flex-wrap align-items-center">
+                            <a href="#" class="footer-logo-item me-3 mb-2"><img src="img/footer/store.png" alt="App Store"></a>
+                            <a href="#" class="footer-logo-item me-3 mb-2"><img src="img/footer/play.png" alt="Google Play"></a>
+                        </div>
+                    </div>
+                    <!-- BCT Logo -->
+                    <div class="col-lg-2 col-md-6 text-lg-end">
+                        <a href="#" class="footer-logo-item"><img src="img/footer/logo_bct.png" alt="Bộ Công Thương" style="max-height: 45px; max-width: 120px;"></a>
                     </div>
                 </div>
                 <div class="border-top border-secondary mt-5 pt-4 text-center text-white-50">

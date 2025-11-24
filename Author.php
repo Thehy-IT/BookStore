@@ -1,15 +1,11 @@
 <?php
-session_start();
-include "dbconnect.php";
+// 1. Include header chung
+// File header.php sẽ khởi tạo session và kết nối CSDL ($con)
+include 'header.php';
 
-// 1. Kiểm tra đăng nhập (Giữ nguyên yêu cầu của bạn)
-if (!isset($_SESSION['user'])) {
-    header("location: login.php"); // Chuyển hướng sang trang login mới đẹp hơn
-    exit();
-}
+// 2. Xử lý Logic Tác giả & Sắp xếp (SAU KHI ĐÃ CÓ KẾT NỐI CSDL)
+$author = ""; // Khởi tạo biến
 
-// 2. Xử lý Logic Tác giả & Sắp xếp
-$author = "";
 // Ưu tiên lấy từ GET (khi click link), nếu không thì lấy từ Session, nếu không nữa thì báo lỗi
 if (isset($_GET['value'])) {
     $author = $_GET['value'];
@@ -50,314 +46,254 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<style>
+    /* Kế thừa các biến CSS từ header.php */
+    :root {
+        --primary: #0f172a;
+        --accent: #d4af37;
+        --glass-bg: rgba(255, 255, 255, 0.65);
+        --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    }
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php echo htmlspecialchars($author); ?> | BookZ Store</title>
+    /* --- NEW: Author Header Section --- */
+    .author-hero {
+        margin-top: 80px;
+        /* Khoảng cách từ navbar */
+        padding: 60px 0;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.05), transparent),
+            linear-gradient(225deg, rgba(212, 175, 55, 0.05), transparent);
+        border-radius: 24px;
+        margin-bottom: 50px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
 
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    .author-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 15px;
+    }
 
-    <style>
-        :root {
-            --primary: #0f172a;
-            --accent: #d4af37;
-            --glass-bg: rgba(255, 255, 255, 0.65);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
-        }
+    /* --- NEW: Sort Bar --- */
+    .sort-bar {
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(8px);
+        border-radius: 50px;
+        padding: 8px 15px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        display: inline-flex;
+        align-items: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #f0f4f8;
-            color: var(--primary);
-            overflow-x: hidden;
-        }
+    .form-select-glass {
+        background: transparent;
+        border: none;
+        font-weight: 500;
+        color: var(--primary);
+        cursor: pointer;
+        padding-right: 30px;
+        padding-left: 5px;
+    }
 
-        /* --- Background Blobs (Nền động) --- */
-        .bg-blobs {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle at 80% 10%, rgba(212, 175, 55, 0.15), transparent 40%),
-                radial-gradient(circle at 10% 90%, rgba(15, 23, 42, 0.1), transparent 40%);
-        }
+    .form-select-glass:focus {
+        box-shadow: none;
+    }
 
-        /* --- Navbar Glass --- */
-        .navbar {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
+    /* --- NEW: Modern Book Card (Consistent with index.php) --- */
+    .book-card-glass {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: var(--glass-border);
+        border-radius: 20px;
+        padding: 15px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
 
-        /* --- Header Section --- */
-        .author-header {
-            margin-top: 100px;
-            margin-bottom: 40px;
-            text-align: center;
-            position: relative;
-        }
+    .book-card-glass:hover {
+        transform: translateY(-10px);
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        border-color: var(--accent);
+    }
 
-        .author-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: var(--accent);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            margin: 0 auto 20px;
-            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
-        }
+    .book-img-wrapper {
+        position: relative;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        aspect-ratio: 2/3;
+    }
 
-        .author-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 5px;
-        }
+    .book-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
 
-        /* --- Sort Bar Glass --- */
-        .sort-bar {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 50px;
-            padding: 8px 25px;
-            border: var(--glass-border);
-            display: inline-flex;
-            align-items: center;
-            margin-top: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
+    .book-card-glass:hover .book-img-wrapper img {
+        transform: scale(1.1);
+    }
 
-        .form-select-glass {
-            background: transparent;
-            border: none;
-            font-weight: 600;
-            color: var(--primary);
-            cursor: pointer;
-            padding-right: 30px;
-        }
+    .action-overlay {
+        position: absolute;
+        bottom: -50px;
+        /* Start hidden */
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        transition: bottom 0.3s ease;
+        padding-bottom: 10px;
+    }
 
-        .form-select-glass:focus {
-            box-shadow: none;
-        }
+    .book-card-glass:hover .action-overlay {
+        bottom: 10px;
+        /* Slide in on hover */
+    }
 
-        /* --- Product Card Glass --- */
-        .book-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border: var(--glass-border);
-            border-radius: 20px;
-            padding: 20px;
-            transition: all 0.4s ease;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
+    .btn-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
 
-        .book-card:hover {
-            transform: translateY(-10px);
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border-color: var(--accent);
-        }
+    .btn-icon:hover {
+        background: var(--accent);
+        transform: scale(1.1) rotate(15deg);
+    }
 
-        .book-img-wrapper {
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 15px;
-            aspect-ratio: 2/3;
-        }
+    .discount-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: linear-gradient(45deg, #ef4444, #f87171);
+        color: white;
+        font-weight: 700;
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        z-index: 2;
+        box-shadow: 0 3px 8px rgba(239, 68, 68, 0.4);
+    }
 
-        .book-img-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: 0.5s;
-        }
+    .book-title {
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        font-size: 1.15rem;
+        margin-bottom: 8px;
+    }
 
-        .book-card:hover .book-img-wrapper img {
-            transform: scale(1.08);
-        }
+    .price-current {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary);
+    }
 
-        .discount-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: #ef4444;
-            color: white;
-            font-weight: 700;
-            font-size: 0.75rem;
-            padding: 4px 10px;
-            border-radius: 20px;
-            z-index: 2;
-        }
+    .price-old {
+        text-decoration: line-through;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin-left: 5px;
+    }
+</style>
 
-        .book-title {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-            font-size: 1.15rem;
-            margin-bottom: 5px;
-            display: -webkit-box;
-            -webkit-line-clamp: 1;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
+<!-- ============== Author Content ==============-->
+<div class="container">
 
-        .price-current {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--primary);
-        }
+    <!-- Header -->
+    <div class="author-hero">
+        <h5 class="text-muted text-uppercase letter-spacing-2 mb-3">Bộ sưu tập của tác giả</h5>
+        <h1 class="author-title"><?php echo htmlspecialchars($author); ?></h1>
+        <p class="lead text-muted col-md-6 mx-auto">Khám phá những tác phẩm đặc sắc nhất từ một trong những tác giả được yêu thích.</p>
 
-        .price-old {
-            text-decoration: line-through;
-            color: #94a3b8;
-            font-size: 0.9rem;
-            margin-left: 5px;
-        }
-
-        .btn-view {
-            margin-top: auto;
-            /* Đẩy nút xuống đáy */
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 10px;
-            font-weight: 600;
-            width: 100%;
-            transition: 0.3s;
-        }
-
-        .btn-view:hover {
-            background: var(--accent);
-        }
-    </style>
-</head>
-
-<body>
-
-    <!-- Background -->
-    <div class="bg-blobs"></div>
-
-    <!-- ============== Navbar ==============-->
-    <nav class="navbar navbar-expand-lg fixed-top shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold fs-3" href="index.php">
-                <img src="img/logo.png" height="40" alt="Logo" class="me-2">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navContent">
-                <form class="d-flex mx-auto my-3 my-lg-0" style="max-width: 400px; width: 100%;" action="Result.php" method="POST">
-                    <div class="input-group">
-                        <input class="form-control rounded-pill bg-light border-0 px-3" type="search" name="keyword" placeholder="Search books...">
-                    </div>
-                </form>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a href="cart.php" class="btn btn-outline-dark rounded-pill px-4 me-2"><i class="fas fa-shopping-cart"></i> Cart</a></li>
-                    <li class="nav-item"><a href="destroy.php" class="btn btn-danger rounded-pill px-4">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- ============== Author Content ==============-->
-    <div class="container">
-
-        <!-- Header -->
-        <div class="author-header fade-in-up">
-            <!-- Icon đại diện cho tác giả -->
-            <div class="author-avatar">
-                <i class="fas fa-pen-nib"></i>
-            </div>
-            <h5 class="text-muted text-uppercase ls-2 mb-2">Author Collection</h5>
-            <h1 class="author-title"><?php echo htmlspecialchars($author); ?></h1>
-
-            <!-- Sort Dropdown -->
-            <div class="sort-bar">
-                <form action="<?php echo $_SERVER['PHP_SELF']; ?>?value=<?php echo urlencode($author); ?>" method="post" id="sortForm">
-                    <i class="fas fa-sort-amount-down text-muted me-2"></i>
-                    <label class="me-2 small text-uppercase fw-bold text-muted">Sort:</label>
-                    <select name="sort" class="form-select form-select-glass" onchange="document.getElementById('sortForm').submit()">
-                        <option value="default" <?php if ($sort_option == 'default') echo 'selected'; ?>>Recommended</option>
-                        <option value="price_asc" <?php if ($sort_option == 'price_asc') echo 'selected'; ?>>Price: Low to High</option>
-                        <option value="price_desc" <?php if ($sort_option == 'price_desc') echo 'selected'; ?>>Price: High to Low</option>
-                        <option value="discount_desc" <?php if ($sort_option == 'discount_desc') echo 'selected'; ?>>Best Discount</option>
-                    </select>
-                </form>
-            </div>
-        </div>
-
-        <!-- Products Grid -->
-        <div class="row g-4 pb-5">
-            <?php if ($result->num_rows > 0): ?>
-                <?php while ($row = $result->fetch_assoc()):
-                    $path = "img/books/" . $row['PID'] . ".jpg";
-                    $link = "description.php?ID=" . $row["PID"];
-                ?>
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="book-card">
-                            <!-- Discount -->
-                            <?php if ($row['Discount'] > 0): ?>
-                                <div class="discount-badge">-<?php echo $row['Discount']; ?>%</div>
-                            <?php endif; ?>
-
-                            <!-- Image -->
-                            <div class="book-img-wrapper">
-                                <a href="<?php echo $link; ?>">
-                                    <img src="<?php echo $path; ?>" alt="<?php echo htmlspecialchars($row['Title']); ?>" onerror="this.src='https://placehold.co/400x600?text=No+Image'">
-                                </a>
-                            </div>
-
-                            <!-- Content -->
-                            <h5 class="book-title" title="<?php echo htmlspecialchars($row['Title']); ?>">
-                                <?php echo $row['Title']; ?>
-                            </h5>
-                            <p class="small text-muted mb-2"><i class="fas fa-book-open me-1"></i> <?php echo $row['Publisher']; ?></p>
-
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="price-current"><?php echo number_format($row['Price']); ?> đ</span>
-                                <?php if ($row['MRP'] > $row['Price']): ?>
-                                    <span class="price-old"><?php echo number_format($row['MRP']); ?> đ</span>
-                                <?php endif; ?>
-                            </div>
-
-                            <a href="<?php echo $link; ?>" class="btn btn-view">
-                                View Details <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <!-- Empty State -->
-                <div class="col-12 text-center py-5">
-                    <div class="text-muted mb-3" style="font-size: 4rem;"><i class="fas fa-feather-alt"></i></div>
-                    <h3>No books found for this author.</h3>
-                    <p class="text-muted">We are updating our collection. Please check back later.</p>
-                    <a href="index.php" class="btn btn-primary rounded-pill px-4 mt-3">Back Home</a>
-                </div>
-            <?php endif; ?>
+        <!-- Sort Dropdown -->
+        <div class="sort-bar mt-4">
+            <form action="<?php echo $_SERVER['PHP_SELF']; ?>?value=<?php echo urlencode($author); ?>" method="post" id="sortForm">
+                <i class="fas fa-sort-amount-down text-muted me-2"></i>
+                <label class="me-2 small text-uppercase fw-bold text-muted">Sắp xếp:</label>
+                <select name="sort" class="form-select form-select-glass" onchange="document.getElementById('sortForm').submit()">
+                    <option value="default" <?php if ($sort_option == 'default') echo 'selected'; ?>>Mặc định</option>
+                    <option value="price_asc" <?php if ($sort_option == 'price_asc') echo 'selected'; ?>>Giá: Thấp đến Cao</option>
+                    <option value="price_desc" <?php if ($sort_option == 'price_desc') echo 'selected'; ?>>Giá: Cao đến Thấp</option>
+                    <option value="discount_desc" <?php if ($sort_option == 'discount_desc') echo 'selected'; ?>>Giảm giá tốt nhất</option>
+                </select>
+            </form>
         </div>
     </div>
 
-    <!-- JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <!-- Products Grid -->
+    <div class="row g-4 row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 pb-5">
+        <?php if ($result->num_rows > 0): ?>
+            <?php while ($row = $result->fetch_assoc()):
+                $path = "img/books/" . $row['PID'] . ".jpg";
+                $link = "description.php?ID=" . $row["PID"];
+            ?>
+                <div class="col">
+                    <div class="book-card-glass h-100 d-flex flex-column">
+                        <!-- Discount -->
+                        <?php if ($row['Discount'] > 0): ?>
+                            <div class="discount-badge">-<?php echo $row['Discount']; ?>%</div>
+                        <?php endif; ?>
 
-</html>
+                        <!-- Image -->
+                        <div class="book-img-wrapper">
+                            <img src="<?php echo $path; ?>" alt="<?php echo htmlspecialchars($row['Title']); ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'">
+                            <div class="action-overlay">
+                                <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></a>
+                                <a href="<?php echo $link; ?>" class="btn-icon" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
+                                <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="mt-auto">
+                            <h6 class="book-title fw-bold text-truncate" title="<?php echo htmlspecialchars($row['Title']); ?>">
+                                <a href="<?php echo $link; ?>" class="text-decoration-none text-dark"><?php echo $row['Title']; ?></a>
+                            </h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="price-current">
+                                    <?php echo number_format($row['Price']); ?> đ
+                                    <?php if ($row['MRP'] > $row['Price']): ?>
+                                        <span class="price-old"><?php echo number_format($row['MRP']); ?> đ</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="text-warning small"><i class="fas fa-star"></i> 4.8</div>
+                            </div>
+                        </div>
+                        <a href="<?php echo $link; ?>" class="stretched-link"></a>
+                    </div>
+                </div>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <!-- Empty State -->
+            <div class="col-12 text-center py-5">
+                <div class="text-muted mb-3" style="font-size: 4rem;"><i class="fas fa-feather-alt"></i></div>
+                <h3>Không tìm thấy sách của tác giả này.</h3>
+                <p class="text-muted">Chúng tôi đang cập nhật bộ sưu tập. Vui lòng quay lại sau.</p>
+                <a href="index.php" class="btn btn-primary-glass mt-3">Quay về Trang chủ</a>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<?php
+include 'footer.php'; // Thêm footer để hoàn thiện trang
+?>

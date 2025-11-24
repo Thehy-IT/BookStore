@@ -629,8 +629,33 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
         /* --- Social Media Icon Hover --- */
         .social-icon {
             transition: color 0.3s ease, transform 0.3s ease;
-            display: inline-block;
-            /* Needed for transform */
+            display: inline-flex;
+            /* Use flexbox for alignment */
+            align-items: center;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            /* Hide overflowing text */
+        }
+
+        .social-name {
+            font-size: inherit;
+            /* Match icon size */
+            font-weight: 600;
+            max-width: 0;
+            opacity: 0;
+            transition: max-width 0.4s ease-out, opacity 0.3s ease, margin-left 0.4s ease-out;
+            white-space: nowrap;
+            /* Prevent text wrapping */
+            margin-left: 0;
+        }
+
+        .social-icon:hover .social-name {
+            max-width: 100px;
+            /* Adjust as needed */
+            opacity: 1;
+            margin-left: 0.5em;
+            /* Space between icon and text */
         }
 
         .social-icon:hover {
@@ -641,16 +666,48 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
             color: #1877F2 !important;
         }
 
+        .social-icon-facebook:hover .social-name {
+            color: #1877F2;
+        }
+
         .social-icon-instagram:hover {
             color: #E4405F !important;
+        }
+
+        .social-icon-instagram:hover .social-name {
+            color: #E4405F;
         }
 
         .social-icon-twitter:hover {
             color: #1DA1F2 !important;
         }
 
+        .social-icon-twitter:hover .social-name {
+            color: #1DA1F2;
+        }
+
         .social-icon-youtube:hover {
             color: #FF0000 !important;
+        }
+
+        .social-icon-youtube:hover .social-name {
+            color: #FF0000;
+        }
+
+        .social-icon-pinterest:hover {
+            color: #E60023 !important;
+        }
+
+        .social-icon-pinterest:hover .social-name {
+            color: #E60023;
+        }
+
+        .social-icon-tiktok:hover {
+            color: #000000 !important;
+        }
+
+        .social-icon-tiktok:hover .social-name {
+            color: #000000;
         }
 
         /* --- Search bar hover effect --- */
@@ -838,7 +895,7 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
                                 <li><a class="dropdown-item" href="author.php">Xem tất cả tác giả</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="#deals">Khuyến mãi</a></li>
+                        <li class="nav-item"><a class="nav-link" href="deals.php">Khuyến mãi</a></li>
                         <li class="nav-item"><a class="nav-link" href="#news">Tin tức</a></li>
                         <li class="nav-item"><a class="nav-link" href="#contact">Liên hệ</a></li>
                     </ul>
