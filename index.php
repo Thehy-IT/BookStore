@@ -334,15 +334,15 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 
                     <div class="mb-5 d-flex flex-wrap">
                         <div class="deal-timer-box">
-                            <span class="deal-timer-number">05</span>
+                            <span class="deal-timer-number" id="d-hours">05</span>
                             <span class="deal-timer-label">Giờ</span>
                         </div>
                         <div class="deal-timer-box">
-                            <span class="deal-timer-number">42</span>
+                            <span class="deal-timer-number" id="d-minutes">42</span>
                             <span class="deal-timer-label">Phút</span>
                         </div>
                         <div class="deal-timer-box">
-                            <span class="deal-timer-number">18</span>
+                            <span class="deal-timer-number" id="d-seconds">18</span>
                             <span class="deal-timer-label">Giây</span>
                         </div>
                     </div>
@@ -407,4 +407,5 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
     </div>
 </div>
 
+<script src="js/script.js"></script>
 <?php include 'footer.php'; ?>
