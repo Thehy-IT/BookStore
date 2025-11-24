@@ -4,7 +4,7 @@ include 'header.php'; // Sử dụng header chung
 $swal_script = ""; // Biến chứa script thông báo
 
 // 1. Kiểm tra đăng nhập
-if (!isset($_SESSION['user'])) {
+if (!isset($_SESSION['user_id'])) {
     // Nếu chưa đăng nhập, hiển thị thông báo và yêu cầu đăng nhập
     echo "<div class='container text-center py-5' style='margin-top: 80px; min-height: 60vh;'>
             <h3>Vui lòng đăng nhập</h3>
@@ -14,7 +14,7 @@ if (!isset($_SESSION['user'])) {
     include 'footer.php';
     exit();
 }
-$customer = $_SESSION['user'];
+$user_id = $_SESSION['user_id'];
 
 // 2. Xử lý Logic: THÊM / CẬP NHẬT SẢN PHẨM (Từ trang chi tiết)
 if (isset($_GET['ID']) && isset($_GET['quantity'])) {
@@ -22,20 +22,20 @@ if (isset($_GET['ID']) && isset($_GET['quantity'])) {
     $qty = intval($_GET['quantity']); // Đảm bảo là số nguyên
 
     // Kiểm tra xem sản phẩm đã có trong giỏ chưa
-    $check = $con->prepare("SELECT * FROM cart WHERE Customer=? AND Product=?");
-    $check->bind_param("ss", $customer, $product_id);
+    $check = $con->prepare("SELECT * FROM cart WHERE UserID=? AND ProductID=?");
+    $check->bind_param("is", $user_id, $product_id);
     $check->execute();
     $res = $check->get_result();
 
     if ($res->num_rows == 0) {
         // Chưa có -> Thêm mới
-        $ins = $con->prepare("INSERT INTO cart (Customer, Product, Quantity) VALUES (?, ?, ?)");
-        $ins->bind_param("ssi", $customer, $product_id, $qty);
+        $ins = $con->prepare("INSERT INTO cart (UserID, ProductID, Quantity) VALUES (?, ?, ?)");
+        $ins->bind_param("isi", $user_id, $product_id, $qty);
         $ins->execute();
     } else {
         // Đã có -> Cập nhật số lượng (Ghi đè số lượng mới)
-        $upd = $con->prepare("UPDATE cart SET Quantity=? WHERE Customer=? AND Product=?");
-        $upd->bind_param("iss", $qty, $customer, $product_id);
+        $upd = $con->prepare("UPDATE cart SET Quantity=? WHERE UserID=? AND ProductID=?");
+        $upd->bind_param("iis", $qty, $user_id, $product_id);
         $upd->execute();
     }
     // Chuyển hướng để xóa tham số trên URL (Tránh F5 lại bị thêm lần nữa)
@@ -46,8 +46,8 @@ if (isset($_GET['ID']) && isset($_GET['quantity'])) {
 // 3. Xử lý Logic: XÓA SẢN PHẨM
 if (isset($_GET['remove'])) {
     $product_id = $_GET['remove'];
-    $del = $con->prepare("DELETE FROM cart WHERE Customer=? AND Product=?");
-    $del->bind_param("ss", $customer, $product_id);
+    $del = $con->prepare("DELETE FROM cart WHERE UserID=? AND ProductID=?");
+    $del->bind_param("is", $user_id, $product_id);
 
     if ($del->execute()) {
         header("Location: cart.php?action=removed");
@@ -164,12 +164,12 @@ if (isset($_GET['action'])) {
 
     <?php
     // Lấy dữ liệu giỏ hàng
-    $sql = "SELECT cart.Product, cart.Quantity, products.Title, products.Author, products.Price, products.PID 
+    $sql = "SELECT cart.ProductID, cart.Quantity, products.Title, products.Author, products.Price, products.PID 
                 FROM cart 
-                INNER JOIN products ON cart.Product = products.PID 
-                WHERE cart.Customer = ?";
+                INNER JOIN products ON cart.ProductID = products.PID 
+                WHERE cart.UserID = ?";
     $stmt = $con->prepare($sql);
-    $stmt->bind_param("s", $customer);
+    $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -215,7 +215,7 @@ if (isset($_GET['action'])) {
                                         </td>
                                         <td class="text-end fw-bold text-primary"><?php echo number_format($subtotal); ?></td>
                                         <td class="text-end">
-                                            <a href="#" onclick="confirmRemove('<?php echo $row['PID']; ?>')" class="btn-remove d-inline-flex align-items-center justify-content-center">
+                                            <a href="#" onclick="confirmRemove('<?php echo $row['ProductID']; ?>')" class="btn-remove d-inline-flex align-items-center justify-content-center">
                                                 <i class="fas fa-times"></i>
                                             </a>
                                         </td>
