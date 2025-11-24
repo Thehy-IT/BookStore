@@ -1,307 +1,395 @@
 <?php
 session_start();
-if (!isset($_SESSION['user']))
-    header("location: index.php?Message=Login To Continue");
 include "dbconnect.php";
-$customer = $_SESSION['user'];
-?>
-<?php
 
-if (isset($_GET['place'])) {
-    $stmt = $con->prepare("DELETE FROM cart WHERE Customer=?");
-    $stmt->bind_param("s", $customer);
-    $stmt->execute();
-?>
-    <script type="text/javascript">
-        alert("Order SuccessFully Placed!! Kindly Keep the cash Ready. It will be collected on Delivery");
-    </script>
-<?php
+// 1. Kiểm tra đăng nhập
+if (!isset($_SESSION['user'])) {
+    header("location: login.php"); // Chuyển hướng sang trang login mới
+    exit();
 }
+
+$customer = $_SESSION['user'];
+$swal_script = ""; // Biến chứa script thông báo
+
+// 2. Xử lý Logic: THÊM / CẬP NHẬT SẢN PHẨM (Từ trang chi tiết)
+if (isset($_GET['ID']) && isset($_GET['quantity'])) {
+    $product_id = $_GET['ID'];
+    $qty = intval($_GET['quantity']); // Đảm bảo là số nguyên
+
+    // Kiểm tra xem sản phẩm đã có trong giỏ chưa
+    $check = $con->prepare("SELECT * FROM cart WHERE Customer=? AND Product=?");
+    $check->bind_param("ss", $customer, $product_id);
+    $check->execute();
+    $res = $check->get_result();
+
+    if ($res->num_rows == 0) {
+        // Chưa có -> Thêm mới
+        $ins = $con->prepare("INSERT INTO cart (Customer, Product, Quantity) VALUES (?, ?, ?)");
+        $ins->bind_param("ssi", $customer, $product_id, $qty);
+        $ins->execute();
+    } else {
+        // Đã có -> Cập nhật số lượng (Ghi đè số lượng mới)
+        $upd = $con->prepare("UPDATE cart SET Quantity=? WHERE Customer=? AND Product=?");
+        $upd->bind_param("iss", $qty, $customer, $product_id);
+        $upd->execute();
+    }
+    // Chuyển hướng để xóa tham số trên URL (Tránh F5 lại bị thêm lần nữa)
+    header("Location: cart.php?action=added");
+    exit();
+}
+
+// 3. Xử lý Logic: XÓA SẢN PHẨM
 if (isset($_GET['remove'])) {
-    $product = $_GET['remove'];
-    $stmt = $con->prepare("DELETE FROM cart WHERE Customer=? AND Product=?");
-    $stmt->bind_param("ss", $customer, $product);
-    $stmt->execute();
-?>
-    <script type="text/javascript">
-        alert("Item Successfully Removed");
-    </script>
-<?php
+    $product_id = $_GET['remove'];
+    $del = $con->prepare("DELETE FROM cart WHERE Customer=? AND Product=?");
+    $del->bind_param("ss", $customer, $product_id);
+
+    if ($del->execute()) {
+        header("Location: cart.php?action=removed");
+        exit();
+    }
+}
+
+// 4. Xử lý Logic: ĐẶT HÀNG (Place Order)
+if (isset($_POST['place_order'])) {
+    // Xóa sạch giỏ hàng của user đó
+    $clear = $con->prepare("DELETE FROM cart WHERE Customer=?");
+    $clear->bind_param("s", $customer);
+
+    if ($clear->execute()) {
+        header("Location: cart.php?action=placed");
+        exit();
+    }
+}
+
+// 5. Xử lý thông báo dựa trên tham số 'action'
+if (isset($_GET['action'])) {
+    if ($_GET['action'] == 'added') $swal_script = "Swal.fire({icon: 'success', title: 'Updated!', text: 'Cart updated successfully.', timer: 2000, showConfirmButton: false});";
+    if ($_GET['action'] == 'removed') $swal_script = "Swal.fire({icon: 'success', title: 'Removed!', text: 'Item removed from cart.', timer: 2000, showConfirmButton: false});";
+    if ($_GET['action'] == 'placed') $swal_script = "Swal.fire({icon: 'success', title: 'Order Placed!', text: 'Thank you! Cash on Delivery.', confirmButtonColor: '#0f172a'});";
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Cart">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <meta name="author" content="Shivangi Gupta">
-    <title>order</title>
-    <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/my.css" rel="stylesheet">
+    <title>My Cart | BookZ Store</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
-        #cart {
-            margin-top: 30px;
-            margin-bottom: 30px;
+        :root {
+            --primary: #0f172a;
+            --accent: #d4af37;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
         }
 
-        .panel {
-            border: 1px solid #D67B22;
-            padding-left: 0px;
-            padding-right: 0px;
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f0f4f8;
+            color: var(--primary);
+            overflow-x: hidden;
         }
 
-        .panel-heading {
-            background: #D67B22 !important;
-            color: white !important;
+        /* --- Background Blobs --- */
+        .bg-blobs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 5% 80%, rgba(212, 175, 55, 0.1), transparent 40%),
+                radial-gradient(circle at 95% 10%, rgba(15, 23, 42, 0.1), transparent 40%);
         }
 
-        @media only screen and (width: 767px) {
-            body {
-                margin-top: 150px;
-            }
+        /* --- Navbar --- */
+        .navbar {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /* --- Glass Panel --- */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        /* --- Cart Table --- */
+        .cart-table thead {
+            background: rgba(15, 23, 42, 0.05);
+        }
+
+        .cart-table th {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            color: #64748b;
+            border: none;
+            padding: 15px 20px;
+        }
+
+        .cart-table td {
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 20px;
+        }
+
+        .cart-img {
+            width: 60px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- Buttons --- */
+        .btn-remove {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .btn-remove:hover {
+            background: #ef4444;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .btn-checkout {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+
+        .btn-checkout:hover {
+            background: var(--accent);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* --- Empty State --- */
+        .empty-cart {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            color: #cbd5e1;
+            margin-bottom: 20px;
         }
     </style>
-
 </head>
 
 <body>
-    <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
-        <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="index.php" style="padding: 5px;">
-                    <img class="img-responsive" alt="Brand" src="img/logo.png" style="max-height: 40px;">
-                </a>
-            </div>
+    <div class="bg-blobs"></div>
+    <?php if ($swal_script) echo "<script>$swal_script</script>"; ?>
 
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <form class="navbar-form navbar-left" role="search" method="POST" action="Result.php">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="keyword" placeholder="Search for a Book, Author Or Category">
-                    </div>
-                </form>
-                <ul class="nav navbar-nav navbar-right">
-                    <?php
-                    if (!isset($_SESSION['user'])) {
-                        echo '
-	            <li>
-	                <button type="button" id="login_button" class="btn btn-lg" data-toggle="modal" data-target="#login">Login</button>
-	                  <div id="login" class="modal fade" role="dialog">
-	                    <div class="modal-dialog">
-	                        <div class="modal-content">
-	                            <div class="modal-header">
-	                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-	                                <h4 class="modal-title text-center">Login Form</h4>
-	                            </div>
-	                            <div class="modal-body">
-	                              <ul >
-	                                <li>
-	                                  <div class="row">
-	                                      <div class="col-md-12 text-center">
-	                                          <form class="form" role="form" method="post" action="index.php" accept-charset="UTF-8">
-	                                              <div class="form-group">
-	                                                  <label class="sr-only" for="username">Username</label>
-	                                                  <input type="text" name="login_username" class="form-control" placeholder="Username" required>
-	                                              </div>
-	                                              <div class="form-group">
-	                                                  <label class="sr-only" for="password">Password</label>
-	                                                  <input type="password" name="login_password" class="form-control"  placeholder="Password" required>
-	                                                  <div class="help-block text-right">
-	                                                      <a href="#">Forget the password ?</a>
-	                                                  </div>
-	                                              </div>
-	                                              <div class="form-group">
-	                                                  <button type="submit" name="submit" value="login" class="btn btn-block">
-	                                                      Sign in
-	                                                  </button>
-	                                              </div>
-	                                          </form>
-	                                      </div>
-	                                  </div>
-	                                </li>
-	                              </ul>
-	                            </div>
-	                            <div class="modal-footer">
-	                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	                            </div>
-	                        </div>
-	                    </div>
-	                  </div>
-	            </li>
-	            <li>
-	              <button type="button" id="register_button" class="btn btn-lg" data-toggle="modal" data-target="#register">Sign Up</button>
-	                <div id="register" class="modal fade" role="dialog">
-	                  <div class="modal-dialog">
-	                      <div class="modal-content">
-	                          <div class="modal-header">
-	                              <button type="button" class="close" data-dismiss="modal">&times;</button>
-	                              <h4 class="modal-title text-center">Member Registration Form</h4>
-	                          </div>
-	                          <div class="modal-body">
-	                            <ul >
-	                              <li>
-	                                <div class="row">
-	                                    <div class="col-md-12 text-center">
-	                                        <form class="form" role="form" method="post" action="index.php" accept-charset="UTF-8">
-	                                            <div class="form-group">
-	                                                <label class="sr-only" for="username">Username</label>
-	                                                <input type="text" name="register_username" class="form-control" placeholder="Username" required>
-	                                            </div>
-	                                            <div class="form-group">
-	                                                <label class="sr-only" for="password">Password</label>
-	                                                <input type="password" name="register_password" class="form-control"  placeholder="Password" required>
-	                                            </div>
-	                                            <div class="form-group">
-	                                                <button type="submit" name="submit" value="register" class="btn btn-block">
-	                                                    Sign Up
-	                                                </button>
-	                                            </div>
-	                                        </form>
-	                                    </div>
-	                                </div>
-	                              </li>
-	                            </ul>
-	                          </div>
-	                          <div class="modal-footer">
-	                              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	                          </div>
-	                      </div>
-	                  </div>
-	                </div>
-	            </li>';
-                    } else
-                        echo ' <li> <a href="destroy.php" class="btn btn-lg"> LogOut </a> </li>';
-                    ?>
-
+    <!-- ============== Navbar ==============-->
+    <nav class="navbar navbar-expand-lg fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3" href="index.php">
+                <img src="img/logo.png" height="40" alt="Logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a href="index.php" class="btn btn-outline-dark rounded-pill px-4 me-2">Continue Shopping</a></li>
+                    <li class="nav-item"><a href="destroy.php" class="btn btn-danger rounded-pill px-4">Logout</a></li>
                 </ul>
-            </div><!-- /.navbar-collapse -->
-        </div><!-- /.container-fluid -->
+            </div>
+        </div>
     </nav>
-    <div id="top">
+
+    <!-- ============== Cart Content ==============-->
+    <div class="container" style="margin-top: 100px; margin-bottom: 50px;">
+        <h2 class="fw-bold mb-4" style="font-family: 'Playfair Display', serif;">Your Shopping Cart</h2>
+
         <?php
+        // Lấy dữ liệu giỏ hàng
+        $sql = "SELECT cart.Product, cart.Quantity, products.Title, products.Author, products.Price, products.PID 
+                FROM cart 
+                INNER JOIN products ON cart.Product = products.PID 
+                WHERE cart.Customer = ?";
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param("s", $customer);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        echo '<div class="container-fluid" id="cart">
-      <div class="row">
-          <div class="col-xs-12 text-center" id="heading">
-                 <h2 style="color:#D67B22;text-transform:uppercase;">  YOUR CART </h2>
-           </div>
-        </div>';
-        if (isset($_SESSION['user'])) {
-            if (isset($_GET['ID'])) {
-                $product = $_GET['ID'];
-                $quantity = $_GET['quantity'];
-                $stmt = $con->prepare("SELECT * FROM cart WHERE Customer=? AND Product=?");
-                $stmt->bind_param("ss", $customer, $product);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                if ($result->num_rows == 0) {
-                    $stmt_insert = $con->prepare("INSERT INTO cart (Customer, Product, Quantity) VALUES (?, ?, ?)");
-                    $stmt_insert->bind_param("ssi", $customer, $product, $quantity);
-                    $stmt_insert->execute();
-                } else {
-                    $new = $_GET['quantity'];
-                    $stmt_update = $con->prepare("UPDATE cart SET Quantity=? WHERE Customer=? AND Product=?");
-                    $stmt_update->bind_param("iss", $new, $customer, $product);
-                    $stmt_update->execute();
-                }
-            }
-            $stmt = $con->prepare("SELECT PID, Title, Author, Edition, Quantity, Price FROM cart INNER JOIN products ON cart.Product=products.PID WHERE Customer=?");
-            $stmt->bind_param("s", $customer);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $total = 0;
-            if ($result->num_rows > 0) {
-                $i = 1;
-                $j = 0;
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $path = "img/books/" . $row['PID'] . ".jpg";
-                    $Stotal = $row['Quantity'] * $row['Price'];
-                    if ($i % 2 == 1)  $offset = 1;
-                    if ($i % 2 == 0)  $offset = 2;
-                    if ($j % 2 == 0)
-                        echo '<div class="row">';
-                    echo '                
-                                      <div class="panel col-xs-12 col-sm-4 col-sm-offset-' . $offset . ' col-md-4 col-md-offset-' . $offset . ' col-lg-4 col-lg-offset-' . $offset . ' text-center" style="color:#D67B22;font-weight:800;">
-                                          <div class="panel-heading">Order ' . $i . '
-                                          </div>
-                                          <div class="panel-body">
-			                                                <img class="image-responsive block-center" src="' . $path . '" style="height :100px;"> <br>
-           							                                               Title : ' . $row['Title'] . '  <br> 
-                                                                        Code : ' . $row['PID'] . '     <br>        	 
-                                                      									Author : ' . $row['Author'] . ' <br>                            	      
-                                                      									Edition : ' . $row['Edition'] . ' <br>
-                                                      									Quantity : ' . $row['Quantity'] . ' <br>
-                                                      									Price : ' . $row['Price'] . ' <br>
-                                                      									Sub Total : ' . $Stotal . ' <br>
-                                                                       <a href="cart.php?remove=' . $row['PID'] . '" class="btn btn-sm" 
-                                                                          style="background:#D67B22;color:white;font-weight:800;">
-                                                                          Remove
-                                                                        </a>
-                                        </div>
-                                    </div>';
-                    if ($j % 2 == 1)
-                        echo '</div>';
-                    $total = $total + $Stotal;
-                    $i++;
-                    $j++;
-                }
-
-                echo '<div class="container">
-                              <div class="row">  
-                                 <div class="panel col-xs-8 col-xs-offset-2 col-sm-4 col-sm-offset-4 col-md-4 col-md-offset-4 col-lg-4 col-lg-offset-4 text-center" style="color:#D67B22;font-weight:800;">
-                                     <div class="panel-heading">TOTAL
-                                     </div>
-                                      <div class="panel-body">' . $total . '
-                                     </div>
-                                 </div>
-                               </div>
-                          </div>
-                         ';
-                echo '<br> <br>';
-                echo '<div class="row">
-                             <div class="col-xs-8 col-xs-offset-2  col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-3 col-lg-4 col-lg-offset-3">
-                                  <a href="index.php" class="btn btn-lg" style="background:#D67B22;color:white;font-weight:800;">Continue Shopping</a>
-                             </div>
-                             <div class="col-xs-6 col-xs-offset-3 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-1 col-lg-4 ">
-                                  <a href="cart.php?place=true" class="btn btn-lg" style="background:#D67B22;color:white;font-weight:800;margin-top:5px;">Place Order</a>
-                             </div>
-                           </div>
-                           ';
-            } else {
-                echo ' 
-                         <div class="row">
-                            <div class="col-xs-9 col-xs-offset-3 col-sm-4 col-sm-offset-5 col-md-4 col-md-offset-5">
-                                 <span class="text-center" style="color:#D67B22;font-weight:bold;">&nbsp &nbsp &nbsp &nbspCart Is Empty</span>
-                             </div>
-                         </div>
-                         <div class="row">
-                             <div class="col-xs-9 col-xs-offset-3 col-sm-2 col-sm-offset-5 col-md-2 col-md-offset-5">
-                                  <a href="index.php" class="btn btn-lg" style="background:#D67B22;color:white;font-weight:800;">Do Some Shopping</a>
-                             </div>
-                          </div>';
-            }
-        } else {
-            echo "login to continue";
-        }
-        echo '</div>';
+        $total = 0;
+        $count = 0;
         ?>
 
-        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-        <!-- Include all compiled plugins (below), or include individual files as needed -->
-        <script src="js/bootstrap.min.js"></script>
+        <?php if ($result->num_rows > 0): ?>
+            <div class="row g-4">
+                <!-- Cột trái: Danh sách sản phẩm -->
+                <div class="col-lg-8">
+                    <div class="glass-panel">
+                        <div class="table-responsive">
+                            <table class="table cart-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Qty</th>
+                                        <th class="text-end">Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php while ($row = $result->fetch_assoc()):
+                                        $subtotal = $row['Price'] * $row['Quantity'];
+                                        $total += $subtotal;
+                                        $count += $row['Quantity'];
+                                    ?>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="img/books/<?php echo $row['PID']; ?>.jpg" class="cart-img me-3" onerror="this.src='https://placehold.co/100x150?text=Book'">
+                                                    <div>
+                                                        <h6 class="fw-bold mb-1"><?php echo $row['Title']; ?></h6>
+                                                        <small class="text-muted">by <?php echo $row['Author']; ?></small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="fw-bold"><?php echo number_format($row['Price']); ?></td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fs-6"><?php echo $row['Quantity']; ?></span>
+                                            </td>
+                                            <td class="text-end fw-bold text-primary"><?php echo number_format($subtotal); ?></td>
+                                            <td class="text-end">
+                                                <a href="#" onclick="confirmRemove('<?php echo $row['PID']; ?>')" class="btn-remove d-inline-flex align-items-center justify-content-center">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="index.php" class="text-decoration-none text-muted fw-bold">
+                            <i class="fas fa-arrow-left me-2"></i> Continue Shopping
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Cột phải: Tổng tiền (Order Summary) -->
+                <div class="col-lg-4">
+                    <div class="glass-panel p-4 sticky-top" style="top: 100px; z-index: 1;">
+                        <h5 class="fw-bold mb-4">Order Summary</h5>
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Subtotal (<?php echo $count; ?> items)</span>
+                            <span class="fw-bold"><?php echo number_format($total); ?> đ</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Shipping</span>
+                            <span class="text-success fw-bold">Free</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="fs-5 fw-bold">Total Amount</span>
+                            <span class="fs-4 fw-bold" style="color: var(--accent);"><?php echo number_format($total); ?> đ</span>
+                        </div>
+
+                        <!-- Form đặt hàng -->
+                        <form method="POST" id="orderForm">
+                            <input type="hidden" name="place_order" value="1">
+                            <button type="button" onclick="confirmOrder()" class="btn-checkout">
+                                Checkout <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </form>
+
+                        <div class="mt-3 text-center small text-muted">
+                            <i class="fas fa-shield-alt me-1"></i> Secure Checkout
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <?php else: ?>
+            <!-- Giỏ hàng trống -->
+            <div class="glass-panel empty-cart">
+                <div class="empty-icon">
+                    <i class="fas fa-shopping-basket"></i>
+                </div>
+                <h3>Your cart is currently empty</h3>
+                <p class="text-muted mb-4">Looks like you haven't added any books yet.</p>
+                <a href="index.php" class="btn btn-primary rounded-pill px-5 py-3 fw-bold" style="background: var(--primary);">
+                    Start Shopping
+                </a>
+            </div>
+        <?php endif; ?>
+
+    </div>
+
+    <!-- JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Xác nhận xóa sản phẩm
+        function confirmRemove(pid) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to remove this book from cart?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#0f172a',
+                confirmButtonText: 'Yes, remove it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "cart.php?remove=" + pid;
+                }
+            })
+        }
+
+        // Xác nhận đặt hàng
+        function confirmOrder() {
+            Swal.fire({
+                title: 'Place Order?',
+                text: "You are about to place this order. Payment will be collected on delivery.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#0f172a',
+                confirmButtonText: 'Confirm Order'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('orderForm').submit();
+                }
+            })
+        }
+    </script>
 </body>
-<html>
+
+</html>
