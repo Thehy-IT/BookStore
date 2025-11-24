@@ -28,6 +28,16 @@ $related_result = $related_stmt->get_result();
 while ($related_row = $related_result->fetch_assoc()) {
     $related_products[] = $related_row;
 }
+
+// Lấy mảng dịch thể loại từ header.php
+$category_translations = [
+    'academic and professional' => 'Học thuật & Chuyên ngành', 'biographies and auto biographies' => 'Tiểu sử & Tự truyện',
+    'business and management' => 'Kinh doanh & Quản lý', 'children and teens' => 'Sách thiếu nhi',
+    'health and cooking' => 'Sức khỏe & Nấu ăn', 'literature and fiction' => 'Văn học & Hư cấu',
+    'regional books' => 'Sách tiếng Việt', 'self-help' => 'Phát triển bản thân',
+    'fiction' => 'Tiểu thuyết', 'thriller' => 'Kinh dị & Giật gân',
+    'romance' => 'Lãng mạn', 'fantasy' => 'Giả tưởng',
+];
 ?>
 <style>
     /* Các style này đặc thù cho trang chi tiết sản phẩm */
@@ -179,6 +189,19 @@ while ($related_row = $related_result->fetch_assoc()) {
 
 <!-- ============== Product Details ==============-->
 <div class="container pb-5" style="padding-top: 100px;">
+    <!-- NEW: Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="Product.php">Cửa hàng</a></li>
+            <?php
+            $category_slug = strtolower(trim($row['Category']));
+            $category_name = $category_translations[$category_slug] ?? ucfirst($category_slug);
+            echo '<li class="breadcrumb-item"><a href="Product.php?category=' . urlencode($category_slug) . '">' . htmlspecialchars($category_name) . '</a></li>';
+            ?>
+            <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($row['Title']); ?></li>
+        </ol>
+    </nav>
     <div class="product-glass-card mb-5">
         <div class="row g-5">
 

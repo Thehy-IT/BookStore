@@ -147,7 +147,16 @@ function formatDate($dateString)
 </div>
 
 <!-- ============== News Content ==============-->
-<div class="container my-5">
+<div class="container my-5" style="padding-top: 60px;">
+    <!-- NEW: Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="news.php">Tin tức</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($article['title']); ?></li>
+        </ol>
+    </nav>
+
     <div class="row g-5">
         <!-- Main Content -->
         <div class="col-lg-8">

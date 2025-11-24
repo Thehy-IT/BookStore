@@ -131,6 +131,13 @@ if (isset($_GET['action'])) {
 
 <!-- ============== Wishlist Content ==============-->
 <div class="container" style="padding-top: 40px; padding-bottom: 50px;">
+    <!-- NEW: Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Danh sách yêu thích</li>
+        </ol>
+    </nav>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>

@@ -165,7 +165,14 @@ if (isset($_GET['action'])) {
 
 <!-- ============== Cart Content ==============-->
 <div class="container" style="padding-top: 40px; padding-bottom: 50px;">
-    <h2 class="fw-bold mb-4" style="font-family: 'Playfair Display', serif;">Giỏ hàng của bạn</h2>
+    <!-- NEW: Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Giỏ hàng</li>
+        </ol>
+    </nav>
+    <h2 class="fw-bold mb-4" style="font-family: 'Playfair Display', serif; margin-top: 2rem;">Giỏ hàng của bạn</h2>
 
     <?php
     // Lấy dữ liệu giỏ hàng

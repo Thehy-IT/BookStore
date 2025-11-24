@@ -1,8 +1,8 @@
 <?php
 include 'header.php'; // Bao gồm header để khởi tạo session và kết nối CSDL ($con)
 
-// Xử lý logic sắp xếp
-$sort_option = isset($_POST['sort']) ? $_POST['sort'] : 'default';
+// --- XỬ LÝ LOGIC LỌC VÀ SẮP XẾP ---
+$sort_option = isset($_GET['sort']) ? $_GET['sort'] : 'discount_desc'; // Mặc định giảm giá cao nhất
 $sql_sort = "";
 
 switch ($sort_option) {
@@ -12,20 +12,17 @@ switch ($sort_option) {
     case 'price_desc':
         $sql_sort = "ORDER BY Price DESC";
         break;
-    case 'discount_asc':
-        $sql_sort = "ORDER BY Discount ASC";
-        break;
     case 'discount_desc':
         $sql_sort = "ORDER BY Discount DESC";
         break;
     default:
-        $sql_sort = "ORDER BY Discount DESC, Price ASC"; // Mặc định sắp xếp giảm giá cao nhất
+        $sql_sort = "ORDER BY Discount DESC, Price ASC";
         break;
 }
 
 // Truy vấn CSDL để lấy các sản phẩm có khuyến mãi
-$query = "SELECT * FROM products WHERE Discount > 0 " . $sql_sort;
-$result = mysqli_query($con, $query);
+$query = "SELECT * FROM products WHERE Discount > 0 " . $sql_sort; // Nối chuỗi an toàn vì $sql_sort được kiểm soát nội bộ
+$result = mysqli_query($con, $query); // Với ứng dụng lớn, nên dùng prepared statement và phân trang
 ?>
 
 <style>
@@ -40,10 +37,11 @@ $result = mysqli_query($con, $query);
 
     /* --- NEW: Deals Hero Section --- */
     .deals-hero {
-        margin-top: 80px;
+        margin-top: 20px;
+        /* Giảm margin-top vì đã có breadcrumb */
         padding: 60px 0;
         background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), transparent),
-            linear-gradient(225deg, rgba(15, 23, 42, 0.05), transparent);
+            linear-gradient(225deg, rgba(15, 23, 42, 0.08), transparent);
         border-radius: 24px;
         margin-bottom: 50px;
         text-align: center;
@@ -59,26 +57,18 @@ $result = mysqli_query($con, $query);
         margin-bottom: 15px;
     }
 
-    /* --- Sort Bar (Copied from author.php for consistency) --- */
-    .sort-bar {
-        background: rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(8px);
-        border-radius: 50px;
-        padding: 8px 15px;
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        display: inline-flex;
-        align-items: center;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    /* --- Toolbar for sorting --- */
+    .deals-toolbar {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: var(--glass-border);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
     }
 
-    .form-select-glass {
-        background: transparent;
-        border: none;
-        font-weight: 500;
-        color: var(--primary);
-        cursor: pointer;
-        padding-right: 30px;
-        padding-left: 5px;
+    .deals-toolbar .form-select {
+        max-width: 200px;
     }
 
     .form-select-glass:focus {
@@ -261,25 +251,19 @@ $result = mysqli_query($con, $query);
 </style>
 
 <!-- ============== Deals Content ==============-->
-<div class="container">
+<div class="container" style="padding-top: 100px;">
+    <!-- NEW: Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Khuyến mãi</li>
+        </ol>
+    </nav>
     <!-- Header -->
     <div class="deals-hero">
         <h5 class="text-muted text-uppercase letter-spacing-2 mb-3">Ưu đãi đặc biệt</h5>
         <h1 class="deals-title">Săn Sách Hay, Giá Hời</h1>
         <p class="lead text-muted col-md-6 mx-auto">Đừng bỏ lỡ cơ hội sở hữu những cuốn sách tuyệt vời với mức giá tốt nhất.</p>
-
-        <!-- Sort Dropdown -->
-        <div class="sort-bar mt-4">
-            <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" id="sortForm">
-                <i class="fas fa-sort-amount-down text-muted me-2"></i>
-                <label class="me-2 small text-uppercase fw-bold text-muted">Sắp xếp:</label>
-                <select name="sort" class="form-select form-select-glass" onchange="document.getElementById('sortForm').submit()">
-                    <option value="default" <?php if ($sort_option == 'default') echo 'selected'; ?>>Giảm giá tốt nhất</option>
-                    <option value="price_asc" <?php if ($sort_option == 'price_asc') echo 'selected'; ?>>Giá: Thấp đến Cao</option>
-                    <option value="price_desc" <?php if ($sort_option == 'price_desc') echo 'selected'; ?>>Giá: Cao đến Thấp</option>
-                </select>
-            </form>
-        </div>
     </div>
 
     <!-- ============== NEW: Christmas Promotions Section ==============-->
@@ -317,6 +301,19 @@ $result = mysqli_query($con, $query);
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Toolbar: Sorting and Result Count -->
+    <div class="deals-toolbar d-flex justify-content-between align-items-center">
+        <span class="text-muted">Tìm thấy <strong><?php echo mysqli_num_rows($result); ?></strong> sản phẩm khuyến mãi</span>
+        <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="get" id="sortForm" class="d-flex align-items-center gap-2">
+            <label for="sortSelect" class="form-label mb-0 small text-muted">Sắp xếp:</label>
+            <select name="sort" id="sortSelect" class="form-select form-select-sm" onchange="document.getElementById('sortForm').submit()">
+                <option value="discount_desc" <?php if ($sort_option == 'discount_desc') echo 'selected'; ?>>Giảm giá nhiều nhất</option>
+                <option value="price_asc" <?php if ($sort_option == 'price_asc') echo 'selected'; ?>>Giá: Thấp đến Cao</option>
+                <option value="price_desc" <?php if ($sort_option == 'price_desc') echo 'selected'; ?>>Giá: Cao đến Thấp</option>
+            </select>
+        </form>
     </div>
 
     <!-- Products Grid -->

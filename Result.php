@@ -85,6 +85,14 @@ $keyword = "%{$keyword_raw}%";
     $count = $result->num_rows;
     ?>
 
+    <!-- NEW: Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Tìm kiếm</li>
+        </ol>
+    </nav>
+
     <!-- Header Result -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>

@@ -134,7 +134,17 @@ if (empty($author_name)) {
     }
 </style>
 
-<div class="container">
+<div class="container" style="padding-top: 100px;">
+    <!-- NEW: Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="author.php">Tác giả</a></li>
+            <?php if (!empty($author_name)) : ?>
+                <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($author_name); ?></li>
+            <?php endif; ?>
+        </ol>
+    </nav>
     <?php if (empty($author_name)) : ?>
         <!-- Hiển thị danh sách tất cả tác giả -->
         <div class="py-5" style="margin-top: 80px;">

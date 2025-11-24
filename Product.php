@@ -223,7 +223,20 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
 </div>
 
 <!-- Main Content -->
-<div class="container my-5">
+<div class="container pt-4 my-5">
+    <!-- NEW: Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="Product.php">Cửa hàng</a></li>
+            <?php if (!empty($current_category) && isset($categories)) : ?>
+                <?php
+                $category_name = $category_translations[$current_category] ?? ucfirst($current_category);
+                echo '<li class="breadcrumb-item active" aria-current="page">' . htmlspecialchars($category_name) . '</li>';
+                ?>
+            <?php endif; ?>
+        </ol>
+    </nav>
     <div class="row g-4">
 
         <!-- Sidebar Filters -->
