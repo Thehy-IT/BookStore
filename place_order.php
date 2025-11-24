@@ -23,13 +23,22 @@ $user_id = $_SESSION['user_id'];
 
 // 2. Lấy thông tin từ form
 $customer_name = trim($_POST['customer_name']);
+$email = trim($_POST['email']); // Thêm email
 $phone_number = trim($_POST['phone_number']);
-$shipping_address = trim($_POST['shipping_address']);
+$country = trim($_POST['country']);
+$province = trim($_POST['province']);
+$district = trim($_POST['district']);
+$ward = trim($_POST['ward']);
+$street_address = trim($_POST['shipping_address']); // Đây là số nhà, tên đường
 $payment_method = $_POST['payment_method'];
 
-if (empty($customer_name) || empty($phone_number) || empty($shipping_address)) {
+if (empty($customer_name) || empty($email) || empty($phone_number) || empty($street_address) || empty($ward) || empty($district) || empty($province)) {
     set_flash_and_redirect('Vui lòng điền đầy đủ thông tin giao hàng.', 'error', 'checkout.php');
 }
+
+// Gộp các trường địa chỉ thành một chuỗi đầy đủ
+$full_address = $street_address . ', ' . $ward . ', ' . $district . ', ' . $province . ', ' . $country;
+
 
 // 3. Lấy thông tin giỏ hàng từ CSDL
 $sql_cart = "SELECT c.ProductID, c.Quantity, p.Price 
@@ -65,7 +74,7 @@ try {
     $sql_order = "INSERT INTO orders (UserID, CustomerName, PhoneNumber, ShippingAddress, PaymentMethod, Subtotal, Discount, TotalAmount, CouponCode) 
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt_order = $con->prepare($sql_order);
-    $stmt_order->bind_param("issssddds", $user_id, $customer_name, $phone_number, $shipping_address, $payment_method, $subtotal, $discount_amount, $final_total, $coupon_code);
+    $stmt_order->bind_param("issssddds", $user_id, $customer_name, $phone_number, $full_address, $payment_method, $subtotal, $discount_amount, $final_total, $coupon_code);
     $stmt_order->execute();
     $order_id = $con->insert_id; // Lấy ID của đơn hàng vừa tạo
 

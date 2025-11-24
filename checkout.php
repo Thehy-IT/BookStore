@@ -134,39 +134,82 @@ if (isset($_SESSION['flash_message'])) {
             <div class="col-lg-7">
                 <div class="summary-card">
                     <h5 class="fw-bold mb-4">Thông tin giao hàng</h5>
-                    <div class="mb-3">
-                        <label for="customer_name" class="form-label">Họ và tên người nhận</label>
-                        <input type="text" class="form-control form-control-glass" id="customer_name" name="customer_name" required>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="customer_name" class="form-label">Họ và tên người nhận</label>
+                            <input type="text" class="form-control form-control-glass" id="customer_name" name="customer_name" placeholder="Nguyễn Văn A" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control form-control-glass" id="email" name="email" placeholder="example@email.com" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone_number" class="form-label">Số điện thoại</label>
+                            <input type="tel" class="form-control form-control-glass" id="phone_number" name="phone_number" placeholder="09xxxxxxxx" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="country" class="form-label">Quốc gia</label>
+                            <select class="form-select form-control-glass" id="country" name="country" required>
+                                <option value="Vietnam" selected>Việt Nam</option>
+                                <!-- Thêm các quốc gia khác nếu cần -->
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="province" class="form-label">Tỉnh/Thành Phố</label>
+                            <input type="text" class="form-control form-control-glass" id="province" name="province" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="district" class="form-label">Quận/Huyện</label>
+                            <input type="text" class="form-control form-control-glass" id="district" name="district" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="ward" class="form-label">Phường/Xã</label>
+                            <input type="text" class="form-control form-control-glass" id="ward" name="ward" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="shipping_address" class="form-label">Địa chỉ nhận hàng (Số nhà, tên đường)</label>
+                            <textarea class="form-control form-control-glass" id="shipping_address" name="shipping_address" rows="2" placeholder="Ví dụ: 123 Đường ABC" required></textarea>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="phone_number" class="form-label">Số điện thoại</label>
-                        <input type="tel" class="form-control form-control-glass" id="phone_number" name="phone_number" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="shipping_address" class="form-label">Địa chỉ nhận hàng</label>
-                        <textarea class="form-control form-control-glass" id="shipping_address" name="shipping_address" rows="3" required></textarea>
-                    </div>
-                    <div>
+                    <div class="mt-4">
                         <label class="form-label">Phương thức thanh toán</label>
                         <div class="vstack gap-2">
+                            <!-- Thanh toán khi nhận hàng (COD) -->
                             <div class="form-check p-3 rounded-3 payment-option">
                                 <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod" checked>
                                 <label class="form-check-label fw-bold" for="cod">
-                                    <i class="fas fa-truck me-2"></i> Thanh toán khi nhận hàng (COD)
+                                    <i class="fas fa-truck me-2 text-muted"></i> Thanh toán bằng tiền mặt khi nhận hàng
                                 </label>
                             </div>
-                            <div class="form-check p-3 rounded-3 payment-option">
-                                <input class="form-check-input" type="radio" name="payment_method" id="bank_transfer" value="bank_transfer">
-                                <label class="form-check-label fw-bold" for="bank_transfer">
-                                    <i class="fas fa-university me-2"></i> Chuyển khoản ngân hàng
-                                </label>
-                            </div>
+                            <!-- Ví Momo -->
                             <div class="form-check p-3 rounded-3 payment-option">
                                 <input class="form-check-input" type="radio" name="payment_method" id="momo" value="momo">
                                 <label class="form-check-label fw-bold" for="momo">
-                                    <i class="fas fa-wallet me-2"></i> Ví điện tử (Momo, ZaloPay)
+                                    <img src="img/footer/momo.png" alt="Momo" style="height: 20px; margin-right: 8px;"> Ví Momo
                                 </label>
                             </div>
+                            <!-- Ví ZaloPay -->
+                            <div class="form-check p-3 rounded-3 payment-option">
+                                <input class="form-check-input" type="radio" name="payment_method" id="zalopay" value="zalopay">
+                                <label class="form-check-label fw-bold" for="zalopay">
+                                    <img src="img/footer/zalopay.png" alt="ZaloPay" style="height: 20px; margin-right: 8px;"> Ví ZaloPay
+                                </label>
+                            </div>
+                            <!-- Ví ShopeePay -->
+                            <div class="form-check p-3 rounded-3 payment-option">
+                                <input class="form-check-input" type="radio" name="payment_method" id="shopeepay" value="shopeepay">
+                                <label class="form-check-label fw-bold" for="shopeepay">
+                                    <img src="img/footer/shopee.png" alt="ShopeePay" style="height: 20px; margin-right: 8px;"> Ví ShopeePay
+                                </label>
+                            </div>
+                            <!-- VNPAY -->
+                            <div class="form-check p-3 rounded-3 payment-option">
+                                <input class="form-check-input" type="radio" name="payment_method" id="vnpay" value="vnpay">
+                                <label class="form-check-label fw-bold" for="vnpay">
+                                    <img src="img/footer/vnpay.png" alt="VNPAY" style="height: 20px; margin-right: 8px;"> VNPAY (ATM/Internet Banking/Visa/Master/JCB)
+                                </label>
+                            </div>
+
                         </div>
                     </div>
                 </div>

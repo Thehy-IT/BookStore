@@ -620,8 +620,8 @@ $category_translations = [
         }
         if (newValue > max) {
             newValue = max;
-            // Có thể thêm thông báo cho người dùng ở đây
-            // Swal.fire('Thông báo', `Chỉ còn ${max} sản phẩm trong kho.`, 'info');
+            // NEW: Hiển thị thông báo khi vượt quá tồn kho
+            Swal.fire('Thông báo', `Số lượng sản phẩm trong kho không đủ. Bạn chỉ có thể chọn tối đa ${max} sản phẩm.`, 'warning');
         }
         input.value = newValue;
     }
