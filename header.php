@@ -175,20 +175,8 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
                         </li>
                         <li class="nav-item"><a class="nav-link" href="#new">Sách mới</a></li>
                         <li class="nav-item"><a class="nav-link" href="#bestseller">Bán chạy</a></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Tác giả</a>
-                            <ul class="dropdown-menu glass-panel border-0 shadow-lg">
-                                <li><a class="dropdown-item" href="Author.php?value=Chetan Bhagat">Chetan Bhagat</a></li>
-                                <li><a class="dropdown-item" href="Author.php?value=J K Rowling">J.K. Rowling</a></li>
-                                <li><a class="dropdown-item" href="Author.php?value=Ravinder Singh">Ravinder Singh</a></li>
-                                <li><a class="dropdown-item" href="Author.php?value=Jeffrey Archer">Jeffrey Archer</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="author.php">Xem tất cả tác giả</a></li>
-                            </ul>
-                        </li>
                         <li class="nav-item"><a class="nav-link" href="deals.php">Khuyến mãi</a></li>
+                        <li class="nav-item"><a class="nav-link" href="author.php">Tác giả</a></li>
                         <li class="nav-item"><a class="nav-link" href="news.php">Tin tức</a></li>
                         <li class="nav-item"><a class="nav-link" href="#contact">Liên hệ</a></li>
                     </ul>
