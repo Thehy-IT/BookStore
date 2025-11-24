@@ -111,6 +111,15 @@
                 .footer-logo-item:hover img {
                     transform: scale(1.15);
                 }
+
+                .newsletter-input::placeholder {
+                    color: #ffffff !important;
+                    opacity: 0.7;
+                }
+
+                .newsletter-input::-webkit-input-placeholder { color: #ffffff !important; opacity: 0.7; }
+                .newsletter-input::-moz-placeholder { color: #ffffff !important; opacity: 0.7; }
+                .newsletter-input:-ms-input-placeholder { color: #ffffff !important; opacity: 0.7; }
             </style>
 
             <div class="container position-relative z-2">
@@ -170,7 +179,7 @@
                         <h5 class="text-warning mb-3">Newsletter</h5>
                         <p class="text-white-50 small">Đăng ký để nhận thông tin sách mới và ưu đãi độc quyền.</p>
                         <form class="input-group mt-3">
-                            <input type="email" class="form-control bg-white bg-opacity-10 border-0 text-white" placeholder="Nhập email của bạn..." style="border-radius: 50px 0 0 50px;">
+                            <input type="email" class="form-control bg-white bg-opacity-10 border-0 text-white newsletter-input" placeholder="Nhập email của bạn..." style="border-radius: 50px 0 0 50px;">
                             <button class="btn btn-warning" type="button" style="border-radius: 0 50px 50px 0;">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
