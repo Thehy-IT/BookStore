@@ -1,12 +1,28 @@
 <?php
 session_start();
 include "dbconnect.php";
-
 // CHẶN KHÔNG CHO USER THƯỜNG VÀO
 if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
     header("Location: index.php");
     exit();
 }
+
+// --- PHẦN LOGIC: LẤY DỮ LIỆU TỪ CSDL ---
+
+// 1. Đếm tổng số sản phẩm (hiệu quả hơn)
+$p_res = mysqli_query($con, "SELECT COUNT(*) as total FROM products");
+$p_count = mysqli_fetch_assoc($p_res)['total'];
+
+// 2. Đếm tổng số người dùng
+$u_res = mysqli_query($con, "SELECT COUNT(*) as total FROM users");
+$u_count = mysqli_fetch_assoc($u_res)['total'];
+
+// 3. Đếm tổng số sản phẩm trong giỏ hàng
+$c_res = mysqli_query($con, "SELECT COUNT(*) as total FROM cart");
+$c_count = mysqli_fetch_assoc($c_res)['total'];
+
+// 4. Lấy 5 sản phẩm gần đây
+$recent_products_res = mysqli_query($con, "SELECT * FROM products ORDER BY PID DESC LIMIT 5");
 ?>
 
 <!DOCTYPE html>
@@ -81,6 +97,23 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
             background: var(--primary);
             color: white;
         }
+
+        /* CSS classes để thay thế inline styles */
+        .text-accent {
+            color: var(--accent);
+        }
+
+        .stat-card.border-blue {
+            border-color: #4e54c8;
+        }
+
+        .stat-card.border-green {
+            border-color: #11998e;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+        }
     </style>
 </head>
 
@@ -89,11 +122,11 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
 
     <!-- Sidebar -->
     <div class="sidebar">
-        <h3 class="text-center fw-bold mb-4">BOOK<span style="color: var(--accent)">Z</span> ADMIN</h3>
+        <h3 class="text-center fw-bold mb-4">BOOK<span class="text-accent">Z</span> ADMIN</h3>
         <ul class="nav flex-column">
             <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-tachometer-alt me-2"></i> Bảng điều khiển</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-book me-2"></i> Quản lý sản phẩm</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-users me-2"></i> Quản lý người dùng</a></li>
+            <li class="nav-item"><a href="manage_products.php" class="nav-link"><i class="fas fa-book me-2"></i> Quản lý sản phẩm</a></li>
+            <li class="nav-item"><a href="manage_users.php" class="nav-link"><i class="fas fa-users me-2"></i> Quản lý người dùng</a></li>
             <li class="nav-item"><a href="index.php" class="nav-link"><i class="fas fa-home me-2"></i> Xem website</a></li>
             <li class="nav-item"><a href="destroy.php" class="nav-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
         </ul>
@@ -107,9 +140,6 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
             <!-- Thống kê sản phẩm -->
             <div class="col-md-4">
                 <div class="stat-card">
-                    <?php
-                    $p_count = mysqli_num_rows(mysqli_query($con, "SELECT * FROM products"));
-                    ?>
                     <h3 class="fw-bold"><?php echo $p_count; ?></h3>
                     <p class="text-muted mb-0">Tổng số sản phẩm</p>
                 </div>
@@ -117,21 +147,15 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
 
             <!-- Thống kê người dùng -->
             <div class="col-md-4">
-                <div class="stat-card" style="border-color: #4e54c8;">
-                    <?php
-                    $u_count = mysqli_num_rows(mysqli_query($con, "SELECT * FROM users"));
-                    ?>
+                <div class="stat-card border-blue">
                     <h3 class="fw-bold"><?php echo $u_count; ?></h3>
                     <p class="text-muted mb-0">Tổng số người dùng</p>
                 </div>
             </div>
 
-            <!-- Thống kê đơn hàng (Ví dụ Cart) -->
+            <!-- Thống kê sản phẩm trong giỏ -->
             <div class="col-md-4">
-                <div class="stat-card" style="border-color: #11998e;">
-                    <?php
-                    $c_count = mysqli_num_rows(mysqli_query($con, "SELECT * FROM cart"));
-                    ?>
+                <div class="stat-card border-green">
                     <h3 class="fw-bold"><?php echo $c_count; ?></h3>
                     <p class="text-muted mb-0">Sản phẩm trong giỏ</p>
                 </div>
@@ -152,13 +176,12 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
                 </thead>
                 <tbody>
                     <?php
-                    $res = mysqli_query($con, "SELECT * FROM products LIMIT 5");
-                    while ($row = mysqli_fetch_assoc($res)) {
+                    while ($row = mysqli_fetch_assoc($recent_products_res)) {
                         echo "<tr>
-                            <td>{$row['PID']}</td>
-                            <td>{$row['Title']}</td>
-                            <td>{$row['Author']}</td>
-                            <td>{$row['Price']} đ</td>
+                            <td>" . htmlspecialchars($row['PID']) . "</td>
+                            <td>" . htmlspecialchars($row['Title']) . "</td>
+                            <td>" . htmlspecialchars($row['Author']) . "</td>
+                            <td>" . htmlspecialchars($row['Price']) . " đ</td>
                             <td>
                                 <button class='btn btn-sm btn-primary'><i class='fas fa-edit'></i></button>
                                 <button class='btn btn-sm btn-danger'><i class='fas fa-trash'></i></button>
