@@ -171,14 +171,22 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
             transition: all 0.4s ease;
         }
 
-        .navbar.glass-nav {
+        /* Trạng thái header khi cuộn xuống */
+        .navbar.scrolled {
             margin: 15px auto 0;
-            width: 95%;
-            border-radius: 50px;
+            width: 95% !important;
+            border-radius: 50px !important;
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* Trạng thái header mặc định (full-width) */
+        .navbar {
+            width: 100%;
+            border-radius: 0;
+            background: rgba(255, 255, 255, 0.85); /* Thêm màu nền trắng đục cho header mặc định */
         }
 
         .header-container {
@@ -236,12 +244,6 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
             background: white;
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
             border-color: var(--accent);
-        }
-
-        .navbar.glass-nav {
-            background: transparent;
-            box-shadow: none;
-            border: none;
         }
 
         .hero-wrapper {
@@ -853,7 +855,7 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
     <!-- ============== Navbar ==============-->
     <header class="header-container">
         <!-- Hàng 1: Logo, Search, User -->
-        <nav class="navbar navbar-expand-lg glass-nav" id="mainNavbar">
+        <nav class="navbar navbar-expand-lg" id="mainNavbar">
             <div class="container">
                 <a class="navbar-brand" href="index.php">
                     <i class="fas fa-book-open text-warning me-2"></i>

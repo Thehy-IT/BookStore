@@ -283,13 +283,11 @@
 
 
             window.addEventListener('scroll', function() {
-                const nav = document.querySelector('.navbar');
+                const nav = document.getElementById('mainNavbar');
                 if (window.scrollY > 50) {
-                    nav.classList.add('shadow-sm');
-                    nav.style.background = 'rgba(255, 255, 255, 0.95)';
+                    nav.classList.add('scrolled');
                 } else {
-                    nav.classList.remove('shadow-sm');
-                    nav.style.background = 'rgba(255, 255, 255, 0.85)';
+                    nav.classList.remove('scrolled');
                 }
             });
 
