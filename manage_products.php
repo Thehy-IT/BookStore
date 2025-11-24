@@ -183,9 +183,13 @@ $products_res = mysqli_query($con, "SELECT * FROM products ORDER BY PID DESC");
                             <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="image" class="form-label">URL Hình ảnh</label>
-                            <input type="text" class="form-control" id="image" name="image" required>
-                            <small class="form-text text-muted">Dán đường dẫn URL của hình ảnh vào đây.</small>
+                            <label for="image_file" class="form-label">Tải ảnh sản phẩm</label>
+                            <input type="file" class="form-control" id="image_file" name="image_file" accept="image/*">
+                            <small class="form-text text-muted">Để trống nếu không muốn thay đổi ảnh. Tải ảnh mới sẽ ghi đè ảnh cũ.</small>
+                            <!-- Trường ẩn để lưu đường dẫn ảnh hiện tại khi chỉnh sửa -->
+                            <input type="hidden" name="current_image" id="current_image">
+                            <!-- Hiển thị ảnh hiện tại -->
+                            <img id="image_preview" src="" alt="Ảnh hiện tại" class="img-thumbnail mt-2" style="max-width: 100px; display: none;">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -207,12 +211,15 @@ $products_res = mysqli_query($con, "SELECT * FROM products ORDER BY PID DESC");
         const formAuthor = document.getElementById('author');
         const formPrice = document.getElementById('price');
         const formDescription = document.getElementById('description');
-        const formImage = document.getElementById('image');
+        const formImageFile = document.getElementById('image_file');
+        const currentImage = document.getElementById('current_image');
+        const imagePreview = document.getElementById('image_preview');
 
         function prepareAddModal() {
             document.querySelector('#productModal form').reset();
             modalTitle.textContent = 'Thêm sản phẩm mới';
             formAction.value = 'add';
+            imagePreview.style.display = 'none';
             formPid.value = '';
         }
 
@@ -225,7 +232,9 @@ $products_res = mysqli_query($con, "SELECT * FROM products ORDER BY PID DESC");
             formAuthor.value = product.Author;
             formPrice.value = product.Price;
             formDescription.value = product.Description;
-            formImage.value = product.Image;
+            currentImage.value = product.Image; // Lưu ảnh hiện tại
+            imagePreview.src = product.Image;
+            imagePreview.style.display = 'block';
         }
     </script>
 </body>
