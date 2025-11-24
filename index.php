@@ -318,17 +318,16 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
             position: relative;
             text-align: center;
             padding: 20px;
-            border-radius: 20px;
-            background: var(--glass-bg);
-            border: var(--glass-border);
+            border-radius: 15px;
             transition: all 0.3s ease;
             overflow: hidden;
+            border: 1px solid transparent;
+            /* Thêm border trong suốt để không bị giật layout khi hover */
         }
 
         .author-card:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--glass-shadow);
-            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border-color: #e2e8f0;
         }
 
         .author-avatar {
@@ -339,11 +338,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
             margin: 0 auto 15px auto;
             border: 4px solid white;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .author-card:hover .author-avatar {
-            transform: scale(1.05);
         }
 
         .author-name {
@@ -469,6 +463,75 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
             </div>
         </div>
     </div>
+</div>
+
+<!-- ============== Quote Section ==============-->
+<div class="container py-5">
+    <style>
+        .quote-container {
+            border-radius: 20px;
+            padding: 50px 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            transition: opacity 0.7s ease-in-out;
+        }
+
+        .quote-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-style: italic;
+            color: var(--primary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .quote-author {
+            font-weight: 600;
+            color: #64748b;
+        }
+    </style>
+    <div id="quote-wrapper" class="quote-container">
+        <i class="fas fa-quote-left fa-2x text-primary mb-3" style="color: var(--accent) !important;"></i>
+        <h3 id="quote-text" class="quote-text">Một cuốn sách hay trên giá sách là một người bạn dù quay lưng lại nhưng vẫn là bạn tốt.</h3>
+        <p id="quote-author" class="quote-author">— Ngạn ngữ Anh</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const quotes = [{
+                text: "Một cuốn sách hay trên giá sách là một người bạn dù quay lưng lại nhưng vẫn là bạn tốt.",
+                author: "Ngạn ngữ Anh"
+            }, {
+                text: "Đằng sau sự thành công của một người đàn ông, là hình bóng của một người phụ nữ. Còn đằng sau sự thành công của bất kì ai, là ít nhất một cuốn sách.",
+                author: "Khuyết danh"
+            }, {
+                text: "Việc đọc rất quan trọng. Nếu bạn biết cách đọc, cả thế giới sẽ mở ra cho bạn.",
+                author: "Barack Obama"
+            }, {
+                text: "Một căn phòng không có sách cũng giống như một cơ thể không có linh hồn.",
+                author: "Marcus Tullius Cicero"
+            }, {
+                text: "Chỉ có một điều mà bạn phải làm. Đó là đọc, đọc và đọc những cuốn sách hay.",
+                author: "Roald Dahl"
+            }];
+
+            const quoteWrapper = document.getElementById('quote-wrapper');
+            const quoteTextEl = document.getElementById('quote-text');
+            const quoteAuthorEl = document.getElementById('quote-author');
+            let currentQuoteIndex = 0;
+
+            setInterval(() => {
+                quoteWrapper.style.opacity = 0;
+                setTimeout(() => {
+                    currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+                    quoteTextEl.textContent = quotes[currentQuoteIndex].text;
+                    quoteAuthorEl.textContent = "— " + quotes[currentQuoteIndex].author;
+                    quoteWrapper.style.opacity = 1;
+                }, 700); // Phải khớp với thời gian transition của opacity
+            }, 7000); // Thay đổi trích dẫn mỗi 7 giây
+        });
+    </script>
 </div>
 
 <!-- ============== SECTION 3: NEWS (LAYOUT: GRID MASONRY) ==============-->
