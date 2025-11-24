@@ -35,6 +35,10 @@ if ($result->num_rows > 0) {
     exit();
 }
 
+// Xóa session coupon cũ khi vào trang để tránh áp dụng nhầm
+unset($_SESSION['coupon_code']);
+unset($_SESSION['discount_amount']);
+
 // Hiển thị thông báo nếu có
 $swal_script = "";
 if (isset($_SESSION['flash_message'])) {
@@ -96,6 +100,17 @@ if (isset($_SESSION['flash_message'])) {
         background: var(--accent);
         transform: translateY(-2px);
     }
+
+    .payment-option {
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .payment-option:has(input:checked) {
+        border-color: var(--accent);
+        background: rgba(255, 255, 255, 1);
+    }
 </style>
 
 <?php if ($swal_script) echo $swal_script; ?>
@@ -131,13 +146,27 @@ if (isset($_SESSION['flash_message'])) {
                         <label for="shipping_address" class="form-label">Địa chỉ nhận hàng</label>
                         <textarea class="form-control form-control-glass" id="shipping_address" name="shipping_address" rows="3" required></textarea>
                     </div>
-                    <div class="mb-3">
+                    <div>
                         <label class="form-label">Phương thức thanh toán</label>
-                        <div class="form-check p-3 rounded-3" style="background: rgba(255,255,255,0.7);">
-                            <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod" checked>
-                            <label class="form-check-label fw-bold" for="cod">
-                                <i class="fas fa-truck me-2"></i> Thanh toán khi nhận hàng (COD)
-                            </label>
+                        <div class="vstack gap-2">
+                            <div class="form-check p-3 rounded-3 payment-option">
+                                <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod" checked>
+                                <label class="form-check-label fw-bold" for="cod">
+                                    <i class="fas fa-truck me-2"></i> Thanh toán khi nhận hàng (COD)
+                                </label>
+                            </div>
+                            <div class="form-check p-3 rounded-3 payment-option">
+                                <input class="form-check-input" type="radio" name="payment_method" id="bank_transfer" value="bank_transfer">
+                                <label class="form-check-label fw-bold" for="bank_transfer">
+                                    <i class="fas fa-university me-2"></i> Chuyển khoản ngân hàng
+                                </label>
+                            </div>
+                            <div class="form-check p-3 rounded-3 payment-option">
+                                <input class="form-check-input" type="radio" name="payment_method" id="momo" value="momo">
+                                <label class="form-check-label fw-bold" for="momo">
+                                    <i class="fas fa-wallet me-2"></i> Ví điện tử (Momo, ZaloPay)
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -163,9 +192,25 @@ if (isset($_SESSION['flash_message'])) {
 
                     <hr>
 
+                    <!-- Mã giảm giá -->
+                    <div class="mb-3">
+                        <label class="form-label">Mã giảm giá</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control form-control-glass" placeholder="Nhập mã giảm giá" id="coupon-code">
+                            <button class="btn btn-outline-dark" type="button" id="apply-coupon-btn" onclick="applyCoupon()">Áp dụng</button>
+                        </div>
+                        <div id="coupon-message" class="small mt-2"></div>
+                    </div>
+
+                    <hr>
+
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Tạm tính</span>
                         <span class="fw-bold"><?php echo number_format($total_amount); ?> đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2" id="discount-row" style="display: none;">
+                        <span class="text-muted">Giảm giá</span>
+                        <span class="fw-bold text-danger">-<span id="discount-amount">0</span> đ</span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-muted">Phí vận chuyển</span>
@@ -173,7 +218,7 @@ if (isset($_SESSION['flash_message'])) {
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <span class="fs-5 fw-bold">Tổng cộng</span>
-                        <span class="fs-4 fw-bold" style="color: var(--accent);"><?php echo number_format($total_amount); ?> đ</span>
+                        <span class="fs-4 fw-bold" style="color: var(--accent);" id="final-total"><?php echo number_format($total_amount); ?> đ</span>
                     </div>
 
                     <button type="submit" class="btn-place-order">
@@ -184,6 +229,55 @@ if (isset($_SESSION['flash_message'])) {
         </div>
     </form>
 </div>
+
+<script>
+    const formatter = new Intl.NumberFormat('vi-VN');
+
+    function applyCoupon() {
+        const couponCode = document.getElementById('coupon-code').value.trim();
+        const applyBtn = document.getElementById('apply-coupon-btn');
+        const couponMessage = document.getElementById('coupon-message');
+
+        if (!couponCode) {
+            couponMessage.innerHTML = `<span class="text-danger">Vui lòng nhập mã giảm giá.</span>`;
+            return;
+        }
+
+        applyBtn.disabled = true;
+        applyBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
+
+        fetch('apply_coupon.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `coupon_code=${couponCode}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    couponMessage.innerHTML = `<span class="text-success">${data.message}</span>`;
+                    document.getElementById('discount-row').style.display = 'flex';
+                    document.getElementById('discount-amount').textContent = formatter.format(data.discount_amount);
+                    document.getElementById('final-total').textContent = formatter.format(data.new_total) + ' đ';
+                } else {
+                    couponMessage.innerHTML = `<span class="text-danger">${data.message}</span>`;
+                    // Reset if coupon is invalid
+                    document.getElementById('discount-row').style.display = 'none';
+                    document.getElementById('discount-amount').textContent = '0';
+                    document.getElementById('final-total').textContent = formatter.format(<?php echo $total_amount; ?>) + ' đ';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                couponMessage.innerHTML = `<span class="text-danger">Lỗi kết nối. Vui lòng thử lại.</span>`;
+            })
+            .finally(() => {
+                applyBtn.disabled = false;
+                applyBtn.innerHTML = 'Áp dụng';
+            });
+    }
+</script>
 
 <?php
 include 'footer.php'; // Sử dụng footer chung

@@ -235,6 +235,25 @@ CREATE TABLE `order_items` (
   KEY `product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE `coupons` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `code` varchar(50) NOT NULL,
+  `type` enum('percentage','fixed') NOT NULL,
+  `value` decimal(10,2) NOT NULL,
+  `min_spend` decimal(10,2) DEFAULT 0.00,
+  `expiry_date` date DEFAULT NULL,
+  `usage_limit` int(11) DEFAULT 1,
+  `usage_count` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Thêm một vài mã giảm giá mẫu:
+INSERT INTO `coupons` (`code`, `type`, `value`, `min_spend`, `expiry_date`) VALUES
+('GIAM10', 'percentage', 10.00, 200000.00, '2025-12-31'),
+('KHAITRUONG', 'fixed', 50000.00, 300000.00, '2025-12-31'),
+('FREESHIP', 'fixed', 30000.00, 150000.00, '2025-12-31');
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

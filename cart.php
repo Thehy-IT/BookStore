@@ -1,8 +1,6 @@
 <?php
 include 'header.php'; // Sử dụng header chung
 
-$swal_script = ""; // Biến chứa script thông báo
-
 // 1. Kiểm tra đăng nhập
 if (!isset($_SESSION['user_id'])) {
     // Nếu chưa đăng nhập, hiển thị thông báo và yêu cầu đăng nhập
@@ -16,115 +14,132 @@ if (!isset($_SESSION['user_id'])) {
 }
 $user_id = $_SESSION['user_id'];
 
-// 2. Xử lý Logic: THÊM / CẬP NHẬT SẢN PHẨM (Từ trang chi tiết)
+// --- XỬ LÝ LOGIC ---
+
+// 2. Xử lý thêm/cập nhật sản phẩm từ các trang khác (ví dụ: description.php)
 if (isset($_GET['ID']) && isset($_GET['quantity'])) {
     $product_id = $_GET['ID'];
-    $qty = intval($_GET['quantity']); // Đảm bảo là số nguyên
+    $quantity = filter_var($_GET['quantity'], FILTER_VALIDATE_INT);
 
-    // Kiểm tra xem sản phẩm đã có trong giỏ chưa
-    $check = $con->prepare("SELECT * FROM cart WHERE UserID=? AND ProductID=?");
-    $check->bind_param("is", $user_id, $product_id);
-    $check->execute();
-    $res = $check->get_result();
+    if ($quantity > 0) {
+        // Kiểm tra xem sản phẩm đã có trong giỏ chưa
+        $check_stmt = $con->prepare("SELECT Quantity FROM cart WHERE UserID = ? AND ProductID = ?");
+        $check_stmt->bind_param("is", $user_id, $product_id);
+        $check_stmt->execute();
+        $cart_result = $check_stmt->get_result();
 
-    if ($res->num_rows == 0) {
-        // Chưa có -> Thêm mới
-        $ins = $con->prepare("INSERT INTO cart (UserID, ProductID, Quantity) VALUES (?, ?, ?)");
-        $ins->bind_param("isi", $user_id, $product_id, $qty);
-        $ins->execute();
-    } else {
-        // Đã có -> Cập nhật số lượng (Ghi đè số lượng mới)
-        $upd = $con->prepare("UPDATE cart SET Quantity=? WHERE UserID=? AND ProductID=?");
-        $upd->bind_param("iis", $qty, $user_id, $product_id);
-        $upd->execute();
+        if ($cart_result->num_rows > 0) {
+            // Đã có -> cộng dồn số lượng
+            $row = $cart_result->fetch_assoc();
+            $new_quantity = $row['Quantity'] + $quantity;
+            $update_stmt = $con->prepare("UPDATE cart SET Quantity = ? WHERE UserID = ? AND ProductID = ?");
+            $update_stmt->bind_param("iis", $new_quantity, $user_id, $product_id);
+            $update_stmt->execute();
+        } else {
+            // Chưa có -> Thêm mới
+            $insert_stmt = $con->prepare("INSERT INTO cart (UserID, ProductID, Quantity) VALUES (?, ?, ?)");
+            $insert_stmt->bind_param("isi", $user_id, $product_id, $quantity);
+            $insert_stmt->execute();
+        }
     }
-    // Chuyển hướng để xóa tham số trên URL (Tránh F5 lại bị thêm lần nữa)
+    // Chuyển hướng để xóa tham số trên URL và hiển thị thông báo
     header("Location: cart.php?action=added");
     exit();
 }
 
-// 3. Xử lý Logic: XÓA SẢN PHẨM
-if (isset($_GET['remove'])) {
-    $product_id = $_GET['remove'];
-    $del = $con->prepare("DELETE FROM cart WHERE UserID=? AND ProductID=?");
-    $del->bind_param("is", $user_id, $product_id);
-
-    if ($del->execute()) {
-        header("Location: cart.php?action=removed");
-        exit();
+// 3. Xử lý thông báo flash một lần
+$swal_script = "";
+if (isset($_GET['action'])) {
+    switch ($_GET['action']) {
+        case 'added':
+            $swal_script = "Swal.fire({icon: 'success', title: 'Thành công!', text: 'Sản phẩm đã được thêm vào giỏ hàng.', timer: 2000, showConfirmButton: false});";
+            break;
+        case 'placed':
+            $swal_script = "Swal.fire({icon: 'success', title: 'Đặt hàng thành công!', text: 'Cảm ơn bạn! Chúng tôi sẽ sớm liên hệ để xác nhận đơn hàng.', confirmButtonColor: '#0f172a'});";
+            break;
     }
 }
 
-// 5. Xử lý thông báo dựa trên tham số 'action'
-if (isset($_GET['action'])) {
-    if ($_GET['action'] == 'added') $swal_script = "Swal.fire({icon: 'success', title: 'Đã cập nhật!', text: 'Giỏ hàng đã được cập nhật thành công.', timer: 2000, showConfirmButton: false});";
-    if ($_GET['action'] == 'removed') $swal_script = "Swal.fire({icon: 'success', title: 'Đã xóa!', text: 'Sản phẩm đã được xóa khỏi giỏ hàng.', timer: 2000, showConfirmButton: false});";
-    if ($_GET['action'] == 'placed') $swal_script = "Swal.fire({icon: 'success', title: 'Đặt hàng thành công!', text: 'Cảm ơn bạn! Đơn hàng sẽ được thanh toán khi nhận hàng.', confirmButtonColor: '#0f172a'});";
+// --- TRUY VẤN DỮ LIỆU ĐỂ HIỂN THỊ ---
+$sql = "SELECT p.PID, p.Title, p.Author, p.Price, p.Available, c.Quantity 
+        FROM cart c 
+        JOIN products p ON c.ProductID = p.PID 
+        WHERE c.UserID = ?";
+$stmt = $con->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$cart_items = [];
+$subtotal = 0;
+$total_items = 0;
+
+while ($row = $result->fetch_assoc()) {
+    $cart_items[] = $row;
+    $subtotal += $row['Price'] * $row['Quantity'];
+    $total_items += $row['Quantity'];
 }
+
 ?>
 <style>
-    /* --- Glass Panel --- */
-    .glass-panel {
+    .cart-item-card {
         background: var(--glass-bg);
-        backdrop-filter: blur(20px);
+        backdrop-filter: blur(15px);
         border: var(--glass-border);
-        border-radius: 20px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
+        border-radius: 16px;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
     }
 
-    /* --- Cart Table --- */
-    .cart-table thead {
-        background: rgba(15, 23, 42, 0.05);
-    }
-
-    .cart-table th {
-        font-weight: 700;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        color: #64748b;
-        border: none;
-        padding: 15px 20px;
-    }
-
-    .cart-table td {
-        vertical-align: middle;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        padding: 20px;
-    }
-
-    .cart-img {
-        width: 60px;
-        height: 90px;
+    .cart-item-img {
+        width: 80px;
+        height: 120px;
         object-fit: cover;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    /* --- Buttons --- */
-    .btn-remove {
-        color: #ef4444;
-        background: rgba(239, 68, 68, 0.1);
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 50px;
+        padding: 4px;
+    }
+
+    .quantity-control .form-control {
+        width: 50px;
+        text-align: center;
         border: none;
-        width: 35px;
-        height: 35px;
+        background: transparent;
+        box-shadow: none;
+        font-weight: 600;
+    }
+
+    .quantity-control .btn-qty {
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
+        border: none;
+        background-color: white;
+        color: var(--primary);
+        font-weight: 600;
         transition: 0.3s;
     }
 
-    .btn-remove:hover {
-        background: #ef4444;
+    .quantity-control .btn-qty:hover {
+        background-color: var(--primary);
         color: white;
-        transform: rotate(90deg);
     }
 
+    /* --- Summary Card --- */
     .btn-checkout {
         background: var(--primary);
         color: white;
         border: none;
         width: 100%;
         padding: 15px;
-        border-radius: 12px;
+        border-radius: 50px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 1px;
@@ -137,21 +152,13 @@ if (isset($_GET['action'])) {
         transform: translateY(-2px);
     }
 
-    /* --- Empty State --- */
     .empty-cart {
         padding: 60px 0;
         text-align: center;
-    }
-
-    .empty-icon {
-        font-size: 5rem;
-        color: #cbd5e1;
-        margin-bottom: 20px;
-    }
-
-    .quantity-input {
-        width: 70px;
-        margin-bottom: 20px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: var(--glass-border);
+        border-radius: 20px;
     }
 </style>
 <?php if ($swal_script) echo "<script>$swal_script</script>"; ?>
@@ -167,74 +174,44 @@ if (isset($_GET['action'])) {
     </nav>
     <h2 class="fw-bold mb-4" style="font-family: 'Playfair Display', serif; margin-top: 2rem;">Giỏ hàng của bạn</h2>
 
-    <?php
-    // Lấy dữ liệu giỏ hàng
-    $sql = "SELECT cart.ProductID, cart.Quantity, products.Title, products.Author, products.Price, products.PID 
-                FROM cart 
-                INNER JOIN products ON cart.ProductID = products.PID 
-                WHERE cart.UserID = ?";
-    $stmt = $con->prepare($sql);
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    $total = 0;
-    $count = 0;
-    ?>
-
-    <?php if ($result->num_rows > 0): ?>
+    <?php if (!empty($cart_items)): ?>
         <div class="row g-4">
             <!-- Cột trái: Danh sách sản phẩm -->
             <div class="col-lg-8">
-                <div class="glass-panel">
-                    <div class="table-responsive">
-                        <table class="table cart-table mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Sản phẩm</th>
-                                    <th>Đơn giá</th>
-                                    <th>Số lượng</th>
-                                    <th class="text-end">Tổng</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($row = $result->fetch_assoc()):
-                                    $subtotal = $row['Price'] * $row['Quantity'];
-                                    $total += $subtotal;
-                                    $count += $row['Quantity'];
-                                ?>
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="img/books/<?php echo $row['PID']; ?>.jpg" class="cart-img me-3" onerror="this.src='https://placehold.co/100x150?text=Book'">
-                                                <div>
-                                                    <h6 class="fw-bold mb-1"><?php echo $row['Title']; ?></h6>
-                                                    <small class="text-muted">bởi <?php echo $row['Author']; ?></small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="fw-bold"><?php echo number_format($row['Price']); ?></td>
-                                        <td>
-                                            <!-- Thay đổi: Input cho số lượng -->
-                                            <input type="number"
-                                                class="form-control form-control-sm quantity-input"
-                                                value="<?php echo $row['Quantity']; ?>"
-                                                min="1"
-                                                onchange="updateQuantity('<?php echo $row['ProductID']; ?>', this.value, <?php echo $row['Price']; ?>, this)">
-                                            <small class="text-success d-none" id="update-success-<?php echo $row['ProductID']; ?>">Đã cập nhật!</small>
-                                        </td>
-                                        <td class="text-end fw-bold text-primary"><?php echo number_format($subtotal); ?></td>
-                                        <td class="text-end">
-                                            <a href="#" onclick="confirmRemove('<?php echo $row['ProductID']; ?>')" class="btn-remove d-inline-flex align-items-center justify-content-center">
-                                                <i class="fas fa-times"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="vstack gap-3">
+                    <?php foreach ($cart_items as $item): ?>
+                        <div class="cart-item-card" id="cart-item-<?php echo htmlspecialchars($item['PID']); ?>">
+                            <div class="row g-3 align-items-center">
+                                <!-- Ảnh -->
+                                <div class="col-auto">
+                                    <img src="img/books/<?php echo htmlspecialchars($item['PID']); ?>.jpg" class="cart-item-img" onerror="this.src='https://placehold.co/100x150?text=Book'">
+                                </div>
+                                <!-- Thông tin -->
+                                <div class="col">
+                                    <h6 class="fw-bold mb-1 text-truncate"><a href="description.php?ID=<?php echo htmlspecialchars($item['PID']); ?>" class="text-dark text-decoration-none"><?php echo htmlspecialchars($item['Title']); ?></a></h6>
+                                    <small class="text-muted">bởi <?php echo htmlspecialchars($item['Author']); ?></small>
+                                    <div class="fw-bold mt-2"><?php echo number_format($item['Price']); ?> đ</div>
+                                </div>
+                                <!-- Số lượng -->
+                                <div class="col-md-3">
+                                    <div class="quantity-control">
+                                        <button class="btn-qty" onclick="changeQuantity('<?php echo htmlspecialchars($item['PID']); ?>', -1)">-</button>
+                                        <input type="number" class="form-control" id="quantity-<?php echo htmlspecialchars($item['PID']); ?>" value="<?php echo htmlspecialchars($item['Quantity']); ?>" min="1" max="<?php echo htmlspecialchars($item['Available']); ?>" onchange="updateQuantity('<?php echo htmlspecialchars($item['PID']); ?>', this.value)">
+                                        <button class="btn-qty" onclick="changeQuantity('<?php echo htmlspecialchars($item['PID']); ?>', 1)">+</button>
+                                    </div>
+                                </div>
+                                <!-- Tổng phụ & Xóa -->
+                                <div class="col-md-2 text-md-end">
+                                    <div class="fw-bold text-primary mb-2" id="subtotal-<?php echo htmlspecialchars($item['PID']); ?>">
+                                        <?php echo number_format($item['Price'] * $item['Quantity']); ?> đ
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-danger border-0" onclick="removeItem('<?php echo htmlspecialchars($item['PID']); ?>')" title="Xóa sản phẩm">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
 
                 <div class="mt-4">
@@ -246,12 +223,12 @@ if (isset($_GET['action'])) {
 
             <!-- Cột phải: Tổng tiền (Order Summary) -->
             <div class="col-lg-4">
-                <div class="glass-panel p-4 sticky-top" style="top: 100px; z-index: 1;">
+                <div class="cart-item-card p-4 sticky-top" style="top: 100px; z-index: 1;">
                     <h5 class="fw-bold mb-4">Tóm tắt đơn hàng</h5>
 
                     <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted">Tạm tính (<span id="total-items"><?php echo $count; ?></span> sản phẩm)</span>
-                        <span class="fw-bold"><span id="subtotal-amount"><?php echo number_format($total); ?></span> đ</span>
+                        <span class="text-muted">Tạm tính (<span id="total-items"><?php echo $total_items; ?></span> sản phẩm)</span>
+                        <span class="fw-bold"><span id="subtotal-amount"><?php echo number_format($subtotal); ?></span> đ</span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-muted">Phí vận chuyển</span>
@@ -260,7 +237,7 @@ if (isset($_GET['action'])) {
                     <hr>
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <span class="fs-5 fw-bold">Tổng cộng</span>
-                        <span class="fs-4 fw-bold" style="color: var(--accent);"><span id="total-amount"><?php echo number_format($total); ?></span> đ</span>
+                        <span class="fs-4 fw-bold" style="color: var(--accent);"><span id="total-amount"><?php echo number_format($subtotal); ?></span> đ</span>
                     </div>
 
                     <!-- Form đặt hàng -->
@@ -277,11 +254,9 @@ if (isset($_GET['action'])) {
 
     <?php else: ?>
         <!-- Giỏ hàng trống -->
-        <div class="glass-panel empty-cart">
-            <div class="empty-icon">
-                <i class="fas fa-shopping-basket"></i>
-            </div>
-            <h3>Giỏ hàng của bạn đang trống</h3>
+        <div class="empty-cart">
+            <div style="font-size: 5rem; color: #cbd5e1;"><i class="fas fa-shopping-basket"></i></div>
+            <h3 class="mt-3">Giỏ hàng của bạn đang trống</h3>
             <p class="text-muted mb-4">Có vẻ như bạn chưa thêm cuốn sách nào vào giỏ.</p>
             <a href="index.php" class="btn btn-primary rounded-pill px-5 py-3 fw-bold" style="background: var(--primary);">
                 Bắt đầu mua sắm
@@ -293,88 +268,135 @@ if (isset($_GET['action'])) {
 
 <script>
     const formatter = new Intl.NumberFormat('vi-VN');
-    // Xác nhận xóa sản phẩm
-    function confirmRemove(pid) {
+    let debounceTimer;
+
+    // Hàm thay đổi số lượng bằng nút +/-
+    function changeQuantity(productId, amount) {
+        const input = document.getElementById(`quantity-${productId}`);
+        let currentValue = parseInt(input.value);
+        let newValue = currentValue + amount;
+        const max = parseInt(input.max);
+
+        if (newValue < 1) newValue = 1;
+        if (newValue > max) newValue = max;
+
+        if (newValue !== currentValue) {
+            input.value = newValue;
+            // Kích hoạt sự kiện onchange để cập nhật
+            input.dispatchEvent(new Event('change'));
+        }
+    }
+
+    // Hàm xóa sản phẩm bằng AJAX
+    function removeItem(productId) {
         Swal.fire({
             title: 'Bạn chắc chứ?',
             text: "Bạn có muốn xóa cuốn sách này khỏi giỏ hàng không?",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#ef4444',
+            confirmButtonColor: '#d33',
             cancelButtonColor: '#6c757d',
             confirmButtonText: 'Vâng, xóa nó!',
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "cart.php?remove=" + pid;
+                fetch('update_cart_quantity.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: `product_id=${productId}&quantity=0` // Gửi số lượng 0 để xóa
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Xóa item khỏi DOM
+                            const itemCard = document.getElementById(`cart-item-${productId}`);
+                            if (itemCard) {
+                                itemCard.style.transition = 'opacity 0.5s ease';
+                                itemCard.style.opacity = '0';
+                                setTimeout(() => itemCard.remove(), 500);
+                            }
+                            updateSummaryAndHeader(data);
+                            Swal.fire('Đã xóa!', 'Sản phẩm đã được xóa khỏi giỏ hàng.', 'success');
+
+                            // Kiểm tra nếu giỏ hàng trống thì reload để hiển thị empty state
+                            if (data.new_total_items === 0) {
+                                setTimeout(() => window.location.reload(), 1500);
+                            }
+                        } else {
+                            Swal.fire('Lỗi!', data.message || 'Không thể xóa sản phẩm.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Lỗi kết nối!', 'Không thể kết nối đến máy chủ.', 'error');
+                    });
             }
-        })
+        });
     }
 
-    // Cập nhật số lượng bằng AJAX
-    function updateQuantity(productId, newQuantity, price, element) {
-        const successMessage = document.getElementById('update-success-' + productId);
+    // Hàm cập nhật số lượng (với debouncing)
+    function updateQuantity(productId, newQuantity) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            const input = document.getElementById(`quantity-${productId}`);
+            const originalValue = input.defaultValue; // Lưu giá trị ban đầu
 
-        fetch('update_cart_quantity.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `product_id=${productId}&quantity=${newQuantity}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // 1. Cập nhật tổng phụ của dòng sản phẩm
-                    const row = element.closest('tr');
-                    const subtotalCell = row.querySelector('.text-primary');
-                    subtotalCell.textContent = formatter.format(price * newQuantity);
-
-                    // 2. Cập nhật tóm tắt đơn hàng
-                    document.getElementById('subtotal-amount').textContent = formatter.format(data.new_total_amount);
-                    document.getElementById('total-amount').textContent = formatter.format(data.new_total_amount);
-                    document.getElementById('total-items').textContent = data.new_total_items;
-
-                // 3. Cập nhật badge số lượng trên header
-                const headerCartBadge = document.getElementById('header-cart-count');
-                if (headerCartBadge) {
-                    if (data.new_total_items > 0) {
-                        headerCartBadge.textContent = data.new_total_items;
-                        headerCartBadge.classList.remove('d-none');
+            fetch('update_cart_quantity.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `product_id=${productId}&quantity=${newQuantity}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Cập nhật tổng phụ của dòng sản phẩm
+                        const subtotalEl = document.getElementById(`subtotal-${productId}`);
+                        if (subtotalEl) {
+                            subtotalEl.textContent = formatter.format(data.new_item_subtotal) + ' đ';
+                        }
+                        updateSummaryAndHeader(data);
+                        input.defaultValue = newQuantity; // Cập nhật giá trị gốc mới
                     } else {
-                        headerCartBadge.classList.add('d-none'); // Ẩn badge nếu giỏ hàng trống
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi cập nhật',
+                            text: data.message || 'Không thể cập nhật giỏ hàng.',
+                        });
+                        // Khôi phục giá trị cũ nếu cập nhật thất bại
+                        input.value = originalValue;
                     }
-                }
-
-                    // 3. Hiển thị thông báo thành công nhỏ
-                    successMessage.classList.remove('d-none');
-                    setTimeout(() => {
-                        successMessage.classList.add('d-none');
-                    }, 2000); // Ẩn sau 2 giây
-
-                } else {
-                    // Xử lý lỗi (ví dụ: hiển thị thông báo lỗi)
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     Swal.fire({
                         icon: 'error',
-                        title: 'Lỗi cập nhật',
-                        text: data.message || 'Không thể cập nhật giỏ hàng. Vui lòng thử lại.',
-                        timer: 2000,
-                        showConfirmButton: false
+                        title: 'Lỗi kết nối',
+                        text: 'Đã xảy ra lỗi khi kết nối đến máy chủ.',
                     });
-                    // Khôi phục giá trị cũ nếu cập nhật thất bại
-                    element.value = data.old_quantity || element.value;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi kết nối',
-                    text: 'Đã xảy ra lỗi khi kết nối đến máy chủ.',
-                    timer: 2000,
-                    showConfirmButton: false
+                    input.value = originalValue;
                 });
-            });
+        }, 500); // Chờ 500ms sau khi người dùng ngừng gõ/nhấn
+    }
+
+    // Hàm phụ để cập nhật tóm tắt đơn hàng và header
+    function updateSummaryAndHeader(data) {
+        document.getElementById('subtotal-amount').textContent = formatter.format(data.new_total_amount);
+        document.getElementById('total-amount').textContent = formatter.format(data.new_total_amount);
+        document.getElementById('total-items').textContent = data.new_total_items;
+
+        const headerCartBadge = document.getElementById('header-cart-count');
+        if (headerCartBadge) {
+            if (data.new_total_items > 0) {
+                headerCartBadge.textContent = data.new_total_items;
+                headerCartBadge.style.display = 'flex';
+            } else {
+                headerCartBadge.style.display = 'none';
+            }
+        }
     }
 </script>
 <?php
