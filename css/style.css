@@ -20,7 +20,11 @@ body {
     position: relative;
 }
 
-h1, h2, h3, h4, h5 {
+h1,
+h2,
+h3,
+h4,
+h5 {
     font-family: 'Playfair Display', serif;
 }
 
@@ -32,8 +36,8 @@ h1, h2, h3, h4, h5 {
     height: 100%;
     z-index: -1;
     background: radial-gradient(circle at 10% 10%, rgba(212, 175, 55, 0.15), transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(15, 23, 42, 0.1), transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8), transparent 100%);
+        radial-gradient(circle at 90% 80%, rgba(15, 23, 42, 0.1), transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8), transparent 100%);
 }
 
 /* --- 2. COMPONENTS --- */
@@ -68,7 +72,9 @@ h1, h2, h3, h4, h5 {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* --- Glass Panel (General Purpose) --- */
@@ -263,12 +269,29 @@ footer {
     transform: scale(1.2);
 }
 
-.social-icon-facebook:hover { color: #1877F2 !important; }
-.social-icon-instagram:hover { color: #E4405F !important; }
-.social-icon-twitter:hover { color: #1DA1F2 !important; }
-.social-icon-youtube:hover { color: #FF0000 !important; }
-.social-icon-pinterest:hover { color: #E60023 !important; }
-.social-icon-tiktok:hover { color: #000000 !important; }
+.social-icon-facebook:hover {
+    color: #1877F2 !important;
+}
+
+.social-icon-instagram:hover {
+    color: #E4405F !important;
+}
+
+.social-icon-twitter:hover {
+    color: #1DA1F2 !important;
+}
+
+.social-icon-youtube:hover {
+    color: #FF0000 !important;
+}
+
+.social-icon-pinterest:hover {
+    color: #E60023 !important;
+}
+
+.social-icon-tiktok:hover {
+    color: #000000 !important;
+}
 
 .footer-logos-section {
     padding-top: 20px;
@@ -344,7 +367,9 @@ footer {
 }
 
 @keyframes fall {
-    to { transform: translateY(105vh); }
+    to {
+        transform: translateY(105vh);
+    }
 }
 
 /* --- Swiper (Carousel) --- */
@@ -528,10 +553,22 @@ footer {
     top: 32px;
 }
 
-.badge-new span { background: linear-gradient(45deg, #3b82f6, #60a5fa); }
-.badge-hot span { background: linear-gradient(45deg, #ef4444, #f87171); }
-.badge-sale span { background: linear-gradient(45deg, #f59e0b, #fcd34d); }
-.badge-best span { background: linear-gradient(45deg, var(--accent), #e7c86a); color: var(--primary) !important; }
+.badge-new span {
+    background: linear-gradient(45deg, #3b82f6, #60a5fa);
+}
+
+.badge-hot span {
+    background: linear-gradient(45deg, #ef4444, #f87171);
+}
+
+.badge-sale span {
+    background: linear-gradient(45deg, #f59e0b, #fcd34d);
+}
+
+.badge-best span {
+    background: linear-gradient(45deg, var(--accent), #e7c86a);
+    color: var(--primary) !important;
+}
 
 
 /* --- Book Card Style 2 (Product.php) --- */
@@ -558,7 +595,8 @@ footer {
 .card-img-top-wrapper {
     position: relative;
     overflow: hidden;
-    padding-top: 150%; /* Aspect Ratio 2:3 */
+    padding-top: 150%;
+    /* Aspect Ratio 2:3 */
 }
 
 .card-img-top-wrapper img {
@@ -821,4 +859,30 @@ footer {
 
 .read-more-link:hover {
     color: var(--accent);
+}
+
+/* --- 4. THIRD-PARTY LIBRARY STYLES --- */
+
+/* --- noUiSlider (Price Range Slider) --- */
+.noUi-target {
+    background: #e9ecef;
+    border-radius: 5px;
+    border: none;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+.noUi-connect {
+    background: var(--primary);
+}
+.noUi-handle {
+    border: 3px solid white;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    cursor: grab;
+}
+.noUi-handle:focus {
+    outline: none;
+}
+.noUi-handle.noUi-active {
+    cursor: grabbing;
 }

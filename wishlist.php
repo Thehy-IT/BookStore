@@ -45,10 +45,10 @@ if (isset($_GET['remove'])) {
 // 4. Xử lý thông báo dựa trên 'action'
 if (isset($_GET['action'])) {
     if ($_GET['action'] == 'added') {
-        $swal_script = "Swal.fire({icon: 'success', title: 'Added!', text: 'Book added to your wishlist.', timer: 2000, showConfirmButton: false});";
+        $swal_script = "Swal.fire({icon: 'success', title: 'Đã thêm!', text: 'Sách đã được thêm vào danh sách yêu thích.', timer: 2000, showConfirmButton: false});";
     }
     if ($_GET['action'] == 'removed') {
-        $swal_script = "Swal.fire({icon: 'info', title: 'Removed', text: 'Book removed from your wishlist.', timer: 2000, showConfirmButton: false});";
+        $swal_script = "Swal.fire({icon: 'info', title: 'Đã xóa', text: 'Sách đã được xóa khỏi danh sách yêu thích.', timer: 2000, showConfirmButton: false});";
     }
 }
 
@@ -123,10 +123,10 @@ if (isset($_GET['action'])) {
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="fw-bold" style="font-family: 'Playfair Display', serif;">My Wishlist</h1>
-            <p class="text-muted">Your collection of favorite books.</p>
+            <h1 class="fw-bold" style="font-family: 'Playfair Display', serif;">Danh sách yêu thích</h1>
+            <p class="text-muted">Bộ sưu tập những cuốn sách bạn yêu thích.</p>
         </div>
-        <a href="index.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Back to Shop</a>
+        <a href="index.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Quay lại cửa hàng</a>
     </div>
 
     <?php
@@ -165,9 +165,9 @@ if (isset($_GET['action'])) {
             <div class="col-12">
                 <div class="empty-wishlist">
                     <div style="font-size: 4rem; color: #cbd5e1;"><i class="far fa-heart"></i></div>
-                    <h3 class="mt-3 text-muted">Your Wishlist is Empty</h3>
-                    <p class="text-muted">Add your favourite books to your wishlist and they will show up here.</p>
-                    <a href="index.php" class="btn btn-primary rounded-pill px-4 mt-3" style="background: var(--primary);">Browse Books</a>
+                    <h3 class="mt-3 text-muted">Danh sách yêu thích của bạn đang trống</h3>
+                    <p class="text-muted">Hãy thêm những cuốn sách bạn thích vào đây nhé.</p>
+                    <a href="index.php" class="btn btn-primary rounded-pill px-4 mt-3" style="background: var(--primary);">Xem sách</a>
                 </div>
             </div>
         <?php endif; ?>

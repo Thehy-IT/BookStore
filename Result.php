@@ -88,10 +88,10 @@ $keyword = "%{$keyword_raw}%";
     <!-- Header Result -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <p class="text-muted mb-0">Search Results for: "<strong class="text-dark"><?php echo htmlspecialchars($keyword_raw); ?></strong>"</p>
-            <h2 class="fw-bold" style="font-family: 'Playfair Display', serif;">Found <span style="color: var(--accent)"><?php echo $count; ?></span> Books</h2>
+            <p class="text-muted mb-0">Kết quả tìm kiếm cho: "<strong class="text-dark"><?php echo htmlspecialchars($keyword_raw); ?></strong>"</p>
+            <h2 class="fw-bold" style="font-family: 'Playfair Display', serif;">Tìm thấy <span style="color: var(--accent)"><?php echo $count; ?></span> cuốn sách</h2>
         </div>
-        <a href="index.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Back Home</a>
+        <a href="index.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Về trang chủ</a>
     </div>
 
     <!-- Grid Books -->
@@ -137,9 +137,9 @@ $keyword = "%{$keyword_raw}%";
             <!-- Empty State (Khi không tìm thấy sách) -->
             <div class="col-12 text-center py-5">
                 <div style="font-size: 5rem; color: #cbd5e1;"><i class="fas fa-search"></i></div>
-                <h3 class="mt-3 text-muted">No books found matching your search.</h3>
-                <p class="text-muted">Try checking your spelling or use different keywords.</p>
-                <a href="Product.php" class="btn btn-primary-glass mt-3">Browse All Books</a>
+                <h3 class="mt-3 text-muted">Không tìm thấy sách phù hợp.</h3>
+                <p class="text-muted">Hãy thử kiểm tra lại chính tả hoặc dùng từ khóa khác.</p>
+                <a href="Product.php" class="btn btn-primary-glass mt-3">Xem tất cả sách</a>
             </div>
         <?php endif; ?>
     </div>

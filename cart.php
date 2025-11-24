@@ -58,9 +58,9 @@ if (isset($_POST['place_order'])) {
 
 // 5. Xử lý thông báo dựa trên tham số 'action'
 if (isset($_GET['action'])) {
-    if ($_GET['action'] == 'added') $swal_script = "Swal.fire({icon: 'success', title: 'Updated!', text: 'Cart updated successfully.', timer: 2000, showConfirmButton: false});";
-    if ($_GET['action'] == 'removed') $swal_script = "Swal.fire({icon: 'success', title: 'Removed!', text: 'Item removed from cart.', timer: 2000, showConfirmButton: false});";
-    if ($_GET['action'] == 'placed') $swal_script = "Swal.fire({icon: 'success', title: 'Order Placed!', text: 'Thank you! Cash on Delivery.', confirmButtonColor: '#0f172a'});";
+    if ($_GET['action'] == 'added') $swal_script = "Swal.fire({icon: 'success', title: 'Đã cập nhật!', text: 'Giỏ hàng đã được cập nhật thành công.', timer: 2000, showConfirmButton: false});";
+    if ($_GET['action'] == 'removed') $swal_script = "Swal.fire({icon: 'success', title: 'Đã xóa!', text: 'Sản phẩm đã được xóa khỏi giỏ hàng.', timer: 2000, showConfirmButton: false});";
+    if ($_GET['action'] == 'placed') $swal_script = "Swal.fire({icon: 'success', title: 'Đặt hàng thành công!', text: 'Cảm ơn bạn! Đơn hàng sẽ được thanh toán khi nhận hàng.', confirmButtonColor: '#0f172a'});";
 }
 ?>
 <style>
@@ -154,7 +154,7 @@ if (isset($_GET['action'])) {
 
 <!-- ============== Cart Content ==============-->
 <div class="container" style="padding-top: 40px; padding-bottom: 50px;">
-    <h2 class="fw-bold mb-4" style="font-family: 'Playfair Display', serif;">Your Shopping Cart</h2>
+    <h2 class="fw-bold mb-4" style="font-family: 'Playfair Display', serif;">Giỏ hàng của bạn</h2>
 
     <?php
     // Lấy dữ liệu giỏ hàng
@@ -180,10 +180,10 @@ if (isset($_GET['action'])) {
                         <table class="table cart-table mb-0">
                             <thead>
                                 <tr>
-                                    <th>Product</th>
-                                    <th>Price</th>
-                                    <th>Qty</th>
-                                    <th class="text-end">Total</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Đơn giá</th>
+                                    <th>Số lượng</th>
+                                    <th class="text-end">Tổng</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -199,7 +199,7 @@ if (isset($_GET['action'])) {
                                                 <img src="img/books/<?php echo $row['PID']; ?>.jpg" class="cart-img me-3" onerror="this.src='https://placehold.co/100x150?text=Book'">
                                                 <div>
                                                     <h6 class="fw-bold mb-1"><?php echo $row['Title']; ?></h6>
-                                                    <small class="text-muted">by <?php echo $row['Author']; ?></small>
+                                                    <small class="text-muted">bởi <?php echo $row['Author']; ?></small>
                                                 </div>
                                             </div>
                                         </td>
@@ -222,7 +222,7 @@ if (isset($_GET['action'])) {
 
                 <div class="mt-4">
                     <a href="index.php" class="text-decoration-none text-muted fw-bold">
-                        <i class="fas fa-arrow-left me-2"></i> Continue Shopping
+                        <i class="fas fa-arrow-left me-2"></i> Tiếp tục mua sắm
                     </a>
                 </div>
             </div>
@@ -230,19 +230,19 @@ if (isset($_GET['action'])) {
             <!-- Cột phải: Tổng tiền (Order Summary) -->
             <div class="col-lg-4">
                 <div class="glass-panel p-4 sticky-top" style="top: 100px; z-index: 1;">
-                    <h5 class="fw-bold mb-4">Order Summary</h5>
+                    <h5 class="fw-bold mb-4">Tóm tắt đơn hàng</h5>
 
                     <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted">Subtotal (<?php echo $count; ?> items)</span>
+                        <span class="text-muted">Tạm tính (<?php echo $count; ?> sản phẩm)</span>
                         <span class="fw-bold"><?php echo number_format($total); ?> đ</span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted">Shipping</span>
-                        <span class="text-success fw-bold">Free</span>
+                        <span class="text-muted">Phí vận chuyển</span>
+                        <span class="text-success fw-bold">Miễn phí</span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-4">
-                        <span class="fs-5 fw-bold">Total Amount</span>
+                        <span class="fs-5 fw-bold">Tổng cộng</span>
                         <span class="fs-4 fw-bold" style="color: var(--accent);"><?php echo number_format($total); ?> đ</span>
                     </div>
 
@@ -250,12 +250,12 @@ if (isset($_GET['action'])) {
                     <form method="POST" id="orderForm">
                         <input type="hidden" name="place_order" value="1">
                         <button type="button" onclick="confirmOrder()" class="btn-checkout">
-                            Checkout <i class="fas fa-arrow-right ms-2"></i>
+                            Thanh toán <i class="fas fa-arrow-right ms-2"></i>
                         </button>
                     </form>
 
                     <div class="mt-3 text-center small text-muted">
-                        <i class="fas fa-shield-alt me-1"></i> Secure Checkout
+                        <i class="fas fa-shield-alt me-1"></i> Thanh toán an toàn
                     </div>
                 </div>
             </div>
@@ -267,10 +267,10 @@ if (isset($_GET['action'])) {
             <div class="empty-icon">
                 <i class="fas fa-shopping-basket"></i>
             </div>
-            <h3>Your cart is currently empty</h3>
-            <p class="text-muted mb-4">Looks like you haven't added any books yet.</p>
+            <h3>Giỏ hàng của bạn đang trống</h3>
+            <p class="text-muted mb-4">Có vẻ như bạn chưa thêm cuốn sách nào vào giỏ.</p>
             <a href="index.php" class="btn btn-primary rounded-pill px-5 py-3 fw-bold" style="background: var(--primary);">
-                Start Shopping
+                Bắt đầu mua sắm
             </a>
         </div>
     <?php endif; ?>
@@ -281,13 +281,14 @@ if (isset($_GET['action'])) {
     // Xác nhận xóa sản phẩm
     function confirmRemove(pid) {
         Swal.fire({
-            title: 'Are you sure?',
-            text: "Do you want to remove this book from cart?",
+            title: 'Bạn chắc chứ?',
+            text: "Bạn có muốn xóa cuốn sách này khỏi giỏ hàng không?",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#0f172a',
-            confirmButtonText: 'Yes, remove it!'
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Vâng, xóa nó!',
+            cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = "cart.php?remove=" + pid;
@@ -298,12 +299,13 @@ if (isset($_GET['action'])) {
     // Xác nhận đặt hàng
     function confirmOrder() {
         Swal.fire({
-            title: 'Place Order?',
-            text: "You are about to place this order. Payment will be collected on delivery.",
+            title: 'Xác nhận đặt hàng?',
+            text: "Bạn sắp hoàn tất đơn hàng. Thanh toán sẽ được thực hiện khi nhận hàng.",
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#0f172a',
-            confirmButtonText: 'Confirm Order'
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
                 document.getElementById('orderForm').submit();

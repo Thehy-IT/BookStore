@@ -91,17 +91,17 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
     <div class="sidebar">
         <h3 class="text-center fw-bold mb-4">BOOK<span style="color: var(--accent)">Z</span> ADMIN</h3>
         <ul class="nav flex-column">
-            <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-book me-2"></i> Manage Products</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-users me-2"></i> Manage Users</a></li>
-            <li class="nav-item"><a href="index.php" class="nav-link"><i class="fas fa-home me-2"></i> View Website</a></li>
-            <li class="nav-item"><a href="destroy.php" class="nav-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+            <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-tachometer-alt me-2"></i> Bảng điều khiển</a></li>
+            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-book me-2"></i> Quản lý sản phẩm</a></li>
+            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-users me-2"></i> Quản lý người dùng</a></li>
+            <li class="nav-item"><a href="index.php" class="nav-link"><i class="fas fa-home me-2"></i> Xem website</a></li>
+            <li class="nav-item"><a href="destroy.php" class="nav-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
         </ul>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <h2 class="fw-bold mb-4">Overview</h2>
+        <h2 class="fw-bold mb-4">Tổng quan</h2>
 
         <div class="row g-4">
             <!-- Thống kê sản phẩm -->
@@ -111,7 +111,7 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
                     $p_count = mysqli_num_rows(mysqli_query($con, "SELECT * FROM products"));
                     ?>
                     <h3 class="fw-bold"><?php echo $p_count; ?></h3>
-                    <p class="text-muted mb-0">Total Products</p>
+                    <p class="text-muted mb-0">Tổng số sản phẩm</p>
                 </div>
             </div>
 
@@ -122,7 +122,7 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
                     $u_count = mysqli_num_rows(mysqli_query($con, "SELECT * FROM users"));
                     ?>
                     <h3 class="fw-bold"><?php echo $u_count; ?></h3>
-                    <p class="text-muted mb-0">Total Users</p>
+                    <p class="text-muted mb-0">Tổng số người dùng</p>
                 </div>
             </div>
 
@@ -133,21 +133,21 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
                     $c_count = mysqli_num_rows(mysqli_query($con, "SELECT * FROM cart"));
                     ?>
                     <h3 class="fw-bold"><?php echo $c_count; ?></h3>
-                    <p class="text-muted mb-0">Items in Carts</p>
+                    <p class="text-muted mb-0">Sản phẩm trong giỏ</p>
                 </div>
             </div>
         </div>
 
-        <h4 class="fw-bold mt-5 mb-3">Recent Products</h4>
+        <h4 class="fw-bold mt-5 mb-3">Sản phẩm gần đây</h4>
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
             <table class="table table-hover mb-0">
                 <thead class="table-light">
                     <tr>
                         <th>PID</th>
-                        <th>Title</th>
-                        <th>Author</th>
-                        <th>Price</th>
-                        <th>Action</th>
+                        <th>Tiêu đề</th>
+                        <th>Tác giả</th>
+                        <th>Giá</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>

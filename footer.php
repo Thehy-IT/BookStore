@@ -3,7 +3,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content p-3">
                     <div class="modal-header border-0">
-                        <h4 class="modal-title fw-bold">Hello Again!</h4>
+                        <h4 class="modal-title fw-bold">Chào mừng trở lại!</h4>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -11,15 +11,15 @@
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control rounded-4 bg-light border-0" id="uLogin" name="login_username" placeholder="Username" required>
                                 <label for="uLogin">Username</label>
-                            </div>
+                            </div> 
                             <div class="form-floating mb-4">
                                 <input type="password" class="form-control rounded-4 bg-light border-0" id="pLogin" name="login_password" placeholder="Password" required>
                                 <label for="pLogin">Password</label>
                             </div>
-                            <button type="submit" name="login" class="btn btn-primary-glass w-100 btn-lg">Sign In</button>
+                            <button type="submit" name="login" class="btn btn-primary-glass w-100 btn-lg">Đăng nhập</button>
                         </form>
                         <div class="text-center mt-3">
-                            <small class="text-muted">Don't have an account? <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal" class="fw-bold text-primary">Sign Up</a></small>
+                            <small class="text-muted">Chưa có tài khoản? <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal" class="fw-bold text-primary">Đăng ký</a></small>
                         </div>
                     </div>
                 </div>
@@ -31,20 +31,20 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content p-3">
                     <div class="modal-header border-0">
-                        <h4 class="modal-title fw-bold">Create Account</h4>
+                        <h4 class="modal-title fw-bold">Tạo tài khoản</h4>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <form method="post">
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control rounded-4 bg-light border-0" name="register_username" placeholder="Username" required>
-                                <label>Choose Username</label>
+                                <label>Chọn tên đăng nhập</label>
                             </div>
                             <div class="form-floating mb-4">
                                 <input type="password" class="form-control rounded-4 bg-light border-0" name="register_password" placeholder="Password" required>
-                                <label>Choose Password</label>
+                                <label>Chọn mật khẩu</label>
                             </div>
-                            <button type="submit" name="register" class="btn btn-primary-glass w-100 btn-lg">Register</button>
+                            <button type="submit" name="register" class="btn btn-primary-glass w-100 btn-lg">Đăng ký</button>
                         </form>
                     </div>
                 </div>
@@ -130,7 +130,7 @@
                     </div>
                     <div class="col-lg-2 col-6">
                         <h5 class="text-warning mb-3">Support</h5>
-                        <ul class="list-unstyled text-white-50">
+                        <ul class="list-unstyled text-white-50"> 
                             <li class="mb-2"><a href="#" class="text-decoration-none text-white-50 footer-link">Về BookZ</a></li>
                             <li class="mb-2"><a href="#contact" class="text-decoration-none text-white-50 footer-link">Liên hệ</a></li>
                             <li class="mb-2"><a href="#" class="text-decoration-none text-white-50 footer-link">FAQs</a></li>

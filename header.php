@@ -105,7 +105,7 @@ if ($result_categories_menu && mysqli_num_rows($result_categories_menu) > 0) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="utf-8">

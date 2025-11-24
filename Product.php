@@ -18,13 +18,21 @@ if (isset($_GET['keyword']) && !empty($_GET['keyword'])) {
     $urlParams['keyword'] = $key;
 }
 // 3. Lọc theo Khoảng giá
-if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
-    $min_price = (int)$_GET['min_price'];
+$min_price_get = isset($_GET['min_price']) && is_numeric($_GET['min_price']) ? (int)$_GET['min_price'] : null;
+$max_price_get = isset($_GET['max_price']) && is_numeric($_GET['max_price']) ? (int)$_GET['max_price'] : null;
+
+if ($min_price_get !== null && $max_price_get !== null && $min_price_get > $max_price_get) {
+    // Hoán đổi giá trị nếu min > max để đảm bảo logic đúng
+    list($min_price_get, $max_price_get) = [$max_price_get, $min_price_get];
+}
+
+if ($min_price_get !== null) {
+    $min_price = $min_price_get;
     $whereClauses[] = "Price >= $min_price";
     $urlParams['min_price'] = $min_price;
 }
-if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
-    $max_price = (int)$_GET['max_price'];
+if ($max_price_get !== null) {
+    $max_price = $max_price_get;
     $whereClauses[] = "Price <= $max_price";
     $urlParams['max_price'] = $max_price;
 }
@@ -36,6 +44,12 @@ if (isset($_GET['rating']) && is_numeric($_GET['rating'])) {
     $urlParams['rating'] = $rating;
     // Do chưa có cột Rating, logic này sẽ được comment lại ở phần truy vấn
     // nhưng vẫn giữ để bạn dễ dàng mở rộng sau này.
+}
+// 5. Lọc theo Nhà xuất bản
+if (isset($_GET['publisher']) && !empty($_GET['publisher'])) {
+    $pub = mysqli_real_escape_string($con, $_GET['publisher']);
+    $whereClauses[] = "Publisher = '$pub'";
+    $urlParams['publisher'] = $pub;
 }
 
 // 5. Sắp xếp
@@ -97,18 +111,36 @@ $category_translations = [
 ];
 
 $categories = [];
-$sql_categories = "SELECT DISTINCT Category FROM products WHERE Category IS NOT NULL AND Category != '' ORDER BY Category ASC";
+$sql_categories = "SELECT Category, COUNT(*) as product_count FROM products WHERE Category IS NOT NULL AND Category != '' GROUP BY Category ORDER BY Category ASC";
 $result_categories = mysqli_query($con, $sql_categories);
 if ($result_categories && mysqli_num_rows($result_categories) > 0) {
     while ($row_cat = mysqli_fetch_assoc($result_categories)) {
         $category_key = strtolower(trim($row_cat['Category']));
         // Lấy tên đã dịch, nếu không có thì dùng tên gốc và viết hoa chữ cái đầu
-        $categories[$category_key] = $category_translations[$category_key] ?? ucfirst($category_key);
+        $categories[] = [
+            'slug' => $category_key,
+            'name' => $category_translations[$category_key] ?? ucfirst($category_key),
+            'count' => $row_cat['product_count']
+        ];
     }
 }
 
 // Lấy category hiện tại từ URL để đánh dấu 'active'
 $current_category = isset($_GET['category']) ? $_GET['category'] : '';
+
+// --- Lấy danh sách nhà xuất bản tự động từ cơ sở dữ liệu ---
+$publishers = [];
+$sql_publishers = "SELECT DISTINCT Publisher FROM products WHERE Publisher IS NOT NULL AND Publisher != '' ORDER BY Publisher ASC";
+$result_publishers = mysqli_query($con, $sql_publishers);
+if ($result_publishers && mysqli_num_rows($result_publishers) > 0) {
+    while ($row_pub = mysqli_fetch_assoc($result_publishers)) {
+        // Không cần dịch, chỉ cần lấy và làm sạch
+        $publishers[] = trim($row_pub['Publisher']);
+    }
+}
+
+// Lấy publisher hiện tại từ URL để đánh dấu 'active'
+$current_publisher = isset($_GET['publisher']) ? $_GET['publisher'] : '';
 
 // Tạo chuỗi query cho URL phân trang
 $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '']));
@@ -152,7 +184,7 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
         opacity: 1;
         margin-top: 15px;
     }
-    
+
     /* --- Sidebar Filter Style --- */
     .sidebar-glass {
         background: var(--glass-bg);
@@ -162,7 +194,8 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
         border: var(--glass-border);
         box-shadow: var(--glass-shadow);
         position: sticky;
-        top: 120px; /* Sticky sidebar */
+        top: 120px;
+        /* Sticky sidebar */
     }
 
     .filter-title {
@@ -177,319 +210,346 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
     }
 </style>
 
-    <!-- Header Banner -->
-    <div class="container" style="padding-top: 20px;">
-        <div class="p-5 rounded-4 text-white position-relative overflow-hidden shadow-lg"
-            style="background: linear-gradient(135deg, #0f172a 0%, #334155 100%);">
-            <div class="position-relative" style="z-index: 2;">
-                <h1 class="display-5 fw-bold font-playfair">Khám Phá Tri Thức</h1>
-                <p class="lead opacity-75 col-md-8">Hàng ngàn đầu sách thuộc mọi lĩnh vực đang chờ bạn khám phá.</p>
-            </div>
-            <i class="fas fa-book-reader position-absolute bottom-0 end-0 mb-n4 me-n4 opacity-10" style="font-size: 15rem; transform: rotate(-15deg);"></i>
+<!-- Header Banner -->
+<div class="container" style="padding-top: 20px;">
+    <div class="p-5 rounded-4 text-white position-relative overflow-hidden shadow-lg"
+        style="background: linear-gradient(135deg, #0f172a 0%, #334155 100%);">
+        <div class="position-relative" style="z-index: 2;">
+            <h1 class="display-5 fw-bold font-playfair">Khám Phá Tri Thức</h1>
+            <p class="lead opacity-75 col-md-8">Hàng ngàn đầu sách thuộc mọi lĩnh vực đang chờ bạn khám phá.</p>
         </div>
+        <i class="fas fa-book-reader position-absolute bottom-0 end-0 mb-n4 me-n4 opacity-10" style="font-size: 15rem; transform: rotate(-15deg);"></i>
     </div>
+</div>
 
-    <!-- Main Content -->
-    <div class="container my-5">
-        <div class="row g-4">
+<!-- Main Content -->
+<div class="container my-5">
+    <div class="row g-4">
 
-            <!-- Sidebar Filters -->
-            <div class="col-lg-3">
-                <div class="sidebar-glass">
-                    <div class="filter-title">
-                        <span><i class="fas fa-filter me-2"></i>Bộ lọc</span>
-                        <a href="Product.php" class="text-decoration-none text-muted small" style="font-size: 0.8rem;">Xóa lọc</a>
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3">
+            <div class="sidebar-glass">
+                <div class="filter-title">
+                    <span><i class="fas fa-filter me-2"></i>Bộ lọc</span>
+                    <a href="Product.php" class="text-decoration-none text-muted small" style="font-size: 0.8rem;">Xóa lọc</a>
+                </div>
+
+                <!-- Search -->
+                <form action="Product.php" method="GET" class="mb-4" id="searchFormSidebar">
+                    <div class="input-group">
+                        <input type="text" name="keyword" class="form-control border-end-0 bg-light" placeholder="Tìm trong trang..." value="<?php echo isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : ''; ?>">
+                        <button class="btn btn-light border border-start-0" type="submit"><i class="fas fa-search text-muted"></i></button>
                     </div>
+                </form>
 
-                    <!-- Search -->
-                    <form action="Product.php" method="GET" class="mb-4" id="searchFormSidebar">
-                        <div class="input-group">
-                            <input type="text" name="keyword" class="form-control border-end-0 bg-light" placeholder="Tìm trong trang..." value="<?php echo isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : ''; ?>">
-                            <button class="btn btn-light border border-start-0" type="submit"><i class="fas fa-search text-muted"></i></button>
-                        </div>
-                    </form>
+                <!-- Categories -->
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">Thể loại</h6>
+                    <?php
+                    foreach ($categories as $cat) {
+                        $active_class = ($current_category == $cat['slug']) ? 'fw-bold text-primary' : 'text-dark';
+                        $cat_name = htmlspecialchars($cat['name']);
+                        echo '<div class="mb-2"><a href="Product.php?category=' . urlencode($cat['slug']) . '" class="text-decoration-none ' . $active_class . ' d-flex justify-content-between"><span>' . $cat_name . '</span> <span class="small opacity-75">' . $cat['count'] . '</span></a></div>';
+                    }
+                    ?>
+                </div>
 
-                    <!-- Categories -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold mb-3">Thể loại</h6>
+                <!-- Publishers -->
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">Nhà xuất bản</h6>
+                    <div style="max-height: 200px; overflow-y: auto;">
                         <?php
-                        foreach ($categories as $cat_slug => $cat_name) {
-                            $active_class = ($current_category == $cat_slug) ? 'fw-bold text-primary' : 'text-dark';
-                            echo '<div class="mb-2"><a href="Product.php?category=' . urlencode($cat_slug) . '" class="text-decoration-none ' . $active_class . ' d-flex justify-content-between"><span>' . ucfirst($cat_name) . '</span></a></div>';
+                        foreach ($publishers as $pub_name) {
+                            $active_class = ($current_publisher == $pub_name) ? 'fw-bold text-primary' : 'text-dark';
+                            echo '<div class="mb-2"><a href="Product.php?publisher=' . urlencode($pub_name) . '" class="text-decoration-none ' . $active_class . ' d-flex justify-content-between"><span>' . htmlspecialchars($pub_name) . '</span></a></div>';
                         }
                         ?>
                     </div>
+                </div>
 
-                    <form id="filterForm" action="Product.php" method="GET">
-                        <!-- Hidden inputs for existing filters -->
-                        <?php if (!empty($current_category)) echo '<input type="hidden" name="category" value="' . htmlspecialchars($current_category) . '">'; ?>
-                        <?php if (isset($_GET['keyword'])) echo '<input type="hidden" name="keyword" value="' . htmlspecialchars($_GET['keyword']) . '">'; ?>
+                <form id="filterForm" action="Product.php" method="GET">
+                    <!-- Hidden inputs for existing filters -->
+                    <?php if (!empty($current_category)) echo '<input type="hidden" name="category" value="' . htmlspecialchars($current_category) . '">'; ?>
+                    <?php if (isset($_GET['keyword'])) echo '<input type="hidden" name="keyword" value="' . htmlspecialchars($_GET['keyword']) . '">'; ?>
+                    <?php if (isset($_GET['sort'])) echo '<input type="hidden" name="sort" value="' . htmlspecialchars($_GET['sort']) . '">'; ?>
+                    <?php if (isset($_GET['rating'])) echo '<input type="hidden" name="rating" value="' . htmlspecialchars($_GET['rating']) . '">'; ?>
+                    <?php if (!empty($current_publisher)) echo '<input type="hidden" name="publisher" value="' . htmlspecialchars($current_publisher) . '">'; ?>
 
-                        <!-- Price Range -->
-                        <div class="mb-4">
-                            <h6 class="fw-bold mb-3">Khoảng giá</h6>
-                            <div id="price-slider" class="my-4"></div>
-                            <div class="d-flex justify-content-between small text-muted">
-                                <span id="min-price-display">0đ</span>
-                                <span id="max-price-display">1,000,000đ</span>
-                            </div>
-                            <input type="hidden" name="min_price" id="min_price" value="<?php echo isset($_GET['min_price']) ? $_GET['min_price'] : '0'; ?>">
-                            <input type="hidden" name="max_price" id="max_price" value="<?php echo isset($_GET['max_price']) ? $_GET['max_price'] : '1000000'; ?>">
+                    <!-- Price Range -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3">Khoảng giá</h6>
+                        <div id="price-slider" class="my-4"></div>
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span id="min-price-display">0đ</span>
+                            <span id="max-price-display">1,000,000đ</span>
                         </div>
+                        <input type="hidden" name="min_price" id="min_price" value="<?php echo isset($_GET['min_price']) ? $_GET['min_price'] : '0'; ?>">
+                        <input type="hidden" name="max_price" id="max_price" value="<?php echo isset($_GET['max_price']) ? $_GET['max_price'] : '1000000'; ?>">
+                    </div>
 
-                        <!-- Rating -->
-                        <div class="mb-4">
-                            <h6 class="fw-bold mb-3">Đánh giá</h6>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="rating" value="4" id="star4" onchange="this.form.submit()" <?php if (isset($_GET['rating']) && $_GET['rating'] == 4) echo 'checked'; ?>>
-                                <label class="form-check-label text-warning" for="star4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i> &amp; Up</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="rating" value="3" id="star3" onchange="this.form.submit()" <?php if (isset($_GET['rating']) && $_GET['rating'] == 3) echo 'checked'; ?>>
-                                <label class="form-check-label text-warning" for="star3"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i> &amp; Up</label>
-                            </div>
+                    <!-- Rating -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3">Đánh giá</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="rating" value="4" id="star4" onchange="this.form.submit()" <?php if (isset($_GET['rating']) && $_GET['rating'] == 4) echo 'checked'; ?>> 
+                            <label class="form-check-label text-warning" for="star4"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i> &amp; trở lên</label>
                         </div>
-                        <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort_option); ?>">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="rating" value="3" id="star3" onchange="this.form.submit()" <?php if (isset($_GET['rating']) && $_GET['rating'] == 3) echo 'checked'; ?>> 
+                            <label class="form-check-label text-warning" for="star3"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i> &amp; trở lên</label>
+                        </div>
+                    </div>
+                    <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort_option); ?>">
+                </form>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="col-lg-9">
+            <!-- Toolbar -->
+            <div class="d-flex justify-content-between align-items-center mb-4 p-3 rounded-3" style="background: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.5);">
+                <div class="text-muted small">
+                    Tìm thấy <b><?php echo $number_of_results; ?></b> kết quả
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <form id="sortForm" action="Product.php" method="GET" class="d-flex align-items-center">
+                        <?php foreach ($urlParams as $key => $value) {
+                            if ($key != 'sort') echo '<input type="hidden" name="' . htmlspecialchars($key) . '" value="' . htmlspecialchars($value) . '">';
+                        } ?>
+                        <select name="sort" class="form-select form-select-sm border-0 bg-white shadow-sm" style="width: 150px;" onchange="this.form.submit()">
+                            <option value="newest" <?php if ($sort_option == 'newest') echo 'selected'; ?>>Mới nhất</option>
+                            <option value="price_asc" <?php if ($sort_option == 'price_asc') echo 'selected'; ?>>Giá tăng dần</option>
+                            <option value="price_desc" <?php if ($sort_option == 'price_desc') echo 'selected'; ?>>Giá giảm dần</option>
+                            <option value="bestseller" <?php if ($sort_option == 'bestseller') echo 'selected'; ?>>Bán chạy</option>
+                        </select>
                     </form>
+                    <div class="btn-group shadow-sm ms-2">
+                        <button class="btn btn-white btn-sm active" id="btnGridView"><i class="fas fa-th-large"></i></button>
+                        <button class="btn btn-white btn-sm" id="btnListView"><i class="fas fa-list"></i></button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Product Grid -->
-            <div class="col-lg-9">
-                <!-- Toolbar -->
-                <div class="d-flex justify-content-between align-items-center mb-4 p-3 rounded-3" style="background: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.5);">
-                    <div class="text-muted small">
-                        Tìm thấy <b><?php echo $number_of_results; ?></b> kết quả
-                    </div>
-                    <div class="d-flex gap-2 align-items-center">
-                        <form id="sortForm" action="Product.php" method="GET" class="d-flex align-items-center">
-                            <?php foreach ($urlParams as $key => $value) {
-                                if ($key != 'sort') echo '<input type="hidden" name="' . htmlspecialchars($key) . '" value="' . htmlspecialchars($value) . '">';
-                            } ?>
-                            <select name="sort" class="form-select form-select-sm border-0 bg-white shadow-sm" style="width: 150px;" onchange="this.form.submit()">
-                                <option value="newest" <?php if ($sort_option == 'newest') echo 'selected'; ?>>Mới nhất</option>
-                                <option value="price_asc" <?php if ($sort_option == 'price_asc') echo 'selected'; ?>>Giá tăng dần</option>
-                                <option value="price_desc" <?php if ($sort_option == 'price_desc') echo 'selected'; ?>>Giá giảm dần</option>
-                                <option value="bestseller" <?php if ($sort_option == 'bestseller') echo 'selected'; ?>>Bán chạy</option>
-                            </select>
-                        </form>
-                        <div class="btn-group shadow-sm ms-2">
-                            <button class="btn btn-white btn-sm active" id="btnGridView"><i class="fas fa-th-large"></i></button>
-                            <button class="btn btn-white btn-sm" id="btnListView"><i class="fas fa-list"></i></button>
-                        </div>
-                    </div>
-                </div>
+            <!-- Products Loop -->
+            <div class="row g-4" id="productsContainer">
+                <?php
+                if (mysqli_num_rows($result) > 0) {
+                    while ($row = mysqli_fetch_array($result)) {
+                        $img = "img/books/" . $row['PID'] . ".jpg";
+                        // Fallback image logic
 
-                <!-- Products Loop -->
-                <div class="row g-4" id="productsContainer">
-                    <?php
-                    if (mysqli_num_rows($result) > 0) {
-                        while ($row = mysqli_fetch_array($result)) {
-                            $img = "img/books/" . $row['PID'] . ".jpg";
-                            // Fallback image logic
+                        // Tính giảm giá giả lập nếu chưa có
+                        $discount_html = "";
+                        if ($row['Discount'] > 0) {
+                            $discount_html = '<span class="badge bg-danger position-absolute top-0 start-0 m-3 shadow-sm">-' . $row['Discount'] . '%</span>';
+                        }
+                ?>
+                        <div class="col-md-4 col-sm-6 product-item">
+                            <div class="product-card">
+                                <?php echo $discount_html; ?>
 
-                            // Tính giảm giá giả lập nếu chưa có
-                            $discount_html = "";
-                            if ($row['Discount'] > 0) {
-                                $discount_html = '<span class="badge bg-danger position-absolute top-0 start-0 m-3 shadow-sm">-' . $row['Discount'] . '%</span>';
-                            }
-                    ?>
-                            <div class="col-md-4 col-sm-6 product-item">
-                                <div class="product-card">
-                                    <?php echo $discount_html; ?>
-
-                                    <div class="card-img-top-wrapper">
-                                        <img src="<?php echo $img; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=No+Image'" alt="<?php echo $row['Title']; ?>">
-                                        <div class="card-actions">
-                                            <button class="btn-action" onclick="openQuickView('<?php echo $row['PID']; ?>')" title="Xem nhanh" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></button>
-                                            <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn-action" title="Yêu thích" data-bs-toggle="tooltip"><i class="fas fa-heart"></i></a>
-                                            <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-action bg-dark text-white" title="Thêm vào giỏ" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></a>
-                                        </div>
+                                <div class="card-img-top-wrapper">
+                                    <img src="<?php echo $img; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=No+Image'" alt="<?php echo $row['Title']; ?>">
+                                    <div class="card-actions">
+                                        <button class="btn-action" onclick="openQuickView('<?php echo $row['PID']; ?>')" title="Xem nhanh" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></button> 
+                                        <a href="wishlist.php?ID=<?php echo $row['PID']; ?>" class="btn-action" title="Yêu thích" data-bs-toggle="tooltip"><i class="fas fa-heart"></i></a> 
+                                        <a href="cart.php?ID=<?php echo $row['PID']; ?>&quantity=1" class="btn-action bg-dark text-white" title="Thêm vào giỏ" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></a> 
                                     </div>
+                                </div>
 
-                                    <div class="card-body-glass">
-                                        <div class="book-category"><?php echo $category_translations[strtolower($row['Category'])] ?? ucfirst($row['Category']); ?></div>
-                                        <a href="description.php?ID=<?php echo $row['PID']; ?>" class="text-decoration-none text-dark">
-                                            <h5 class="book-title text-truncate"><?php echo $row['Title']; ?></h5>
-                                        </a>
-                                        <div class="book-author text-truncate">Tác giả: <?php echo $row['Author']; ?></div>
+                                <div class="card-body-glass">
+                                    <div class="book-category"><?php echo $category_translations[strtolower($row['Category'])] ?? ucfirst($row['Category']); ?></div>
+                                    <a href="description.php?ID=<?php echo $row['PID']; ?>" class="text-decoration-none text-dark">
+                                        <h5 class="book-title text-truncate"><?php echo $row['Title']; ?></h5>
+                                    </a>
+                                    <div class="book-author text-truncate">Tác giả: <?php echo $row['Author']; ?></div>
 
-                                        <!-- Mô tả ngắn chỉ hiện ở List View -->
-                                        <p class="book-desc d-none">
-                                            <?php echo substr($row['Description'], 0, 150) . '...'; ?>
-                                        </p>
+                                    <!-- Mô tả ngắn chỉ hiện ở List View -->
+                                    <p class="book-desc d-none">
+                                        <?php echo substr($row['Description'], 0, 150) . '...'; ?>
+                                    </p>
 
-                                        <div class="price-wrapper">
-                                            <div>
-                                                <span class="current-price"><?php echo number_format($row['Price']); ?> đ</span>
-                                                <?php if ($row['MRP'] > $row['Price']) { ?>
-                                                    <span class="old-price"><?php echo number_format($row['MRP']); ?> đ</span>
-                                                <?php } ?>
-                                            </div>
-                                            <div class="text-warning small">
-                                                <i class="fas fa-star"></i> <?php echo number_format((float)rand(40, 50) / 10, 1); ?>
-                                            </div>
+                                    <div class="price-wrapper">
+                                        <div>
+                                            <span class="current-price"><?php echo number_format($row['Price']); ?> đ</span>
+                                            <?php if ($row['MRP'] > $row['Price']) { ?>
+                                                <span class="old-price"><?php echo number_format($row['MRP']); ?> đ</span>
+                                            <?php } ?>
+                                        </div>
+                                        <div class="text-warning small">
+                                            <i class="fas fa-star"></i> <?php echo number_format((float)rand(40, 50) / 10, 1); ?>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                    <?php
-                        }
-                    } else {
-                        echo '<div class="col-12 text-center py-5"><h4 class="text-muted">Không tìm thấy sách nào phù hợp!</h4><p class="text-muted">Vui lòng thử lại với bộ lọc khác.</p><i class="fas fa-box-open fa-3x text-black-50 mt-3"></i></div>';
+                        </div>
+                <?php
                     }
-                    ?>
-                </div>
-
-                <!-- Pagination -->
-                <div class="mt-5 d-flex justify-content-center">
-                    <nav>
-                        <ul class="pagination">
-                            <?php if ($page > 1) { ?>
-                                <li class="page-item"><a class="page-link" href="Product.php?<?php echo $pagination_query_string . ($page - 1); ?>"><i class="fas fa-chevron-left"></i></a></li>
-                            <?php } ?>
-
-                            <?php
-                            for ($i = 1; $i <= $number_of_pages; $i++) {
-                                $active = ($i == $page) ? 'active' : '';
-                                echo '<li class="page-item ' . $active . '"><a class="page-link" href="Product.php?' . $pagination_query_string . $i . '">' . $i . '</a></li>';
-                            }
-                            ?>
-
-                            <?php if ($page < $number_of_pages && $number_of_pages > 1) { ?>
-                                <li class="page-item"><a class="page-link" href="Product.php?<?php echo $pagination_query_string . ($page + 1); ?>"><i class="fas fa-chevron-right"></i></a></li>
-                            <?php } ?>
-                        </ul>
-                    </nav>
-                </div>
-
+                } else {
+                    echo '<div class="col-12 text-center py-5"><h4 class="text-muted">Không tìm thấy sách nào phù hợp!</h4><p class="text-muted">Vui lòng thử lại với bộ lọc khác.</p><i class="fas fa-box-open fa-3x text-black-50 mt-3"></i></div>';
+                }
+                ?>
             </div>
+
+            <!-- Pagination -->
+            <div class="mt-5 d-flex justify-content-center">
+                <nav>
+                    <ul class="pagination">
+                        <?php if ($page > 1) { ?>
+                            <li class="page-item"><a class="page-link" href="Product.php?<?php echo $pagination_query_string . ($page - 1); ?>"><i class="fas fa-chevron-left"></i></a></li>
+                        <?php } ?>
+
+                        <?php
+                        for ($i = 1; $i <= $number_of_pages; $i++) {
+                            $active = ($i == $page) ? 'active' : '';
+                            echo '<li class="page-item ' . $active . '"><a class="page-link" href="Product.php?' . $pagination_query_string . $i . '">' . $i . '</a></li>';
+                        }
+                        ?>
+
+                        <?php if ($page < $number_of_pages && $number_of_pages > 1) { ?>
+                            <li class="page-item"><a class="page-link" href="Product.php?<?php echo $pagination_query_string . ($page + 1); ?>"><i class="fas fa-chevron-right"></i></a></li>
+                        <?php } ?>
+                    </ul>
+                </nav>
+            </div>
+
         </div>
     </div>
+</div>
 
-    <!-- Quick View Modal (Bootstrap 5) -->
-    <div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 rounded-4 overflow-hidden" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
-                <div class="modal-body p-0">
-                    <div class="row g-0">
-                        <div class="col-md-5 d-flex align-items-center justify-content-center p-4" style="background: #f8f9fa;">
-                            <img id="qv-img" src="" class="img-fluid shadow-lg rounded" style="max-height: 300px;">
-                        </div>
-                        <div class="col-md-7 p-4">
-                            <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
-                            <span class="badge bg-warning text-dark mb-2" id="qv-cat">Thể loại</span>
-                            <h3 class="fw-bold font-playfair mb-1" id="qv-title">Tên sách</h3>
-                            <p class="text-muted fst-italic mb-3" id="qv-author">Tên tác giả</p>
-                            <h4 class="text-primary fw-bold mb-3" id="qv-price">100.000 đ</h4>
-                            <p class="small text-muted mb-4" id="qv-desc">Mô tả ngắn của sách sẽ được hiển thị ở đây để người dùng có cái nhìn tổng quan nhanh chóng.</p>
+<!-- Quick View Modal (Bootstrap 5) -->
+<div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 rounded-4 overflow-hidden" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+            <div class="modal-body p-0">
+                <div class="row g-0">
+                    <div class="col-md-5 d-flex align-items-center justify-content-center p-4" style="background: #f8f9fa;">
+                        <img id="qv-img" src="" class="img-fluid shadow-lg rounded" style="max-height: 300px;">
+                    </div>
+                    <div class="col-md-7 p-4">
+                        <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <span class="badge bg-warning text-dark mb-2" id="qv-cat">Thể loại</span>
+                        <h3 class="fw-bold font-playfair mb-1" id="qv-title">Tên sách</h3>
+                        <p class="text-muted fst-italic mb-3" id="qv-author">Tên tác giả</p>
+                        <h4 class="text-primary fw-bold mb-3" id="qv-price">100.000 đ</h4>
+                        <p class="small text-muted mb-4" id="qv-desc">Mô tả ngắn của sách sẽ được hiển thị ở đây để người dùng có cái nhìn tổng quan nhanh chóng.</p>
 
-                            <div class="d-flex gap-2">
-                                <a href="#" id="qv-add-cart" class="btn btn-dark rounded-pill px-4 flex-grow-1">Thêm vào giỏ</a>
-                                <a href="#" id="qv-detail" class="btn btn-outline-dark rounded-pill px-4">Chi tiết</a>
-                            </div>
+                        <div class="d-flex gap-2">
+                            <a href="#" id="qv-add-cart" class="btn btn-dark rounded-pill px-4 flex-grow-1">Thêm vào giỏ</a>
+                            <a href="#" id="qv-detail" class="btn btn-outline-dark rounded-pill px-4">Xem chi tiết</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Grid/List View Toggle Logic
-        const container = document.getElementById('productsContainer');
-        const btnGrid = document.getElementById('btnGridView');
-        const btnList = document.getElementById('btnListView');
-        const items = document.querySelectorAll('.product-item');
+<script>
+    // Grid/List View Toggle Logic
+    const container = document.getElementById('productsContainer');
+    const btnGrid = document.getElementById('btnGridView');
+    const btnList = document.getElementById('btnListView');
+    const items = document.querySelectorAll('.product-item');
 
-        btnList.addEventListener('click', () => {
-            container.classList.add('list-view');
-            // Change column classes for list view
-            items.forEach(item => {
-                item.className = 'col-12 product-item'; // Full width for list
-            });
-            btnList.classList.add('active');
-            btnGrid.classList.remove('active');
+    btnList.addEventListener('click', () => {
+        container.classList.add('list-view');
+        // Change column classes for list view
+        items.forEach(item => {
+            item.className = 'col-12 product-item'; // Full width for list
         });
+        btnList.classList.add('active');
+        btnGrid.classList.remove('active');
+    });
 
-        btnGrid.addEventListener('click', () => {
-            container.classList.remove('list-view');
-            // Restore column classes for grid view
-            items.forEach(item => {
-                item.className = 'col-md-4 col-sm-6 product-item';
-            });
-            btnGrid.classList.add('active');
-            btnList.classList.remove('active');
+    btnGrid.addEventListener('click', () => {
+        container.classList.remove('list-view');
+        // Restore column classes for grid view
+        items.forEach(item => {
+            item.className = 'col-md-4 col-sm-6 product-item';
         });
+        btnGrid.classList.add('active');
+        btnList.classList.remove('active');
+    });
 
-        // Initialize Tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
+    // Initialize Tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
 
-        // Fake Quick View Logic (In real app, fetch data via AJAX)
-        function openQuickView(id) {
-            // Lấy thông tin từ card sản phẩm đã click
-            const card = document.querySelector(`a[href="description.php?ID=${id}"]`).closest('.product-card');
+    // Fake Quick View Logic (In real app, fetch data via AJAX)
+    function openQuickView(id) {
+        // Lấy thông tin từ card sản phẩm đã click
+        const card = document.querySelector(`a[href="description.php?ID=${id}"]`).closest('.product-item');
+        if (!card) return; // Dừng lại nếu không tìm thấy card
 
-            // Điền dữ liệu vào modal
-            document.getElementById('qv-img').src = 'img/books/' + id + '.jpg';
-            document.getElementById('qv-title').innerText = card.querySelector('.book-title').innerText;
-            document.getElementById('qv-add-cart').href = 'cart.php?ID=' + id + '&quantity=1';
-            document.getElementById('qv-detail').href = 'description.php?ID=' + id;
+        // Điền dữ liệu vào modal
+        document.getElementById('qv-img').src = 'img/books/' + id + '.jpg';
+        document.getElementById('qv-title').innerText = card.querySelector('.book-title').innerText;
+        document.getElementById('qv-author').innerText = card.querySelector('.book-author').innerText;
+        document.getElementById('qv-cat').innerText = card.querySelector('.book-category').innerText;
+        document.getElementById('qv-price').innerText = card.querySelector('.current-price').innerText;
 
-            // Show modal
-            var myModal = new bootstrap.Modal(document.getElementById('quickViewModal'));
-            myModal.show();
-        }
+        // Lấy mô tả và cập nhật
+        const descriptionElement = card.querySelector('.book-desc');
+        document.getElementById('qv-desc').innerText = descriptionElement ? descriptionElement.innerText : 'Sản phẩm này chưa có mô tả.';
 
-        // Price Slider Logic
-        document.addEventListener('DOMContentLoaded', function() {
-            const priceSlider = document.getElementById('price-slider');
-            if (priceSlider) {
-                const minPriceInput = document.getElementById('min_price');
-                const maxPriceInput = document.getElementById('max_price');
-                const minPriceDisplay = document.getElementById('min-price-display');
-                const maxPriceDisplay = document.getElementById('max-price-display');
+        document.getElementById('qv-add-cart').href = 'cart.php?ID=' + id + '&quantity=1';
+        document.getElementById('qv-detail').href = 'description.php?ID=' + id;
 
-                noUiSlider.create(priceSlider, {
-                    start: [parseInt(minPriceInput.value), parseInt(maxPriceInput.value)],
-                    connect: true,
-                    range: {
-                        'min': 0,
-                        'max': 1000000
+        // Show modal
+        var myModal = new bootstrap.Modal(document.getElementById('quickViewModal'));
+        myModal.show();
+    }
+
+    // Price Slider Logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const priceSlider = document.getElementById('price-slider');
+        if (priceSlider) {
+            const minPriceInput = document.getElementById('min_price');
+            const maxPriceInput = document.getElementById('max_price');
+            const minPriceDisplay = document.getElementById('min-price-display');
+            const maxPriceDisplay = document.getElementById('max-price-display');
+
+            noUiSlider.create(priceSlider, {
+                start: [parseInt(minPriceInput.value), parseInt(maxPriceInput.value)],
+                connect: true,
+                range: {
+                    'min': 0,
+                    'max': 1000000
+                },
+                step: 10000,
+                format: {
+                    to: function(value) {
+                        return Math.round(value);
                     },
-                    step: 10000,
-                    format: {
-                        to: function(value) {
-                            return Math.round(value);
-                        },
-                        from: function(value) {
-                            return Number(value);
-                        }
+                    from: function(value) {
+                        return Number(value);
                     }
-                });
+                }
+            });
 
-                priceSlider.noUiSlider.on('update', function(values, handle) {
-                    minPriceInput.value = values[0];
-                    maxPriceInput.value = values[1];
-                    minPriceDisplay.innerHTML = new Intl.NumberFormat('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND'
-                    }).format(values[0]);
-                    maxPriceDisplay.innerHTML = new Intl.NumberFormat('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND'
-                    }).format(values[1]);
-                });
-                priceSlider.noUiSlider.on('end', function() {
-                    document.getElementById('filterForm').submit();
-                });
-            }
-        });
+            priceSlider.noUiSlider.on('update', function(values, handle) {
+                minPriceInput.value = values[0];
+                maxPriceInput.value = values[1];
+                minPriceDisplay.innerHTML = new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(values[0]);
+                maxPriceDisplay.innerHTML = new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(values[1]);
+            });
 
-    </script>
+            // Chỉ submit form khi người dùng kéo xong
+            priceSlider.noUiSlider.on('end', function() {
+                document.getElementById('filterForm').submit();
+            });
+        }
+    });
+</script>
 <?php
 include 'footer.php'; // Sử dụng footer chung
 ?>
