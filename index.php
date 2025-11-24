@@ -47,29 +47,30 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
         0% {
             transform: translateY(0) translateX(0);
         }
+
         100% {
             transform: translateY(105vh) translateX(var(--drift));
         }
     }
 </style>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const snowContainer = document.getElementById('snow-container');
-    const numberOfSnowflakes = 150; // Bạn có thể điều chỉnh số lượng bông tuyết
+    document.addEventListener('DOMContentLoaded', function () {
+        const snowContainer = document.getElementById('snow-container');
+        const numberOfSnowflakes = 150; // Bạn có thể điều chỉnh số lượng bông tuyết
 
-    for (let i = 0; i < numberOfSnowflakes; i++) {
-        const snowflake = document.createElement('div');
-        const size = Math.random() * 4 + 1; // Kích thước từ 1px đến 5px
-        snowflake.className = 'snowflake';
-        snowflake.style.width = `${size}px`;
-        snowflake.style.height = `${size}px`;
-        snowflake.style.left = `${Math.random() * 100}%`;
-        snowflake.style.animationDuration = `${Math.random() * 10 + 5}s`; // Thời gian rơi từ 5s đến 15s
-        snowflake.style.animationDelay = `${Math.random() * 5}s`;
-        snowflake.style.setProperty('--drift', `${Math.random() * 200 - 100}px`); // Độ bay ngang
-        snowContainer.appendChild(snowflake);
-    }
-});
+        for (let i = 0; i < numberOfSnowflakes; i++) {
+            const snowflake = document.createElement('div');
+            const size = Math.random() * 4 + 1; // Kích thước từ 1px đến 5px
+            snowflake.className = 'snowflake';
+            snowflake.style.width = `${size}px`;
+            snowflake.style.height = `${size}px`;
+            snowflake.style.left = `${Math.random() * 100}%`;
+            snowflake.style.animationDuration = `${Math.random() * 10 + 5}s`; // Thời gian rơi từ 5s đến 15s
+            snowflake.style.animationDelay = `${Math.random() * 5}s`;
+            snowflake.style.setProperty('--drift', `${Math.random() * 200 - 100}px`); // Độ bay ngang
+            snowContainer.appendChild(snowflake);
+        }
+    });
 </script>
 
 <style>
@@ -142,44 +143,95 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="col-lg-4">
             <div class="p-4">
                 <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill">Bán Chạy Nhất 2025</span>
-                <h1 class="display-4 fw-bold mb-3">Khám Phá Cuốn Sách <span style="color: var(--accent); font-style: italic;">Tuyệt Vời</span></h1>
-                <p class="lead text-muted mb-4">Khám phá bộ sưu tập sách cao cấp được tuyển chọn của chúng tôi từ khắp nơi trên thế giới.</p>
-                <a href="#new" class="btn btn-primary-glass btn-lg">Khám Phá Ngay <i class="fas fa-arrow-right ms-2"></i></a>
+                <h1 class="display-4 fw-bold mb-3">Khám Phá Cuốn Sách <span
+                        style="color: var(--accent); font-style: italic;">Tuyệt Vời</span></h1>
+                <p class="lead text-muted mb-4">Khám phá bộ sưu tập sách cao cấp được tuyển chọn của chúng tôi từ khắp
+                    nơi trên thế giới.</p>
+                <a href="#new" class="btn btn-primary-glass btn-lg">Khám Phá Ngay <i
+                        class="fas fa-arrow-right ms-2"></i></a>
                 <div class="mt-5">
                     <!-- Hàng 1: 6 nút, chạy từ phải sang trái -->
                     <div class="marquee-container mb-2">
                         <div class="marquee-track marquee-track-rtl">
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Tiểu Thuyết</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa Học</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Lịch Sử</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Văn Học</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Hoạt Hình</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Kinh Dị</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Tiểu
+                                Thuyết</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa
+                                Học</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Lịch
+                                Sử</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Văn
+                                Học</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Hoạt
+                                Hình</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Kinh
+                                Dị</a>
                             <!-- Lặp lại để tạo hiệu ứng liền mạch -->
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Tiểu Thuyết</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa Học</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Lịch Sử</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Văn Học</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Hoạt Hình</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Kinh Dị</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Tiểu
+                                Thuyết</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa
+                                Học</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Lịch
+                                Sử</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Văn
+                                Học</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Hoạt
+                                Hình</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Kinh
+                                Dị</a>
                         </div>
                     </div>
                     <!-- Hàng 2: Các nút còn lại, chạy từ trái sang phải -->
                     <div class="marquee-container">
                         <div class="marquee-track marquee-track-ltr">
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Kinh Doanh</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Triết Học</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Du Lịch</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Nấu Ăn</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Thể Dục</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa Học Viễn Tưởng</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Kinh
+                                Doanh</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Triết
+                                Học</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Du
+                                Lịch</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Nấu
+                                Ăn</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Thể
+                                Dục</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa
+                                Học Viễn Tưởng</a>
                             <!-- Lặp lại để tạo hiệu ứng liền mạch -->
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Kinh Doanh</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Triết Học</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Du Lịch</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Nấu Ăn</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Thể Dục</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa Học Viễn Tưởng</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Kinh
+                                Doanh</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Triết
+                                Học</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Du
+                                Lịch</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Nấu
+                                Ăn</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Thể
+                                Dục</a>
+                            <a href="#"
+                                class="btn btn-sm btn-outline-secondary rounded-pill bg-white border-0 shadow-sm">Khoa
+                                Học Viễn Tưởng</a>
                         </div>
                     </div>
                 </div>
@@ -188,12 +240,17 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="col-lg-8">
             <div class="swiper hero-slider">
                 <div class="swiper-wrapper">
-                    <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2098&auto=format&fit=crop" class="w-100" style="height: 450px; object-fit: cover;" alt="Library">
-                        <div class="position-absolute bottom-0 start-0 w-100 p-4" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
+                    <div class="swiper-slide"><img
+                            src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2098&auto=format&fit=crop"
+                            class="w-100" style="height: 450px; object-fit: cover;" alt="Library">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-4"
+                            style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
                             <h3 class="text-white">Bộ Sưu Tập Kinh Điển</h3>
                         </div>
                     </div>
-                    <div class="swiper-slide"><img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=2070&auto=format&fit=crop" class="w-100" style="height: 450px; object-fit: cover;" alt="Reading"></div>
+                    <div class="swiper-slide"><img
+                            src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=2070&auto=format&fit=crop"
+                            class="w-100" style="height: 450px; object-fit: cover;" alt="Reading"></div>
                 </div>
                 <div class="swiper-pagination"></div>
             </div>
@@ -206,9 +263,12 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="row g-5 align-items-center">
         <!-- Cột trái: Châm ngôn -->
         <div class="col-lg-6">
-            <div id="quote-container" class="text-center p-4 d-flex flex-column justify-content-center" style="transition: opacity 0.5s ease-in-out; min-height: 250px;">
+            <div id="quote-container" class="text-center p-4 d-flex flex-column justify-content-center"
+                style="transition: opacity 0.5s ease-in-out; min-height: 250px;">
                 <i class="fas fa-quote-left fa-2x mb-3" style="color: var(--accent);"></i>
-                <h3 id="quote-text" class="fw-normal fst-italic" style="font-family: 'Playfair Display', serif; line-height: 1.7;">Một cuốn sách hay trên giá sách là một người bạn dù quay lưng lại nhưng vẫn là bạn tốt.</h3>
+                <h3 id="quote-text" class="fw-normal fst-italic"
+                    style="font-family: 'Playfair Display', serif; line-height: 1.7;">Một cuốn sách hay trên giá sách là
+                    một người bạn dù quay lưng lại nhưng vẫn là bạn tốt.</h3>
                 <p id="quote-author" class="text-muted mt-3">— Ngạn ngữ Anh</p>
             </div>
         </div>
@@ -238,7 +298,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 </a>
                 <!-- Card 3 -->
                 <div class="promo-card bg-primary text-white" style="background: var(--primary);">
-                    <div class="promo-icon text-warning" style="color: var(--accent) !important;"><i class="fas fa-gift"></i></div>
+                    <div class="promo-icon text-warning" style="color: var(--accent) !important;"><i
+                            class="fas fa-gift"></i></div>
                     <div>
                         <h6 class="fw-bold mb-1 text-white">Quà Tặng Độc Quyền</h6>
                         <p class="small text-white-50 mb-0">Khi đăng ký thành viên mới</p>
@@ -250,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const quotes = [{
             text: "Một cuốn sách hay trên giá sách là một người bạn dù quay lưng lại nhưng vẫn là bạn tốt.",
             author: "Ngạn ngữ Anh"
@@ -263,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, {
             text: "Một căn phòng không có sách cũng giống như một cơ thể không có linh hồn.",
             author: "Marcus Tullius Cicero"
-        }, ];
+        },];
         const quoteContainer = document.getElementById('quote-container');
         const quoteTextEl = document.getElementById('quote-text');
         const quoteAuthorEl = document.getElementById('quote-author');
@@ -378,21 +439,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 $badge_class = 'badge-new';
                 $badge_text = 'MỚI';
             }
-        ?>
+            ?>
             <div class="col book-item">
                 <div class="book-card-glass h-100 d-flex flex-column">
                     <div class="badge-glass <?php echo $badge_class; ?>"><span><?php echo $badge_text; ?></span></div>
                     <div class="book-img-wrapper">
-                        <img src="<?php echo $img_path; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'" alt="<?php echo htmlspecialchars($book['Title']); ?>">
+                        <img src="<?php echo $img_path; ?>"
+                            onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'"
+                            alt="<?php echo htmlspecialchars($book['Title']); ?>">
                         <div class="action-overlay">
-                            <button onclick="addToCartAjax('<?php echo $pid; ?>', 1)" class="btn-icon" title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></button>
-                            <button onclick='openQuickView(<?php echo json_encode($book); ?>)' class="btn-icon" title="Xem nhanh"><i class="fas fa-eye"></i></button>
-                            <button onclick="addToWishlist('<?php echo $pid; ?>')" class="btn-icon" title="Yêu thích"><i class="fas fa-heart"></i></button>
+                            <button onclick="addToCartAjax('<?php echo $pid; ?>', 1)" class="btn-icon"
+                                title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></button>
+                            <button onclick='openQuickView(<?php echo json_encode($book); ?>)' class="btn-icon"
+                                title="Xem nhanh"><i class="fas fa-eye"></i></button>
+                            <button onclick="addToWishlist('<?php echo $pid; ?>')" class="btn-icon" title="Yêu thích"><i
+                                    class="fas fa-heart"></i></button>
                         </div>
                     </div>
                     <div class="mt-auto">
                         <h6 class="fw-bold text-truncate" title="<?php echo htmlspecialchars($book['Title']); ?>">
-                            <a href="description.php?ID=<?php echo $pid; ?>" class="text-decoration-none text-dark"><?php echo htmlspecialchars($book['Title']); ?></a>
+                            <a href="description.php?ID=<?php echo $pid; ?>"
+                                class="text-decoration-none text-dark"><?php echo htmlspecialchars($book['Title']); ?></a>
                         </h6>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-primary fw-bold"><?php echo number_format($book['Price']); ?> đ</span>
@@ -406,7 +473,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <!-- Nút Xem Thêm -->
     <div class="text-center mt-5" id="viewMoreContainer">
-        <button id="viewMoreBtn" class="btn btn-primary-glass px-5 py-3">Xem thêm sách <i class="fas fa-chevron-down ms-2"></i></button>
+        <button id="viewMoreBtn" class="btn btn-primary-glass px-5 py-3">Xem thêm sách <i
+                class="fas fa-chevron-down ms-2"></i></button>
     </div>
 </div>
 
@@ -464,13 +532,14 @@ document.addEventListener('DOMContentLoaded', function() {
         $featured_authors_query = "SELECT a.name, a.image_url, COUNT(p.PID) as book_count FROM products p JOIN authors a ON p.Author = a.name GROUP BY a.name, a.image_url ORDER BY book_count DESC LIMIT 4";
         $featured_authors_result = mysqli_query($con, $featured_authors_query);
 
-        while ($author = mysqli_fetch_assoc($featured_authors_result)) :
+        while ($author = mysqli_fetch_assoc($featured_authors_result)):
             $author_avatar = !empty($author['image_url']) ? htmlspecialchars($author['image_url']) : "https://ui-avatars.com/api/?name=" . urlencode($author['name']) . "&background=d2af37&color=fff&size=120&font-size=0.33&bold=true";
-        ?>
+            ?>
             <div class="col-lg-3 col-md-6">
                 <a href="author.php?value=<?php echo urlencode($author['name']); ?>" class="text-decoration-none">
                     <div class="author-card h-100">
-                        <img src="<?php echo $author_avatar; ?>" alt="Tác giả <?php echo htmlspecialchars($author['name']); ?>" class="author-avatar">
+                        <img src="<?php echo $author_avatar; ?>"
+                            alt="Tác giả <?php echo htmlspecialchars($author['name']); ?>" class="author-avatar">
                         <h5 class="author-name mb-1"><?php echo htmlspecialchars($author['name']); ?></h5>
                         <p class="author-book-count mb-0"><?php echo $author['book_count']; ?> tác phẩm</p>
                     </div>
@@ -500,26 +569,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 while ($book = mysqli_fetch_assoc($bestseller_result)) {
                     $pid = htmlspecialchars($book['PID']);
                     $img_path = "img/books/" . $pid . ".jpg";
-                ?>
+                    ?>
                     <div class="swiper-slide">
                         <div class="bestseller-card position-relative text-center">
                             <div class="rank-number"><?php echo str_pad($rank++, 2, '0', STR_PAD_LEFT); ?></div>
                             <div class="book-card-glass border-0 bg-transparent shadow-none">
                                 <div class="book-img-wrapper shadow-lg mb-3">
-                                    <img src="<?php echo $img_path; ?>" onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
+                                    <img src="<?php echo $img_path; ?>"
+                                        onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
                                 </div>
-                                <h5 class="fw-bold mt-3 text-truncate" title="<?php echo htmlspecialchars($book['Title']); ?>"><?php echo htmlspecialchars($book['Title']); ?></h5>
+                                <h5 class="fw-bold mt-3 text-truncate"
+                                    title="<?php echo htmlspecialchars($book['Title']); ?>">
+                                    <?php echo htmlspecialchars($book['Title']); ?>
+                                </h5>
                                 <p class="text-muted small">Tác giả: <?php echo htmlspecialchars($book['Author']); ?></p>
                                 <div class="btn-group">
-                                    <a href="description.php?ID=<?php echo $pid; ?>" class="btn btn-outline-dark rounded-pill btn-sm px-3">Chi tiết</a>
-                                    <button onclick='openQuickView(<?php echo json_encode($book); ?>)' class="btn btn-outline-dark rounded-pill btn-sm px-3" title="Xem nhanh">
+                                    <a href="description.php?ID=<?php echo $pid; ?>"
+                                        class="btn btn-outline-dark rounded-pill btn-sm px-3">Chi tiết</a>
+                                    <button onclick='openQuickView(<?php echo json_encode($book); ?>)'
+                                        class="btn btn-outline-dark rounded-pill btn-sm px-3" title="Xem nhanh">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                <?php
+                    <?php
                 }
                 ?>
             </div>
@@ -539,35 +614,78 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="row g-0 align-items-center">
             <div class="col-lg-6">
                 <div class="deal-content">
-                    <div class="text-warning fw-bold mb-2 ls-2 text-uppercase"><i class="fas fa-bolt me-2"></i>Ưu đãi chớp nhoáng trong ngày</div>
+                    <div class="text-warning fw-bold mb-2 ls-2 text-uppercase"><i class="fas fa-bolt me-2"></i>Ưu đãi
+                        chớp nhoáng trong ngày</div>
                     <h2 class="display-5 fw-bold mb-4">Giảm 50% cho "Biểu Tượng Thất Truyền"</h2>
-                    <p class="mb-4 text-white-50 lead">Khám phá kiệt tác của Dan Brown với mức giá không thể tốt hơn. Ưu đãi sắp kết thúc, đừng bỏ lỡ cuốn tiểu thuyết ly kỳ này.</p>
+                    <p class="mb-4 text-white-50 lead">Khám phá kiệt tác của Dan Brown với mức giá không thể tốt hơn. Ưu
+                        đãi sắp kết thúc, đừng bỏ lỡ cuốn tiểu thuyết ly kỳ này.</p>
 
                     <div class="mb-5 d-flex flex-wrap">
                         <div class="deal-timer-box">
-                            <span class="deal-timer-number">05</span>
+                            <span class="deal-timer-number" id="d-hours">05</span>
                             <span class="deal-timer-label">Giờ</span>
                         </div>
                         <div class="deal-timer-box">
-                            <span class="deal-timer-number">42</span>
+                            <span class="deal-timer-number" id="d-minutes">42</span>
                             <span class="deal-timer-label">Phút</span>
                         </div>
                         <div class="deal-timer-box">
-                            <span class="deal-timer-number">18</span>
+                            <span class="deal-timer-number" id="d-seconds">18</span>
                             <span class="deal-timer-label">Giây</span>
                         </div>
                     </div>
 
-                    <a href="description.php?ID=LIT-20" class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-primary">Mua Ngay</a>
+                    <a href="description.php?ID=LIT-20"
+                        class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-primary">Mua Ngay</a>
                 </div>
             </div>
             <div class="col-lg-6 d-none d-lg-block" style="height: 100%;">
                 <div class="deal-image-container">
-                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=2000&auto=format&fit=crop" class="deal-image" alt="Book Deal">
+                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=2000&auto=format&fit=crop"
+                        class="deal-image" alt="Book Deal">
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function startCountdown() {
+            const hoursElement = document.getElementById("d-hours");
+            const minutesElement = document.getElementById("d-minutes");
+            const secondsElement = document.getElementById("d-seconds");
+
+            if (!hoursElement || !minutesElement || !secondsElement) return;
+
+            let h = parseInt(hoursElement.innerText);
+            let m = parseInt(minutesElement.innerText);
+            let s = parseInt(secondsElement.innerText);
+
+            const speed = 600;
+
+            const timer = setInterval(function () {
+                s--;
+                if (s < 0) {
+                    s = 59;
+                    m--;
+                    if (m < 0) {
+                        m = 59;
+                        h--;
+                        if (h < 0) {
+                            clearInterval(timer); // Hết giờ
+                            h = 0;
+                            m = 0;
+                            s = 0;
+                        }
+                    }
+                }
+                // Cập nhật số lên giao diện
+                hoursElement.innerText = h < 10 ? "0" + h : h;
+                minutesElement.innerText = m < 10 ? "0" + m : m;
+                secondsElement.innerText = s < 10 ? "0" + s : s;
+            }, speed);
+        }
+        document.addEventListener("DOMContentLoaded", startCountdown);
+    </script>
 </div>
 
 <!-- ============== Quote Section ==============-->
@@ -598,12 +716,13 @@ document.addEventListener('DOMContentLoaded', function() {
     </style>
     <div id="quote-wrapper" class="quote-container">
         <i class="fas fa-quote-left fa-2x text-primary mb-3" style="color: var(--accent) !important;"></i>
-        <h3 id="quote-text" class="quote-text">Một cuốn sách hay trên giá sách là một người bạn dù quay lưng lại nhưng vẫn là bạn tốt.</h3>
+        <h3 id="quote-text" class="quote-text">Một cuốn sách hay trên giá sách là một người bạn dù quay lưng lại nhưng
+            vẫn là bạn tốt.</h3>
         <p id="quote-author" class="quote-author">— Ngạn ngữ Anh</p>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const quotes = [{
                 text: "Một cuốn sách hay trên giá sách là một người bạn dù quay lưng lại nhưng vẫn là bạn tốt.",
                 author: "Ngạn ngữ Anh"
@@ -651,36 +770,45 @@ document.addEventListener('DOMContentLoaded', function() {
         <!-- News 1 -->
         <div class="col-md-4">
             <div class="news-card">
-                <img src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=2070&auto=format&fit=crop" class="news-img" alt="Blog 1">
+                <img src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=2070&auto=format&fit=crop"
+                    class="news-img" alt="Blog 1">
                 <div class="news-body">
                     <div class="news-date">15 Tháng 10, 2025</div>
                     <h4 class="news-title">Top 10 Sách Nên Đọc Mùa Đông Này</h4>
-                    <p class="text-muted small mb-4">Khi thời tiết trở lạnh, hãy cuộn mình với những câu chuyện bí ẩn ấm cúng và những câu chuyện cảm động do biên tập viên của chúng tôi lựa chọn...</p>
-                    <a href="news.php?id=1" class="read-more-link">Đọc Bài Viết <i class="fas fa-arrow-right ms-2"></i></a>
+                    <p class="text-muted small mb-4">Khi thời tiết trở lạnh, hãy cuộn mình với những câu chuyện bí ẩn ấm
+                        cúng và những câu chuyện cảm động do biên tập viên của chúng tôi lựa chọn...</p>
+                    <a href="news.php?id=1" class="read-more-link">Đọc Bài Viết <i
+                            class="fas fa-arrow-right ms-2"></i></a>
                 </div>
             </div>
         </div>
         <!-- News 2 -->
         <div class="col-md-4">
             <div class="news-card">
-                <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=2128&auto=format&fit=crop" class="news-img" alt="Blog 2">
+                <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=2128&auto=format&fit=crop"
+                    class="news-img" alt="Blog 2">
                 <div class="news-body">
                     <div class="news-date">12 Tháng 10, 2025</div>
                     <h4 class="news-title">Phỏng vấn J.K. Rowling</h4>
-                    <p class="text-muted small mb-4">Một cái nhìn độc quyền về quá trình sáng tạo đằng sau loạt phim Harry Potter huyền thoại và những gì sẽ xảy ra tiếp theo...</p>
-                    <a href="news.php?id=2" class="read-more-link">Đọc Bài Viết <i class="fas fa-arrow-right ms-2"></i></a>
+                    <p class="text-muted small mb-4">Một cái nhìn độc quyền về quá trình sáng tạo đằng sau loạt phim
+                        Harry Potter huyền thoại và những gì sẽ xảy ra tiếp theo...</p>
+                    <a href="news.php?id=2" class="read-more-link">Đọc Bài Viết <i
+                            class="fas fa-arrow-right ms-2"></i></a>
                 </div>
             </div>
         </div>
         <!-- News 3 -->
         <div class="col-md-4">
             <div class="news-card">
-                <img src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?q=80&w=2070&auto=format&fit=crop" class="news-img" alt="Blog 3">
+                <img src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?q=80&w=2070&auto=format&fit=crop"
+                    class="news-img" alt="Blog 3">
                 <div class="news-body">
                     <div class="news-date">08 Tháng 10, 2025</div>
                     <h4 class="news-title">Sự Trỗi Dậy Của Thư Viện Số</h4>
-                    <p class="text-muted small mb-4">Công nghệ đang định hình lại cách chúng ta tiếp cận và tiêu thụ văn học trong thời đại kỹ thuật số hiện đại như thế nào...</p>
-                    <a href="news.php?id=3" class="read-more-link">Đọc Bài Viết <i class="fas fa-arrow-right ms-2"></i></a>
+                    <p class="text-muted small mb-4">Công nghệ đang định hình lại cách chúng ta tiếp cận và tiêu thụ văn
+                        học trong thời đại kỹ thuật số hiện đại như thế nào...</p>
+                    <a href="news.php?id=3" class="read-more-link">Đọc Bài Viết <i
+                            class="fas fa-arrow-right ms-2"></i></a>
                 </div>
             </div>
         </div>
