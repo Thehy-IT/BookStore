@@ -436,7 +436,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                     <div class="news-date">15 Tháng 10, 2025</div>
                     <h4 class="news-title">Top 10 Sách Nên Đọc Mùa Đông Này</h4>
                     <p class="text-muted small mb-4">Khi thời tiết trở lạnh, hãy cuộn mình với những câu chuyện bí ẩn ấm cúng và những câu chuyện cảm động do biên tập viên của chúng tôi lựa chọn...</p>
-                    <a href="news.php" class="read-more-link">Đọc Bài Viết <i class="fas fa-arrow-right ms-2"></i></a>
+                    <a href="news.php?id=1" class="read-more-link">Đọc Bài Viết <i class="fas fa-arrow-right ms-2"></i></a>
                 </div>
             </div>
         </div>
@@ -448,7 +448,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                     <div class="news-date">12 Tháng 10, 2025</div>
                     <h4 class="news-title">Phỏng vấn J.K. Rowling</h4>
                     <p class="text-muted small mb-4">Một cái nhìn độc quyền về quá trình sáng tạo đằng sau loạt phim Harry Potter huyền thoại và những gì sẽ xảy ra tiếp theo...</p>
-                    <a href="news.php" class="read-more-link">Đọc Bài Viết <i class="fas fa-arrow-right ms-2"></i></a>
+                    <a href="news.php?id=2" class="read-more-link">Đọc Bài Viết <i class="fas fa-arrow-right ms-2"></i></a>
                 </div>
             </div>
         </div>
@@ -460,7 +460,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                     <div class="news-date">08 Tháng 10, 2025</div>
                     <h4 class="news-title">Sự Trỗi Dậy Của Thư Viện Số</h4>
                     <p class="text-muted small mb-4">Công nghệ đang định hình lại cách chúng ta tiếp cận và tiêu thụ văn học trong thời đại kỹ thuật số hiện đại như thế nào...</p>
-                    <a href="news.php" class="read-more-link">Đọc Bài Viết <i class="fas fa-arrow-right ms-2"></i></a>
+                    <a href="news.php?id=3" class="read-more-link">Đọc Bài Viết <i class="fas fa-arrow-right ms-2"></i></a>
                 </div>
             </div>
         </div>
