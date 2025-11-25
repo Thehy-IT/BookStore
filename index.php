@@ -495,7 +495,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
             transition: all 0.3s ease;
             overflow: hidden;
             border: 1px solid transparent;
-            /* Thêm border trong suốt để không bị giật layout khi hover */
         }
 
         .author-card:hover {
