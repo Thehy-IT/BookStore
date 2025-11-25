@@ -251,7 +251,7 @@ if (isset($_SESSION['user_id'])) {
         padding-right: 5px;
         opacity: 1;
     }
-    
+
     .search-input.is-filled {
         width: 220px !important;
         padding-left: 15px !important;
@@ -427,7 +427,12 @@ if (isset($_SESSION['user_id'])) {
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
-                                    <li><a class="dropdown-item text-danger" href="destroy.php">Đăng xuất</a></li>
+                                    <li>
+                                        <a class="dropdown-item" href="order_tracking.php">
+                                            <i class="fas fa-box-open me-2 text-muted"></i> Đơn mua
+                                        </a>
+                                    </li>
+                                    <li><a class="dropdown-item text-danger" href="destroy.php"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
                                 </ul>
                             </li>
                         <?php endif; ?>
