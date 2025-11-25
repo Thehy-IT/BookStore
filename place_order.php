@@ -120,6 +120,4 @@ try {
     header("Location: checkout.php");
     exit();
 }
-
-$con->close();
 ?>
