@@ -178,7 +178,9 @@ if (isset($_SESSION['user_id'])) {
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <!-- Bootstrap 5.3 & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -192,6 +194,83 @@ if (isset($_SESSION['user_id'])) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
+
+<style>
+    .search-form-hover {
+        display: flex;
+        align-items: center;
+        background: transparent;
+        border-radius: 50px;
+        padding: 5px;
+        position: relative;
+        transition: all 0.4s ease;
+    }
+
+    /* Ô nhập liệu */
+    .search-input {
+        border: none;
+        outline: none;
+        background: transparent;
+        width: 0;
+        padding: 0;
+        opacity: 0;
+        font-size: 1rem;
+        transition: all 0.4s ease;
+        color: #333;
+    }
+
+    /* Nút kính lúp */
+    .search-button {
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        color: #333;
+        cursor: pointer;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        transition: background 0.3s ease;
+    }
+
+    /* Khi Hover chuột vào form */
+    .search-form-hover:hover .search-input {
+        width: 220px;
+        padding-left: 15px;
+        padding-right: 5px;
+        opacity: 1;
+    }
+
+    /* Khi đang gõ (Focus) */
+    .search-input:focus {
+        width: 220px;
+        padding-left: 15px;
+        padding-right: 5px;
+        opacity: 1;
+    }
+    
+    .search-input.is-filled {
+        width: 220px !important;
+        padding-left: 15px !important;
+        padding-right: 5px !important;
+        opacity: 1 !important;
+    }
+
+    /* Đổi nền trắng cho khung bao ngoài */
+    .search-form-hover:hover,
+    .search-form-hover:focus-within,
+    .search-form-hover.is-filled-wrapper {
+        background: #fff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-button:hover {
+        background: rgba(0, 0, 0, 0.05);
+    }
+</style>
 
 <body>
     <?php echo $swal_script; ?>
@@ -216,17 +295,18 @@ if (isset($_SESSION['user_id'])) {
                     <span>BOOK<span style="color: var(--accent)">Z</span></span>
                 </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent"
+                    aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id
-                ="navContent">
+                <div class="collapse navbar-collapse" id="navContent">
                     <!-- Menu chính -->
                     <ul class="navbar-nav mx-auto">
                         <li class="nav-item"><a class="nav-link active" href="index.php">Trang chủ</a></li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Thể loại</a>
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Thể
+                                loại</a>
                             <ul class="dropdown-menu glass-panel border-0 shadow-lg">
                                 <?php
                                 // Sử dụng mảng categories_menu vừa lấy được
@@ -247,10 +327,10 @@ if (isset($_SESSION['user_id'])) {
 
                     <!-- User Actions -->
                     <ul class="navbar-nav ms-auto flex-row align-items-center">
-                        <!-- Search Icon with Hover Effect -->
                         <li class="nav-item me-2">
                             <form action="Result.php" method="POST" class="search-form-hover">
-                                <input type="search" name="keyword" class="search-input" placeholder="Tìm kiếm sách...">
+                                <input type="search" name="keyword" class="search-input" placeholder="Tìm kiếm sách..."
+                                    autocomplete="off">
                                 <button type="submit" class="search-button">
                                     <i class="fas fa-search"></i>
                                 </button>
@@ -258,53 +338,71 @@ if (isset($_SESSION['user_id'])) {
                         </li>
 
                         <?php if (!isset($_SESSION['user'])): ?>
-                            <li class="nav-item"><button class="btn btn-primary-glass btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</button></li>
+                            <li class="nav-item"><button class="btn btn-primary-glass btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#loginModal">Đăng nhập</button></li>
                         <?php else: ?>
                             <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
-                                <li class="nav-item"><a href="admin.php" class="btn btn-warning btn-sm rounded-pill fw-bold shadow-sm px-3"><i class="fas fa-user-shield me-1"></i> Admin</a></li>
+                                <li class="nav-item"><a href="admin.php"
+                                        class="btn btn-warning btn-sm rounded-pill fw-bold shadow-sm px-3"><i
+                                            class="fas fa-user-shield me-1"></i> Admin</a></li>
                             <?php else: ?>
                                 <li class="nav-item">
-                                    <a href="wishlist.php" class="btn btn-outline-dark rounded-circle position-relative border-0" style="width:40px; height:40px;" title="Danh sách yêu thích">
+                                    <a href="wishlist.php"
+                                        class="btn btn-outline-dark rounded-circle position-relative border-0"
+                                        style="width:40px; height:40px;" title="Danh sách yêu thích">
                                         <i class="fas fa-heart"></i>
-                                        <span id="header-wishlist-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger <?php echo ($wishlist_item_count > 0) ? '' : 'd-none'; ?>"><?php echo $wishlist_item_count; ?></span>
+                                        <span id="header-wishlist-count"
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger <?php echo ($wishlist_item_count > 0) ? '' : 'd-none'; ?>"><?php echo $wishlist_item_count; ?></span>
                                     </a>
                                 </li>
                                 <li class="nav-item ms-1">
-                                    <a href="cart.php" class="btn btn-outline-dark rounded-circle position-relative border-0" style="width:40px; height:40px;" title="Giỏ hàng">
+                                    <a href="cart.php" class="btn btn-outline-dark rounded-circle position-relative border-0"
+                                        style="width:40px; height:40px;" title="Giỏ hàng">
                                         <i class="fas fa-shopping-bag"></i>
                                         <?php if ($cart_item_count > 0): ?>
-                                            <span id="header-cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"><?php echo $cart_item_count; ?></span>
+                                            <span id="header-cart-count"
+                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"><?php echo $cart_item_count; ?></span>
                                         <?php endif; ?>
                                     </a>
                                 </li>
                             <?php endif; ?>
                             <!-- Notification Dropdown -->
                             <li class="nav-item dropdown ms-1">
-                                <a id="notificationBell" class="nav-link p-0" href="#" role="button" data-bs-toggle="dropdown" style="width:40px; height:40px; display: inline-flex; align-items: center; justify-content: center;">
+                                <a id="notificationBell" class="nav-link p-0" href="#" role="button"
+                                    data-bs-toggle="dropdown"
+                                    style="width:40px; height:40px; display: inline-flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-bell fs-5"></i>
-                                    <?php if ($unread_notification_count > 0) : ?>
-                                        <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="margin-top: 8px; margin-left: -12px;">
+                                    <?php if ($unread_notification_count > 0): ?>
+                                        <span id="notification-badge"
+                                            class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+                                            style="margin-top: 8px; margin-left: -12px;">
                                             <span class="visually-hidden">Thông báo mới</span>
                                         </span>
                                     <?php endif; ?>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-panel mt-2" style="width: 300px;">
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-panel mt-2"
+                                    style="width: 300px;">
                                     <li class="px-3 py-2 fw-bold">Thông báo</li>
                                     <li>
                                         <hr class="dropdown-divider m-0">
                                     </li>
                                     <div id="notification-list">
-                                        <?php if (empty($notifications)) : ?>
-                                            <li><span class="dropdown-item-text text-center text-muted py-3">Không có thông báo nào.</span></li>
-                                        <?php else : ?>
-                                            <?php foreach ($notifications as $notif) : ?>
+                                        <?php if (empty($notifications)): ?>
+                                            <li><span class="dropdown-item-text text-center text-muted py-3">Không có thông báo
+                                                    nào.</span></li>
+                                        <?php else: ?>
+                                            <?php foreach ($notifications as $notif): ?>
                                                 <li>
-                                                    <a class="dropdown-item py-2 <?php echo $notif['is_read'] ? '' : 'bg-light'; ?>" href="<?php echo htmlspecialchars($notif['link'] ?? '#'); ?>">
+                                                    <a class="dropdown-item py-2 <?php echo $notif['is_read'] ? '' : 'bg-light'; ?>"
+                                                        href="<?php echo htmlspecialchars($notif['link'] ?? '#'); ?>">
                                                         <div class="d-flex align-items-start">
-                                                            <i class="<?php echo htmlspecialchars($notif['icon']); ?> mt-1 me-2 text-primary"></i>
+                                                            <i
+                                                                class="<?php echo htmlspecialchars($notif['icon']); ?> mt-1 me-2 text-primary"></i>
                                                             <div>
-                                                                <small class="fw-bold"><?php echo htmlspecialchars($notif['title']); ?></small><br>
-                                                                <small class="text-muted"><?php echo htmlspecialchars($notif['message']); ?></small>
+                                                                <small
+                                                                    class="fw-bold"><?php echo htmlspecialchars($notif['title']); ?></small><br>
+                                                                <small
+                                                                    class="text-muted"><?php echo htmlspecialchars($notif['message']); ?></small>
                                                             </div>
                                                         </div>
                                                     </a>
@@ -320,10 +418,12 @@ if (isset($_SESSION['user_id'])) {
                             </li>
                             <li class="nav-item dropdown ms-2">
                                 <a class="nav-link dropdown-toggle p-0" href="#" role="button" data-bs-toggle="dropdown">
-                                    <img src="https://ui-avatars.com/api/?name=<?php echo $_SESSION['user']; ?>&background=random" class="rounded-circle" width="35">
+                                    <img src="https://ui-avatars.com/api/?name=<?php echo $_SESSION['user']; ?>&background=random"
+                                        class="rounded-circle" width="35">
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-panel mt-2">
-                                    <li><span class="dropdown-item-text text-muted small">Đăng nhập với tên<br><strong class="text-dark"><?php echo $_SESSION['user']; ?></strong></span></li>
+                                    <li><span class="dropdown-item-text text-muted small">Đăng nhập với tên<br><strong
+                                                class="text-dark"><?php echo $_SESSION['user']; ?></strong></span></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
@@ -336,3 +436,51 @@ if (isset($_SESSION['user_id'])) {
             </div>
         </nav>
     </header>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Lấy tất cả ô tìm kiếm
+            const inputs = document.querySelectorAll('.search-input');
+
+            inputs.forEach(input => {
+                const form = input.closest('.search-form-hover');
+
+                // Hàm ép buộc giao diện
+                const forceState = () => {
+                    const hasText = input.value.trim().length > 0;
+
+                    if (hasText) {
+                        input.style.width = '220px';
+                        input.style.paddingLeft = '15px';
+                        input.style.paddingRight = '5px';
+                        input.style.opacity = '1';
+
+                        if (form) {
+                            form.style.background = '#fff';
+                            form.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+                        }
+                    } else {
+                        // KHÔNG CHỮ: Xóa style inline -> Trả về cho CSS tự lo (Hover mới hiện)
+                        input.style.width = '';
+                        input.style.paddingLeft = '';
+                        input.style.paddingRight = '';
+                        input.style.opacity = '';
+
+                        if (form) {
+                            form.style.background = '';
+                            form.style.boxShadow = '';
+                        }
+                    }
+                };
+
+                // Lắng nghe mọi sự kiện
+                input.addEventListener('input', forceState);   // Khi gõ
+                input.addEventListener('change', forceState);  // Khi paste
+                input.addEventListener('blur', forceState);    // Khi click ra ngoài
+
+                setTimeout(forceState, 100);
+            });
+        });
+    </script>
+</body>
+
+</html>

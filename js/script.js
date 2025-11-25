@@ -1,39 +1,39 @@
-function startCountdown() {
-  const hoursElement = document.getElementById("d-hours");
-  const minutesElement = document.getElementById("d-minutes");
-  const secondsElement = document.getElementById("d-seconds");
+// function startCountdown() {
+//   const hoursElement = document.getElementById("d-hours");
+//   const minutesElement = document.getElementById("d-minutes");
+//   const secondsElement = document.getElementById("d-seconds");
 
-  if (!hoursElement || !minutesElement || !secondsElement) return;
+//   if (!hoursElement || !minutesElement || !secondsElement) return;
 
-  let h = parseInt(hoursElement.innerText);
-  let m = parseInt(minutesElement.innerText);
-  let s = parseInt(secondsElement.innerText);
+//   let h = parseInt(hoursElement.innerText);
+//   let m = parseInt(minutesElement.innerText);
+//   let s = parseInt(secondsElement.innerText);
 
-  const speed = 600;
+//   const speed = 600;
 
-  const timer = setInterval(function () {
-    s--;
-    if (s < 0) {
-      s = 59;
-      m--;
-      if (m < 0) {
-        m = 59;
-        h--;
-        if (h < 0) {
-          clearInterval(timer); // Hết giờ
-          h = 0;
-          m = 0;
-          s = 0;
-        }
-      }
-    }
-    // Cập nhật số lên giao diện
-    hoursElement.innerText = h < 10 ? "0" + h : h;
-    minutesElement.innerText = m < 10 ? "0" + m : m;
-    secondsElement.innerText = s < 10 ? "0" + s : s;
-  }, speed);
-}
-document.addEventListener("DOMContentLoaded", startCountdown);
+//   const timer = setInterval(function () {
+//     s--;
+//     if (s < 0) {
+//       s = 59;
+//       m--;
+//       if (m < 0) {
+//         m = 59;
+//         h--;
+//         if (h < 0) {
+//           clearInterval(timer); // Hết giờ
+//           h = 0;
+//           m = 0;
+//           s = 0;
+//         }
+//       }
+//     }
+//     // Cập nhật số lên giao diện
+//     hoursElement.innerText = h < 10 ? "0" + h : h;
+//     minutesElement.innerText = m < 10 ? "0" + m : m;
+//     secondsElement.innerText = s < 10 ? "0" + s : s;
+//   }, speed);
+// }
+// document.addEventListener("DOMContentLoaded", startCountdown);
 
 
 
