@@ -326,10 +326,3 @@ if (isset($_SESSION['flash_message'])) {
 include 'footer.php'; // Sử dụng footer chung
 ?>
 
-```
-
-### 4. Tạo file xử lý `place_order.php`
-
-File mới này sẽ chứa toàn bộ logic để lưu đơn hàng vào cơ sở dữ liệu.
-
-```diff
