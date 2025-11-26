@@ -300,7 +300,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time)
                     </div>
 
                     <div class="bookz-border-top mb-8"></div>
-
+                    <!-- Địa chỉ -->
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-8">
                         <div class="md:col-span-4">
                             <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center">
@@ -318,201 +318,284 @@ function renderStep($step_index, $current_step, $icon, $label, $time)
                                 </p>
                             </div>
                         </div>
-
+                        <!-- Trang thái đơn hàng -->
                         <div class="md:col-span-8 md:border-l md:border-gray-100 md:pl-10">
                             <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center">
                                 <span class="material-symbols-outlined mr-2 text-blue-500">local_shipping</span>
                                 Trạng Thái Vận Chuyển
                             </h3>
+
                             <div class="timeline-vertical mt-3">
 
-                                <?php if ($order['status'] == 'Cancelled'): ?>
+                                <?php
+                                // ĐỊNH NGHĨA CẤP ĐỘ (LEVEL)
+                                $level = 0;
+                                switch ($order['status']) {
+                                    case 'Pending':
+                                        $level = 1;
+                                        break; // Chờ xác nhận
+                                    case 'Confirmed':
+                                        $level = 2;
+                                        break; // Đã xác nhận
+                                    case 'Shipped':
+                                        $level = 3;
+                                        break; // Đang giao
+                                    case 'Delivered':
+                                        $level = 4;
+                                        break; // Đã giao
+                                    case 'Completed':
+                                        $level = 5;
+                                        break; // Hoàn thành
+                                    case 'Cancelled':
+                                        $level = -1;
+                                        break; // Hủy
+                                }
+                                ?>
+
+                                <?php if ($level == -1): ?>
                                     <div class="timeline-item">
                                         <div class="timeline-dot cancelled"></div>
                                         <div class="text-sm">
-                                            <span class="text-red-500 font-medium font-bold">Đã hủy đơn hàng</span>
+                                            <span class="text-red-500 font-bold">Đã hủy đơn hàng</span>
                                             <div class="text-gray-500 mt-1">Đơn hàng này đã bị hủy.</div>
                                         </div>
                                     </div>
-                                <?php endif; ?>
 
-                                <?php if ($order['status'] == 'Pending'): ?>
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot bg-gray-300"></div>
-                                        <div class="text-sm">
-                                            <span class="text-gray-500 font-medium"><?php echo date('H:i d-m-Y'); ?></span>
-                                            <div class="text-gray-800 font-medium mt-1">
-                                                <?php echo getStatusLabel($order['status'], $status_labels); ?>
+                                <?php else: ?>
+
+                                    <?php if ($level >= 5): ?>
+                                        <div class="timeline-item">
+                                            <div class="timeline-dot active"></div>
+                                            <div class="text-sm">
+                                                <span class="text-green-600 font-bold">Hoàn thành</span>
+                                                <div class="text-gray-800 font-medium mt-1">Đơn hàng đã hoàn tất</div>
+                                                <div class="text-gray-500">Cảm ơn bạn đã mua sắm tại BookZ.</div>
                                             </div>
-                                            <div class="text-gray-500">Đơn hàng đang được người bán xử lý.</div>
                                         </div>
-                                    </div>
+                                    <?php endif; ?>
+
+                                    <?php if ($level >= 4): ?>
+                                        <div class="timeline-item">
+                                            <div class="timeline-dot <?php echo ($level == 4) ? 'active' : 'bg-gray-300'; ?>"></div>
+                                            <div class="text-sm">
+                                                <span
+                                                    class="<?php echo ($level == 4) ? 'text-green-600 font-bold' : 'text-gray-600 font-medium'; ?>">
+                                                    Đã giao hàng
+                                                </span>
+                                                <div class="text-gray-800 font-medium mt-1">Giao kiện hàng thành công</div>
+                                                <?php if ($level == 4): ?>
+                                                    <div class="text-gray-500">Bạn hãy kiểm tra và đánh giá sản phẩm nhé.</div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if ($level >= 3): ?>
+                                        <div class="timeline-item">
+                                            <div class="timeline-dot <?php echo ($level == 3) ? 'active' : 'bg-gray-300'; ?>"></div>
+                                            <div class="text-sm">
+                                                <span
+                                                    class="<?php echo ($level == 3) ? 'text-green-600 font-bold' : 'text-gray-600 font-medium'; ?>">
+                                                    Đang vận chuyển
+                                                </span>
+                                                <div class="text-gray-800 font-medium mt-1">Đơn hàng đang trên đường đến bạn</div>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if ($level >= 2): ?>
+                                        <div class="timeline-item">
+                                            <div class="timeline-dot <?php echo ($level == 2) ? 'active' : 'bg-gray-300'; ?>"></div>
+                                            <div class="text-sm">
+                                                <span
+                                                    class="<?php echo ($level == 2) ? 'text-green-600 font-bold' : 'text-gray-600 font-medium'; ?>">
+                                                    Đã xác nhận
+                                                </span>
+                                                <div class="text-gray-800 font-medium mt-1">Người bán đã xác nhận đơn hàng</div>
+                                                <?php if ($level == 2): ?>
+                                                    <div class="text-gray-500">Đơn hàng đang được đóng gói.</div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if ($level == 1): ?>
+                                        <div class="timeline-item">
+                                            <div class="timeline-dot bg-gray-300"></div>
+                                            <div class="text-sm">
+                                                <span class="text-gray-500 font-bold">Chờ xác nhận</span>
+                                                <div class="text-gray-800 font-medium mt-1">Đơn hàng đang được người bán xử lý</div>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+
                                 <?php endif; ?>
 
                                 <div class="timeline-item">
-                                    <div class="timeline-dot active"></div>
+                                    <div class="timeline-dot <?php echo ($level == 1) ? 'active' : 'bg-gray-300'; ?>"></div>
                                     <div class="text-sm">
-                                        <span class="timeline-time">
+                                        <span
+                                            class="timeline-time <?php echo ($level == 1) ? 'text-green-600 font-bold' : 'text-gray-500 font-normal'; ?>">
                                             <?php echo date('H:i d-m-Y', strtotime($order['order_date'])); ?>
                                         </span>
                                         <div class="text-gray-800 font-medium mt-1">Đặt hàng thành công</div>
-                                        <div class="text-gray-500">Đơn hàng đã được đặt thành công.</div>
+                                        <div class="text-gray-500">Đơn hàng đã được tạo.</div>
                                     </div>
                                 </div>
+
                             </div>
+
                         </div>
                     </div>
+                </div>
+                <!-- Sách trong hóa đơn -->
+                <div class="mb-8">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded font-bold">Yêu thích</span>
+                        <span class="font-bold text-gray-800 text-lg">BookZ Shop</span>
+                    </div>
 
-                    <div class="mb-8">
-                        <div class="flex items-center gap-2 mb-4">
-                            <span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded font-bold">Yêu thích</span>
-                            <span class="font-bold text-gray-800 text-lg">BookZ Shop</span>
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <?php
+                        $subtotal = 0;
+                        foreach ($order_items as $item):
+                            $subtotal += $item['price'] * $item['quantity'];
+                            ?>
+                            <div
+                                class="p-4 border-b border-gray-100 flex gap-4 items-start last:border-b-0 hover:bg-gray-50 transition">
+                                <img src="img/books/<?php echo $item['product_id']; ?>.jpg"
+                                    onerror="this.src='https://placehold.co/80x80?text=No+Image'"
+                                    class="w-20 h-20 object-cover border border-gray-200 rounded-md">
+
+                                <div class="flex-1">
+                                    <h4 class="text-gray-800 font-medium text-base">
+                                        <?php echo htmlspecialchars($item['Title']); ?>
+                                    </h4>
+                                    <div class="text-gray-500 text-sm mt-1">Số lượng: <span
+                                            class="font-bold">x<?php echo $item['quantity']; ?></span></div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-orange font-bold text-base"><?php echo number_format($item['price']); ?>đ
+                                    </p>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <!-- Tổng tiền hàng -->
+                <div class="bg-gray-50 rounded-xl p-6 border border-gray-100">
+                    <div class="w-full md:w-1/2 ml-auto space-y-3 text-sm">
+                        <div class="flex justify-between text-gray-600">
+                            <span>Tổng tiền hàng</span>
+                            <span class="text-gray-900 font-medium"><?php echo number_format($subtotal); ?>đ</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Phí vận chuyển</span>
+                            <span class="text-green-600 font-medium">Miễn phí</span>
+                        </div>
+                        <div class="flex justify-between items-end pt-4 border-t border-gray-200">
+                            <span class="text-gray-800 font-medium text-base">Thành tiền</span>
+                            <span
+                                class="text-2xl font-bold text-orange"><?php echo number_format($order['total_amount']); ?>đ</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between text-sm text-gray-700">
+                        <div>
+                            <?php if ($order['status'] == 'Pending'): ?>
+                                <form method="POST" action=""
+                                    onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');">
+                                    <input type="hidden" name="order_id_to_cancel" value="<?php echo $order['order_id']; ?>">
+                                    <button type="submit" name="cancel_order"
+                                        class="bg-white border border-red-500 text-red-500 px-6 py-2 rounded-lg hover:bg-red-50 font-medium transition flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-sm">cancel</span>
+                                        Hủy Đơn Hàng
+                                    </button>
+                                </form>
+                            <?php elseif ($order['status'] == 'Cancelled'): ?>
+                                <span class="bg-red-100 text-red-600 px-4 py-2 rounded-lg font-medium border border-red-200">Đơn
+                                    hàng đã hủy</span>
+                            <?php endif; ?>
                         </div>
 
-                        <div class="border border-gray-200 rounded-xl overflow-hidden">
-                            <?php
-                            $subtotal = 0;
-                            foreach ($order_items as $item):
-                                $subtotal += $item['price'] * $item['quantity'];
-                                ?>
-                                <div
-                                    class="p-4 border-b border-gray-100 flex gap-4 items-start last:border-b-0 hover:bg-gray-50 transition">
-                                    <img src="img/books/<?php echo $item['product_id']; ?>.jpg"
-                                        onerror="this.src='https://placehold.co/80x80?text=No+Image'"
-                                        class="w-20 h-20 object-cover border border-gray-200 rounded-md">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-orange">payments</span>
+                            Phương thức thanh toán: <span
+                                class="font-bold uppercase text-gray-900"><?php echo $order['payment_method']; ?></span>
+                        </div>
+                    </div>
+                </div>
 
-                                    <div class="flex-1">
-                                        <h4 class="text-gray-800 font-medium text-base">
-                                            <?php echo htmlspecialchars($item['Title']); ?>
-                                        </h4>
-                                        <div class="text-gray-500 text-sm mt-1">Số lượng: <span
-                                                class="font-bold">x<?php echo $item['quantity']; ?></span></div>
+            <?php else: ?>
+                <?php if (empty($orders_list)): ?>
+                    <div class="text-center py-16">
+                        <div class="bg-gray-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-4">
+                            <span class="material-symbols-outlined text-5xl text-gray-300">shopping_bag</span>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900">Bạn chưa có đơn hàng nào</h3>
+                        <p class="text-gray-500 mt-2 mb-6">Hãy khám phá thêm các cuốn sách thú vị tại cửa hàng.</p>
+                        <a href="index.php"
+                            class="inline-block bg-orange-500 text-white px-8 py-3 rounded-full font-medium hover:bg-orange-600 transition shadow-lg shadow-orange-500/30">
+                            Mua sắm ngay
+                        </a>
+                    </div>
+                <?php else: ?>
+                    <div class="space-y-6">
+                        <?php foreach ($orders_list as $history_item): ?>
+                            <div class="border border-gray-200 rounded-xl p-6 hover:shadow-md hover:border-orange-200 transition cursor-pointer group"
+                                onclick="window.location.href='order_tracking.php?id=<?php echo $history_item['order_id']; ?>'">
+
+                                <div
+                                    class="flex flex-col md:flex-row justify-between md:items-center border-b border-gray-100 pb-4 mb-4 gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="bg-blue-50 text-blue-600 p-2 rounded-lg group-hover:bg-orange-50 group-hover:text-orange transition-colors">
+                                            <span class="material-symbols-outlined">receipt_long</span>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-gray-800 text-lg">Đơn hàng
+                                                #<?php echo $history_item['order_id']; ?>
+                                            </h3>
+                                            <p class="text-sm text-gray-500 flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[16px]">schedule</span>
+                                                <?php echo date('H:i d/m/Y', strtotime($history_item['order_date'])); ?>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span class="text-center md:text-right">
+                                        <?php if ($history_item['status'] == 'Cancelled'): ?>
+                                            <span
+                                                class="inline-block text-red-500 font-bold uppercase text-xs border border-red-200 bg-red-50 px-3 py-1.5 rounded-full">
+                                                Đã hủy
+                                            </span>
+                                        <?php else: ?>
+                                            <span
+                                                class="inline-block text-orange font-bold uppercase text-xs border border-orange-200 bg-orange-50 px-3 py-1.5 rounded-full">
+                                                <?php echo getStatusLabel($history_item['status'], $status_labels); ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </span>
+                                </div>
+
+                                <div class="flex justify-between items-center">
+                                    <div class="text-sm text-gray-600 flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-gray-400">payments</span>
+                                        <?php echo $history_item['payment_method']; ?>
                                     </div>
                                     <div class="text-right">
-                                        <p class="text-orange font-bold text-base"><?php echo number_format($item['price']); ?>đ
-                                        </p>
+                                        <span class="text-gray-500 text-sm">Tổng thanh toán:</span>
+                                        <span
+                                            class="text-xl font-bold text-orange ml-2"><?php echo number_format($history_item['total_amount']); ?>đ</span>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
-                        </div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
-
-                    <div class="bg-gray-50 rounded-xl p-6 border border-gray-100">
-                        <div class="w-full md:w-1/2 ml-auto space-y-3 text-sm">
-                            <div class="flex justify-between text-gray-600">
-                                <span>Tổng tiền hàng</span>
-                                <span class="text-gray-900 font-medium"><?php echo number_format($subtotal); ?>đ</span>
-                            </div>
-                            <div class="flex justify-between text-gray-600">
-                                <span>Phí vận chuyển</span>
-                                <span class="text-green-600 font-medium">Miễn phí</span>
-                            </div>
-                            <div class="flex justify-between items-end pt-4 border-t border-gray-200">
-                                <span class="text-gray-800 font-medium text-base">Thành tiền</span>
-                                <span
-                                    class="text-2xl font-bold text-orange"><?php echo number_format($order['total_amount']); ?>đ</span>
-                            </div>
-                        </div>
-                        <div
-                            class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between text-sm text-gray-700">
-                            <div>
-                                <?php if ($order['status'] == 'Pending'): ?>
-                                    <form method="POST" action=""
-                                        onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');">
-                                        <input type="hidden" name="order_id_to_cancel"
-                                            value="<?php echo $order['order_id']; ?>">
-                                        <button type="submit" name="cancel_order"
-                                            class="bg-white border border-red-500 text-red-500 px-6 py-2 rounded-lg hover:bg-red-50 font-medium transition flex items-center gap-2">
-                                            <span class="material-symbols-outlined text-sm">cancel</span>
-                                            Hủy Đơn Hàng
-                                        </button>
-                                    </form>
-                                <?php elseif ($order['status'] == 'Cancelled'): ?>
-                                    <span
-                                        class="bg-red-100 text-red-600 px-4 py-2 rounded-lg font-medium border border-red-200">Đơn
-                                        hàng đã hủy</span>
-                                <?php endif; ?>
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-orange">payments</span>
-                                Phương thức thanh toán: <span
-                                    class="font-bold uppercase text-gray-900"><?php echo $order['payment_method']; ?></span>
-                            </div>
-                        </div>
-                    </div>
-
-                <?php else: ?>
-                    <?php if (empty($orders_list)): ?>
-                        <div class="text-center py-16">
-                            <div class="bg-gray-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-4">
-                                <span class="material-symbols-outlined text-5xl text-gray-300">shopping_bag</span>
-                            </div>
-                            <h3 class="text-lg font-medium text-gray-900">Bạn chưa có đơn hàng nào</h3>
-                            <p class="text-gray-500 mt-2 mb-6">Hãy khám phá thêm các cuốn sách thú vị tại cửa hàng.</p>
-                            <a href="index.php"
-                                class="inline-block bg-orange-500 text-white px-8 py-3 rounded-full font-medium hover:bg-orange-600 transition shadow-lg shadow-orange-500/30">
-                                Mua sắm ngay
-                            </a>
-                        </div>
-                    <?php else: ?>
-                        <div class="space-y-6">
-                            <?php foreach ($orders_list as $history_item): ?>
-                                <div class="border border-gray-200 rounded-xl p-6 hover:shadow-md hover:border-orange-200 transition cursor-pointer group"
-                                    onclick="window.location.href='order_tracking.php?id=<?php echo $history_item['order_id']; ?>'">
-
-                                    <div
-                                        class="flex flex-col md:flex-row justify-between md:items-center border-b border-gray-100 pb-4 mb-4 gap-4">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="bg-blue-50 text-blue-600 p-2 rounded-lg group-hover:bg-orange-50 group-hover:text-orange transition-colors">
-                                                <span class="material-symbols-outlined">receipt_long</span>
-                                            </div>
-                                            <div>
-                                                <h3 class="font-bold text-gray-800 text-lg">Đơn hàng
-                                                    #<?php echo $history_item['order_id']; ?>
-                                                </h3>
-                                                <p class="text-sm text-gray-500 flex items-center gap-1">
-                                                    <span class="material-symbols-outlined text-[16px]">schedule</span>
-                                                    <?php echo date('H:i d/m/Y', strtotime($history_item['order_date'])); ?>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <span class="text-center md:text-right">
-                                            <?php if ($history_item['status'] == 'Cancelled'): ?>
-                                                <span
-                                                    class="inline-block text-red-500 font-bold uppercase text-xs border border-red-200 bg-red-50 px-3 py-1.5 rounded-full">
-                                                    Đã hủy
-                                                </span>
-                                            <?php else: ?>
-                                                <span
-                                                    class="inline-block text-orange font-bold uppercase text-xs border border-orange-200 bg-orange-50 px-3 py-1.5 rounded-full">
-                                                    <?php echo getStatusLabel($history_item['status'], $status_labels); ?>
-                                                </span>
-                                            <?php endif; ?>
-                                        </span>
-                                    </div>
-
-                                    <div class="flex justify-between items-center">
-                                        <div class="text-sm text-gray-600 flex items-center gap-2">
-                                            <span class="material-symbols-outlined text-gray-400">payments</span>
-                                            <?php echo $history_item['payment_method']; ?>
-                                        </div>
-                                        <div class="text-right">
-                                            <span class="text-gray-500 text-sm">Tổng thanh toán:</span>
-                                            <span
-                                                class="text-xl font-bold text-orange ml-2"><?php echo number_format($history_item['total_amount']); ?>đ</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-
                 <?php endif; ?>
 
-            </div>
+            <?php endif; ?>
+
         </div>
+    </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
