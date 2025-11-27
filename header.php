@@ -102,11 +102,11 @@ $category_translations = [
     'health and cooking' => 'Sức khỏe & Nấu ăn',
     'literature and fiction' => 'Văn học & Hư cấu',
     'regional books' => 'Sách tiếng Việt',
-    'self-help' => 'Phát triển bản thân', // Giữ lại các mục đã có
-    'fiction' => 'Tiểu thuyết', // Giữ lại các mục đã có
-    'thriller' => 'Kinh dị & Giật gân', // Giữ lại các mục đã có
-    'romance' => 'Lãng mạn', // Giữ lại các mục đã có
-    'fantasy' => 'Giả tưởng', // Giữ lại các mục đã có
+    'self-help' => 'Phát triển bản thân', 
+    'fiction' => 'Tiểu thuyết',
+    'thriller' => 'Kinh dị & Giật gân', 
+    'romance' => 'Lãng mạn', 
+    'fantasy' => 'Giả tưởng',
 ];
 
 $sql_categories_menu = "SELECT DISTINCT Category FROM products WHERE Category IS NOT NULL AND Category != '' ORDER BY Category ASC";
@@ -244,7 +244,7 @@ if (isset($_SESSION['user_id'])) {
 
     /* Khi Hover chuột vào form */
     .search-form-hover:hover .search-input {
-        width: 220px;
+        width: 100px;
         padding-left: 15px;
         padding-right: 5px;
         opacity: 1;
@@ -252,7 +252,7 @@ if (isset($_SESSION['user_id'])) {
 
     /* Khi đang gõ (Focus) */
     .search-input:focus {
-        width: 220px;
+        width: 100px;
         padding-left: 15px;
         padding-right: 5px;
         opacity: 1;
@@ -265,7 +265,6 @@ if (isset($_SESSION['user_id'])) {
         opacity: 1 !important;
     }
 
-    /* Đổi nền trắng cho khung bao ngoài */
     .search-form-hover:hover,
     .search-form-hover:focus-within,
     .search-form-hover.is-filled-wrapper {
