@@ -46,10 +46,14 @@ if ($max_price_get !== null) {
     }
     $urlParams['max_price'] = $max_price_get;
 }
-// 4. Lọc theo Đánh giá
+// 4. Lọc theo Đánh giá (Giả định có cột Rating trong DB)
 if (isset($_GET['rating']) && is_numeric($_GET['rating'])) {
     $rating = (int)$_GET['rating'];
+    // Giả định bảng products có cột 'Rating'
+    // $whereClauses[] = "Rating >= $rating"; 
     $urlParams['rating'] = $rating;
+    // Do chưa có cột Rating, logic này sẽ được comment lại ở phần truy vấn
+    // nhưng vẫn giữ để bạn dễ dàng mở rộng sau này.
 }
 // 5. Lọc theo Nhà xuất bản
 if (isset($_GET['publisher']) && !empty($_GET['publisher'])) {
@@ -59,7 +63,7 @@ if (isset($_GET['publisher']) && !empty($_GET['publisher'])) {
     $urlParams['publisher'] = $_GET['publisher'];
 }
 
-// 6. Sắp xếp
+// 5. Sắp xếp
 $sort_option = isset($_GET['sort']) ? $_GET['sort'] : 'newest';
 $urlParams['sort'] = $sort_option;
 $sql_sort = "";
@@ -72,21 +76,22 @@ switch ($sort_option) {
         break;
     case 'bestseller':
         $sql_sort = "ORDER BY PID ASC";
-        break;
+        break; // Giả định bán chạy theo PID
     default:
         $sql_sort = "ORDER BY PID DESC";
-        break;
+        break; // Mới nhất
 }
 
 // --- Ghép câu truy vấn SQL ---
+// Tối ưu hóa: Sử dụng SQL_CALC_FOUND_ROWS để đếm tổng số dòng mà không cần truy vấn lần 2
 $sql = "SELECT SQL_CALC_FOUND_ROWS * FROM products";
 if (count($whereClauses) > 0) {
     $sql .= " WHERE " . implode(' AND ', $whereClauses);
 }
 $sql .= " " . $sql_sort;
 
-// --- PHÂN TRANG ---
-$results_per_page = 9;
+// --- PHÂN TRANG (PAGINATION) ---
+$results_per_page = 9; // Số sản phẩm mỗi trang
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 
@@ -97,7 +102,7 @@ $bindTypes .= 'ii';
 $bindValues[] = $this_page_first_result;
 $bindValues[] = $results_per_page;
 
-// --- Thực thi truy vấn ---
+// --- Thực thi truy vấn chính bằng Prepared Statement ---
 $stmt = $con->prepare($sql);
 if ($stmt) {
     if (!empty($bindTypes)) {
@@ -106,12 +111,14 @@ if ($stmt) {
     $stmt->execute();
     $result = $stmt->get_result();
 
+    // Lấy tổng số kết quả (không tính LIMIT)
     $count_res = $con->query("SELECT FOUND_ROWS()");
     $number_of_results = $count_res->fetch_row()[0];
     $number_of_pages = ceil($number_of_results / $results_per_page);
 }
 
-// --- Lấy danh sách thể loại ---
+// --- Lấy danh sách thể loại tự động từ cơ sở dữ liệu ---
+// Mảng ánh xạ từ giá trị trong DB sang tên hiển thị tiếng Việt
 $category_translations = [
     'academic and professional' => 'Học thuật & Chuyên ngành',
     'biographies and auto biographies' => 'Tiểu sử & Tự truyện',
@@ -133,6 +140,7 @@ $result_categories = mysqli_query($con, $sql_categories);
 if ($result_categories && mysqli_num_rows($result_categories) > 0) {
     while ($row_cat = mysqli_fetch_assoc($result_categories)) {
         $category_key = strtolower(trim($row_cat['Category']));
+        // Lấy tên đã dịch, nếu không có thì dùng tên gốc và viết hoa chữ cái đầu
         $categories[] = [
             'slug' => $category_key,
             'name' => $category_translations[$category_key] ?? ucfirst($category_key),
@@ -140,33 +148,66 @@ if ($result_categories && mysqli_num_rows($result_categories) > 0) {
         ];
     }
 }
+
+// Lấy category hiện tại từ URL để đánh dấu 'active'
 $current_category = isset($_GET['category']) ? $_GET['category'] : '';
 
-// --- Lấy danh sách nhà xuất bản ---
+// --- Lấy danh sách nhà xuất bản tự động từ cơ sở dữ liệu ---
 $publishers = [];
 $sql_publishers = "SELECT DISTINCT Publisher FROM products WHERE Publisher IS NOT NULL AND Publisher != '' ORDER BY Publisher ASC";
 $result_publishers = mysqli_query($con, $sql_publishers);
 if ($result_publishers && mysqli_num_rows($result_publishers) > 0) {
     while ($row_pub = mysqli_fetch_assoc($result_publishers)) {
+        // Không cần dịch, chỉ cần lấy và làm sạch
         $publishers[] = trim($row_pub['Publisher']);
     }
 }
+
+// Lấy publisher hiện tại từ URL để đánh dấu 'active'
 $current_publisher = isset($_GET['publisher']) ? $_GET['publisher'] : '';
 
 // Tạo chuỗi query cho URL phân trang
 $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '']));
-?>
 
+?>
 <script src="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css">
 
 <style>
     /* --- List View Mode Styles --- */
-    .list-view .product-card { flex-direction: row; height: 220px; }
-    .list-view .card-img-top-wrapper { width: 160px; padding-top: 0; flex-shrink: 0; }
-    .list-view .card-body-glass { align-items: flex-start; justify-content: center; }
-    .list-view .book-desc { display: block !important; font-size: 0.9rem; color: #64748b; margin: 10px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .list-view .card-actions { position: static; transform: none; opacity: 1; margin-top: 15px; }
+    .list-view .product-card {
+        flex-direction: row;
+        height: 220px;
+    }
+
+    .list-view .card-img-top-wrapper {
+        width: 160px;
+        padding-top: 0;
+        flex-shrink: 0;
+    }
+
+    .list-view .card-body-glass {
+        align-items: flex-start;
+        justify-content: center;
+    }
+
+    .list-view .book-desc {
+        display: block !important;
+        font-size: 0.9rem;
+        color: #64748b;
+        margin: 10px 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .list-view .card-actions {
+        position: static;
+        transform: none;
+        opacity: 1;
+        margin-top: 15px;
+    }
 
     /* --- Sidebar Filter Style --- */
     .sidebar-glass {
@@ -178,6 +219,7 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
         box-shadow: var(--glass-shadow);
         position: sticky;
         top: 120px;
+        /* Sticky sidebar */
     }
 
     .filter-title {
@@ -191,51 +233,15 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
         align-items: center;
     }
 
-    /* --- CSS cho Active (Thanh xanh) --- */
-    .filter-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 12px;
-        margin-bottom: 4px;
-        color: #4b5563;
-        text-decoration: none;
-        border-left: 3px solid transparent; 
-        transition: all 0.2s ease;
-        border-radius: 0 8px 8px 0;
-    }
-    .filter-item:hover {
-        color: #0d6efd;
-        background-color: rgba(13, 110, 253, 0.05);
-        padding-left: 15px;
-    }
-    .filter-item.active {
-        color: #0d6efd;
-        font-weight: 700;
-        background: linear-gradient(90deg, rgba(13, 110, 253, 0.1) 0%, rgba(255,255,255,0) 100%);
-        border-left: 4px solid #0d6efd; /* Thanh xanh */
-    }
-
-    .filter-group {
-        padding: 10px 15px;
-        border-left: 3px solid transparent;
-        transition: all 0.3s ease;
-        border-radius: 0 8px 8px 0;
-    }
-    .filter-group:hover { background-color: rgba(13, 110, 253, 0.05); }
-    .filter-group.active {
-        border-left: 4px solid #0d6efd; /* Thanh xanh */
-        background: linear-gradient(90deg, rgba(13, 110, 253, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
-    }
-    .filter-group.active .fw-bold { color: #0d6efd; }
-
     @keyframes shake-action {
         0%, 100% { transform: translateX(0) scale(1.1); }
         25% { transform: translateX(-2px) scale(1.1); }
         50% { transform: translateX(2px) scale(1.1); }
         75% { transform: translateX(-2px) scale(1.1); }
     }
-    .product-card .btn-action { transition: all 0.3s ease; }
+    .product-card .btn-action {
+        transition: all 0.3s ease;
+    }
     .product-card .btn-action:hover {
         transform: scale(1.1);
         animation: shake-action 0.4s ease-in-out;
@@ -244,6 +250,7 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
     }
 </style>
 
+<!-- Header Banner -->
 <div class="container" style="padding-top: 100px;">
     <div class="p-5 rounded-4 text-white position-relative overflow-hidden shadow-lg"
         style="background: linear-gradient(135deg, #0f172a 0%, #334155 100%);">
@@ -255,7 +262,9 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
     </div>
 </div>
 
+<!-- Main Content -->
 <div class="container pt-4 my-5">
+    <!-- NEW: Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
@@ -268,8 +277,9 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
             <?php endif; ?>
         </ol>
     </nav>
-    
     <div class="row g-4">
+
+        <!-- Sidebar Filters -->
         <div class="col-lg-3">
             <div class="sidebar-glass">
                 <div class="filter-title">
@@ -277,100 +287,60 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                     <a href="Product.php" class="text-decoration-none text-muted small" style="font-size: 0.8rem;">Xóa lọc</a>
                 </div>
 
+                <!-- Search -->
                 <form action="Product.php" method="GET" class="mb-4" id="searchFormSidebar">
                     <div class="input-group">
                         <input type="text" name="keyword" class="form-control border-end-0 bg-light" placeholder="Tìm trong trang..." value="<?php echo isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : ''; ?>">
                         <button class="btn btn-light border border-start-0" type="submit"><i class="fas fa-search text-muted"></i></button>
                     </div>
-                    <?php 
-                    foreach ($_GET as $key => $val) {
-                        if ($key != 'keyword' && $key != 'page') {
-                            echo '<input type="hidden" name="' . htmlspecialchars($key) . '" value="' . htmlspecialchars($val) . '">';
-                        }
-                    }
-                    ?>
                 </form>
 
+                <!-- Categories -->
                 <div class="mb-4">
                     <h6 class="fw-bold mb-3">Thể loại</h6>
-                    <div class="d-flex flex-column">
                     <?php
                     foreach ($categories as $cat) {
-                        $is_active = ($current_category == $cat['slug']);
-                        $active_class = $is_active ? 'active' : '';
+                        $active_class = ($current_category == $cat['slug']) ? 'fw-bold text-primary' : 'text-dark';
                         $cat_name = htmlspecialchars($cat['name']);
-                        
-                        // --- FIX QUAN TRỌNG: Gộp tham số hiện tại ($_GET) vào link mới ---
-                        // Việc này giúp giữ lại giá (min_price, max_price) khi bấm chọn thể loại
-                        $linkParams = array_merge($_GET, [
-                            'category' => $cat['slug'],
-                            'page' => 1
-                        ]);
-                        $link = 'Product.php?' . http_build_query($linkParams);
-                        // -----------------------------------------------------------------
-
-                        echo '<a href="' . $link . '" class="filter-item ' . $active_class . '">';
-                        echo '<span>' . $cat_name . '</span>';
-                        echo '<span class="small opacity-75">' . $cat['count'] . '</span>';
-                        echo '</a>';
+                        echo '<div class="mb-2"><a href="Product.php?category=' . urlencode($cat['slug']) . '" class="text-decoration-none ' . $active_class . ' d-flex justify-content-between"><span>' . $cat_name . '</span> <span class="small opacity-75">' . $cat['count'] . '</span></a></div>';
                     }
                     ?>
-                    </div>
                 </div>
 
+                <!-- Publishers -->
                 <div class="mb-4">
                     <h6 class="fw-bold mb-3">Nhà xuất bản</h6>
-                    <div style="max-height: 200px; overflow-y: auto; padding-right: 5px;">
-                        <div class="d-flex flex-column">
+                    <div style="max-height: 200px; overflow-y: auto;">
                         <?php
                         foreach ($publishers as $pub_name) {
-                            $is_active = ($current_publisher == $pub_name);
-                            $active_class = $is_active ? 'active' : '';
-                            
-                            // --- FIX QUAN TRỌNG: Gộp tham số hiện tại ($_GET) vào link mới ---
-                            $linkParams = array_merge($_GET, [
-                                'publisher' => $pub_name,
-                                'page' => 1
-                            ]);
-                            $link = 'Product.php?' . http_build_query($linkParams);
-                            // -----------------------------------------------------------------
-
-                            echo '<a href="' . $link . '" class="filter-item ' . $active_class . '">';
-                            echo '<span>' . htmlspecialchars($pub_name) . '</span>';
-                            echo '</a>';
+                            $active_class = ($current_publisher == $pub_name) ? 'fw-bold text-primary' : 'text-dark';
+                            echo '<div class="mb-2"><a href="Product.php?publisher=' . urlencode($pub_name) . '" class="text-decoration-none ' . $active_class . ' d-flex justify-content-between"><span>' . htmlspecialchars($pub_name) . '</span></a></div>';
                         }
                         ?>
-                        </div>
                     </div>
                 </div>
 
                 <form id="filterForm" action="Product.php" method="GET">
-                    <?php 
-                    foreach ($_GET as $key => $val) {
-                        if (!in_array($key, ['min_price', 'max_price', 'rating', 'sort', 'page'])) {
-                            echo '<input type="hidden" name="'.htmlspecialchars($key).'" value="'.htmlspecialchars($val).'">';
-                        }
-                    }
-                    ?>
+                    <!-- Hidden inputs for existing filters -->
+                    <?php if (!empty($current_category)) echo '<input type="hidden" name="category" value="' . htmlspecialchars($current_category) . '">'; ?>
+                    <?php if (isset($_GET['keyword'])) echo '<input type="hidden" name="keyword" value="' . htmlspecialchars($_GET['keyword']) . '">'; ?>
+                    <?php if (isset($_GET['sort'])) echo '<input type="hidden" name="sort" value="' . htmlspecialchars($_GET['sort']) . '">'; ?>
+                    <?php if (isset($_GET['rating'])) echo '<input type="hidden" name="rating" value="' . htmlspecialchars($_GET['rating']) . '">'; ?>
+                    <?php if (!empty($current_publisher)) echo '<input type="hidden" name="publisher" value="' . htmlspecialchars($current_publisher) . '">'; ?>
 
-                    <?php
-                    $is_price_filtered = false;
-                    // Kiểm tra biến đã xử lý ở đầu file
-                    if ((isset($min_price_get) && $min_price_get > 0) || (isset($max_price_get) && $max_price_get < 1000000)) {
-                        $is_price_filtered = true;
-                    }
-                    ?>
-                    <div class="mb-4 filter-group <?php echo $is_price_filtered ? 'active' : ''; ?>">
+                    <!-- Price Range -->
+                    <div class="mb-4">
                         <h6 class="fw-bold mb-3">Khoảng giá</h6>
                         <div id="price-slider" class="my-4"></div>
                         <div class="d-flex justify-content-between small text-muted">
                             <span id="min-price-display">0đ</span>
                             <span id="max-price-display">1,000,000đ</span>
                         </div>
-                        <input type="hidden" name="min_price" id="min_price" value="<?php echo isset($min_price_get) ? $min_price_get : 0; ?>">
-                        <input type="hidden" name="max_price" id="max_price" value="<?php echo isset($max_price_get) ? $max_price_get : 1000000; ?>">
+                        <input type="hidden" name="min_price" id="min_price" value="<?php echo isset($_GET['min_price']) ? $_GET['min_price'] : '0'; ?>">
+                        <input type="hidden" name="max_price" id="max_price" value="<?php echo isset($_GET['max_price']) ? $_GET['max_price'] : '1000000'; ?>">
                     </div>
 
+                    <!-- Rating -->
                     <div class="mb-4">
                         <h6 class="fw-bold mb-3">Đánh giá</h6>
                         <div class="form-check">
@@ -387,21 +357,18 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
             </div>
         </div>
 
+        <!-- Product Grid -->
         <div class="col-lg-9">
+            <!-- Toolbar -->
             <div class="d-flex justify-content-between align-items-center mb-4 p-3 rounded-3" style="background: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.5);">
                 <div class="text-muted small">
                     Tìm thấy <b><?php echo $number_of_results; ?></b> kết quả
                 </div>
                 <div class="d-flex gap-2 align-items-center">
                     <form id="sortForm" action="Product.php" method="GET" class="d-flex align-items-center">
-                        <?php 
-                        // Giữ các tham số khi sort
-                        foreach ($_GET as $key => $val) {
-                            if ($key != 'sort' && $key != 'page') {
-                                echo '<input type="hidden" name="' . htmlspecialchars($key) . '" value="' . htmlspecialchars($val) . '">';
-                            }
-                        }
-                        ?>
+                        <?php foreach ($urlParams as $key => $value) {
+                            if ($key != 'sort') echo '<input type="hidden" name="' . htmlspecialchars($key) . '" value="' . htmlspecialchars($value) . '">';
+                        } ?>
                         <select name="sort" class="form-select form-select-sm border-0 bg-white shadow-sm" style="width: 150px;" onchange="this.form.submit()">
                             <option value="newest" <?php if ($sort_option == 'newest') echo 'selected'; ?>>Mới nhất</option>
                             <option value="price_asc" <?php if ($sort_option == 'price_asc') echo 'selected'; ?>>Giá tăng dần</option>
@@ -416,11 +383,15 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                 </div>
             </div>
 
+            <!-- Products Loop -->
             <div class="row g-4" id="productsContainer">
                 <?php
                 if (mysqli_num_rows($result) > 0) {
                     while ($row = mysqli_fetch_array($result)) {
                         $img = "img/books/" . $row['PID'] . ".jpg";
+                        // Fallback image logic
+
+                        // Tính giảm giá giả lập nếu chưa có
                         $discount_html = "";
                         if ($row['Discount'] > 0) {
                             $discount_html = '<span class="badge bg-danger position-absolute top-0 start-0 m-3 shadow-sm">-' . $row['Discount'] . '%</span>';
@@ -429,6 +400,7 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                         <div class="col-md-4 col-sm-6 product-item">
                             <div class="product-card">
                                 <?php echo $discount_html; ?>
+
                                 <div class="card-img-top-wrapper">
                                     <img src="<?php echo $img; ?>" onerror="this.src='https://placehold.co/400x600/eee/31343C?text=No+Image'" alt="<?php echo $row['Title']; ?>">
                                     <div class="card-actions">
@@ -437,13 +409,19 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                                         <button onclick="addToCartAjax('<?php echo $row['PID']; ?>', 1)" class="btn-action" title="Thêm vào giỏ" data-bs-toggle="tooltip"><i class="fas fa-cart-plus"></i></button>
                                     </div>
                                 </div>
+
                                 <div class="card-body-glass">
                                     <div class="book-category"><?php echo $category_translations[strtolower($row['Category'])] ?? ucfirst($row['Category']); ?></div>
                                     <h5 class="book-title text-truncate" title="<?php echo htmlspecialchars($row['Title']); ?>">
                                         <a href="description.php?ID=<?php echo $row['PID']; ?>" class="text-decoration-none text-dark"><?php echo $row['Title']; ?></a>
                                     </h5>
                                     <div class="book-author text-truncate">Tác giả: <?php echo $row['Author']; ?></div>
-                                    <p class="book-desc d-none"><?php echo substr($row['Description'], 0, 150) . '...'; ?></p>
+
+                                    <!-- Mô tả ngắn chỉ hiện ở List View -->
+                                    <p class="book-desc d-none">
+                                        <?php echo substr($row['Description'], 0, 150) . '...'; ?>
+                                    </p>
+
                                     <div class="price-wrapper">
                                         <div>
                                             <span class="current-price"><?php echo number_format($row['Price']); ?> đ</span>
@@ -466,39 +444,33 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                 ?>
             </div>
 
+            <!-- Pagination -->
             <div class="mt-5 d-flex justify-content-center">
                 <nav>
                     <ul class="pagination">
-                        <?php 
-                        // Tạo base params cho phân trang từ $_GET để giữ nguyên tất cả filter
-                        $paginationParams = $_GET;
-                        ?>
-                        <?php if ($page > 1) { 
-                            $paginationParams['page'] = $page - 1;
-                        ?>
-                            <li class="page-item"><a class="page-link" href="Product.php?<?php echo http_build_query($paginationParams); ?>"><i class="fas fa-chevron-left"></i></a></li>
+                        <?php if ($page > 1) { ?>
+                            <li class="page-item"><a class="page-link" href="Product.php?<?php echo $pagination_query_string . ($page - 1); ?>"><i class="fas fa-chevron-left"></i></a></li>
                         <?php } ?>
 
                         <?php
                         for ($i = 1; $i <= $number_of_pages; $i++) {
-                            $paginationParams['page'] = $i;
                             $active = ($i == $page) ? 'active' : '';
-                            echo '<li class="page-item ' . $active . '"><a class="page-link" href="Product.php?' . http_build_query($paginationParams) . '">' . $i . '</a></li>';
+                            echo '<li class="page-item ' . $active . '"><a class="page-link" href="Product.php?' . $pagination_query_string . $i . '">' . $i . '</a></li>';
                         }
                         ?>
 
-                        <?php if ($page < $number_of_pages) { 
-                            $paginationParams['page'] = $page + 1;
-                        ?>
-                            <li class="page-item"><a class="page-link" href="Product.php?<?php echo http_build_query($paginationParams); ?>"><i class="fas fa-chevron-right"></i></a></li>
+                        <?php if ($page < $number_of_pages && $number_of_pages > 1) { ?>
+                            <li class="page-item"><a class="page-link" href="Product.php?<?php echo $pagination_query_string . ($page + 1); ?>"><i class="fas fa-chevron-right"></i></a></li>
                         <?php } ?>
                     </ul>
                 </nav>
             </div>
+
         </div>
     </div>
 </div>
 
+<!-- Quick View Modal (Bootstrap 5) -->
 <div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 rounded-4 overflow-hidden" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
@@ -513,7 +485,8 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                         <h3 class="fw-bold font-playfair mb-1" id="qv-title">Tên sách</h3>
                         <p class="text-muted fst-italic mb-3" id="qv-author">Tên tác giả</p>
                         <h4 class="text-primary fw-bold mb-3" id="qv-price">100.000 đ</h4>
-                        <p class="small text-muted mb-4" id="qv-desc">Mô tả ngắn.</p>
+                        <p class="small text-muted mb-4" id="qv-desc">Mô tả ngắn của sách sẽ được hiển thị ở đây để người dùng có cái nhìn tổng quan nhanh chóng.</p>
+
                         <div class="d-flex gap-2">
                             <a href="#" id="qv-add-cart" class="btn btn-dark rounded-pill px-4 flex-grow-1">Thêm vào giỏ</a>
                             <a href="#" id="qv-detail" class="btn btn-outline-dark rounded-pill px-4">Xem chi tiết</a>
@@ -526,31 +499,33 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
 </div>
 
 <script>
-    // Grid/List View Logic
+    // Grid/List View Toggle Logic
     const container = document.getElementById('productsContainer');
     const btnGrid = document.getElementById('btnGridView');
     const btnList = document.getElementById('btnListView');
     const items = document.querySelectorAll('.product-item');
 
-    if (btnList) {
-        btnList.addEventListener('click', () => {
-            container.classList.add('list-view');
-            items.forEach(item => { item.className = 'col-12 product-item'; });
-            btnList.classList.add('active');
-            btnGrid.classList.remove('active');
+    btnList.addEventListener('click', () => {
+        container.classList.add('list-view');
+        // Change column classes for list view
+        items.forEach(item => {
+            item.className = 'col-12 product-item'; // Full width for list
         });
-    }
+        btnList.classList.add('active');
+        btnGrid.classList.remove('active');
+    });
 
-    if (btnGrid) {
-        btnGrid.addEventListener('click', () => {
-            container.classList.remove('list-view');
-            items.forEach(item => { item.className = 'col-md-4 col-sm-6 product-item'; });
-            btnGrid.classList.add('active');
-            btnList.classList.remove('active');
+    btnGrid.addEventListener('click', () => {
+        container.classList.remove('list-view');
+        // Restore column classes for grid view
+        items.forEach(item => {
+            item.className = 'col-md-4 col-sm-6 product-item';
         });
-    }
+        btnGrid.classList.add('active');
+        btnList.classList.remove('active');
+    });
 
-    // Tooltips
+    // Initialize Tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
@@ -565,12 +540,8 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
             const minPriceDisplay = document.getElementById('min-price-display');
             const maxPriceDisplay = document.getElementById('max-price-display');
 
-            // Parse giá trị ban đầu an toàn
-            const startMin = parseInt(minPriceInput.value) || 0;
-            const startMax = parseInt(maxPriceInput.value) || 1000000;
-
             noUiSlider.create(priceSlider, {
-                start: [startMin, startMax],
+                start: [parseInt(minPriceInput.value), parseInt(maxPriceInput.value)],
                 connect: true,
                 range: {
                     'min': 0,
