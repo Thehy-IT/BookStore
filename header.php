@@ -1,9 +1,15 @@
 <?php
-session_start();
+    // session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+error_reporting(0); 
+ini_set('display_errors', 0);
+
+// Khởi tạo biến swal_script rỗng để header không báo lỗi "Undefined variable"
+$swal_script = "";
 
 include "dbconnect.php";
-
-$swal_script = "";
 
 function set_swal($icon, $title, $text = "", $is_toast = false)
 {
@@ -484,6 +490,22 @@ if (isset($_SESSION['user_id'])) {
 
                 setTimeout(forceState, 100);
             });
+            // --- 2. XỬ LÝ PRELOADER (Tắt màn hình chờ khi tải xong) ---
+            const preloader = document.getElementById('preloader');
+            if(preloader) {
+                // Đợi khi toàn bộ trang tải xong (bao gồm ảnh) thì ẩn preloader
+                window.addEventListener('load', function() {
+                    preloader.style.opacity = '0';
+                    setTimeout(function(){
+                        preloader.style.display = 'none';
+                    }, 500); // Đợi hiệu ứng mờ dần kết thúc
+                });
+                
+                // Fallback: Nếu mạng lag quá, tự tắt sau 3 giây
+                setTimeout(function(){
+                     preloader.style.display = 'none';
+                }, 3000);
+            }
         });
     </script>
 </body>
