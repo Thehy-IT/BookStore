@@ -135,6 +135,30 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
     .marquee-track .btn {
         transition: all 0.2s ease-in-out;
     }
+
+    /* CSS cho hiệu ứng gõ chữ */
+    #typewriter-container .cursor {
+        display: inline-block;
+        width: 3px;
+        height: 1.5rem;
+        /* Điều chỉnh cho phù hợp với kích thước font */
+        background-color: var(--primary);
+        animation: blink 0.7s infinite;
+        vertical-align: middle;
+        margin-left: 4px;
+    }
+
+    @keyframes blink {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+    }
 </style>
 
 <!-- ============== Hero Section ==============-->
@@ -145,8 +169,9 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                 <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill">Bán Chạy Nhất 2025</span>
                 <h1 class="display-4 fw-bold mb-3">Khám Phá Cuốn Sách <span
                         style="color: var(--accent); font-style: italic;">Tuyệt Vời</span></h1>
-                <p class="lead text-muted mb-4">Khám phá bộ sưu tập sách cao cấp được tuyển chọn của chúng tôi từ khắp
-                    nơi trên thế giới.</p>
+                <p class="lead text-muted mb-4" id="typewriter-container" style="height: 6rem;">
+                    <span id="typewriter-text"></span><span class="cursor"></span>
+                </p>
                 <a href="#new" class="btn btn-primary-glass btn-lg">Khám Phá Ngay <i
                         class="fas fa-arrow-right ms-2"></i></a>
                 <div class="mt-5">
@@ -257,6 +282,34 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
         </div>
     </div>
 </div>
+
+<script>
+    // Hiệu ứng gõ chữ
+    document.addEventListener('DOMContentLoaded', function () {
+        const textElement = document.getElementById('typewriter-text');
+        const textToType = "Khám phá bộ sưu tập sách cao cấp được tuyển chọn của chúng tôi từ khắp nơi trên thế giới.";
+        let index = 0;
+
+        function type() {
+            if (index < textToType.length) {
+                textElement.innerHTML += textToType.charAt(index);
+                index++;
+                setTimeout(type, 50); // Tốc độ gõ chữ (ms)
+            } else {
+                // Tùy chọn: Bắt đầu lại sau khi gõ xong
+                setTimeout(() => {
+                    textElement.innerHTML = '';
+                    index = 0;
+                    type();
+                }, 5000); // Chờ 5 giây trước khi gõ lại
+            }
+        }
+
+        if (textElement) {
+            type();
+        }
+    });
+</script>
 
 <!-- ============== Promotions Cards ==============-->
 <div class="container mt-5 mb-5">
@@ -440,34 +493,34 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                 $badge_text = 'MỚI';
             }
             ?>
-            <div class="col book-item">
-                <div class="book-card-glass h-100 d-flex flex-column">
-                    <div class="badge-glass <?php echo $badge_class; ?>"><span><?php echo $badge_text; ?></span></div>
-                    <div class="book-img-wrapper">
-                        <img src="<?php echo $img_path; ?>"
-                            onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'"
-                            alt="<?php echo htmlspecialchars($book['Title']); ?>">
-                        <div class="action-overlay">
-                            <button onclick="addToCartAjax('<?php echo $pid; ?>', 1)" class="btn-icon"
-                                title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></button>
-                            <button onclick='openQuickView(<?php echo json_encode($book); ?>)' class="btn-icon"
-                                title="Xem nhanh"><i class="fas fa-eye"></i></button>
-                            <button onclick="addToWishlist('<?php echo $pid; ?>')" class="btn-icon" title="Yêu thích"><i
-                                    class="fas fa-heart"></i></button>
+                <div class="col book-item">
+                    <div class="book-card-glass h-100 d-flex flex-column">
+                        <div class="badge-glass <?php echo $badge_class; ?>"><span><?php echo $badge_text; ?></span></div>
+                        <div class="book-img-wrapper">
+                            <img src="<?php echo $img_path; ?>"
+                                onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'"
+                                alt="<?php echo htmlspecialchars($book['Title']); ?>">
+                            <div class="action-overlay">
+                                <button onclick="addToCartAjax('<?php echo $pid; ?>', 1)" class="btn-icon"
+                                    title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></button>
+                                <button onclick='openQuickView(<?php echo json_encode($book); ?>)' class="btn-icon"
+                                    title="Xem nhanh"><i class="fas fa-eye"></i></button>
+                                <button onclick="addToWishlist('<?php echo $pid; ?>')" class="btn-icon" title="Yêu thích"><i
+                                        class="fas fa-heart"></i></button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mt-auto">
-                        <h6 class="fw-bold text-truncate" title="<?php echo htmlspecialchars($book['Title']); ?>">
-                            <a href="description.php?ID=<?php echo $pid; ?>"
-                                class="text-decoration-none text-dark"><?php echo htmlspecialchars($book['Title']); ?></a>
-                        </h6>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-primary fw-bold"><?php echo number_format($book['Price']); ?> đ</span>
-                            <div class="text-warning small"><i class="fas fa-star"></i> 4.8</div>
+                        <div class="mt-auto">
+                            <h6 class="fw-bold text-truncate" title="<?php echo htmlspecialchars($book['Title']); ?>">
+                                <a href="description.php?ID=<?php echo $pid; ?>"
+                                    class="text-decoration-none text-dark"><?php echo htmlspecialchars($book['Title']); ?></a>
+                            </h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-primary fw-bold"><?php echo number_format($book['Price']); ?> đ</span>
+                                <div class="text-warning small"><i class="fas fa-star"></i> 4.8</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
         <?php } ?>
     </div>
 
@@ -534,16 +587,16 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
         while ($author = mysqli_fetch_assoc($featured_authors_result)):
             $author_avatar = !empty($author['image_url']) ? htmlspecialchars($author['image_url']) : "https://ui-avatars.com/api/?name=" . urlencode($author['name']) . "&background=d2af37&color=fff&size=120&font-size=0.33&bold=true";
             ?>
-            <div class="col-lg-3 col-md-6">
-                <a href="author.php?value=<?php echo urlencode($author['name']); ?>" class="text-decoration-none">
-                    <div class="author-card h-100">
-                        <img src="<?php echo $author_avatar; ?>"
-                            alt="Tác giả <?php echo htmlspecialchars($author['name']); ?>" class="author-avatar">
-                        <h5 class="author-name mb-1"><?php echo htmlspecialchars($author['name']); ?></h5>
-                        <p class="author-book-count mb-0"><?php echo $author['book_count']; ?> tác phẩm</p>
-                    </div>
-                </a>
-            </div>
+                <div class="col-lg-3 col-md-6">
+                    <a href="author.php?value=<?php echo urlencode($author['name']); ?>" class="text-decoration-none">
+                        <div class="author-card h-100">
+                            <img src="<?php echo $author_avatar; ?>"
+                                alt="Tác giả <?php echo htmlspecialchars($author['name']); ?>" class="author-avatar">
+                            <h5 class="author-name mb-1"><?php echo htmlspecialchars($author['name']); ?></h5>
+                            <p class="author-book-count mb-0"><?php echo $author['book_count']; ?> tác phẩm</p>
+                        </div>
+                    </a>
+                </div>
         <?php endwhile; ?>
     </div>
 </div>
@@ -569,31 +622,31 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                     $pid = htmlspecialchars($book['PID']);
                     $img_path = "img/books/" . $pid . ".jpg";
                     ?>
-                    <div class="swiper-slide">
-                        <div class="bestseller-card position-relative text-center">
-                            <div class="rank-number"><?php echo str_pad($rank++, 2, '0', STR_PAD_LEFT); ?></div>
-                            <div class="book-card-glass border-0 bg-transparent shadow-none">
-                                <div class="book-img-wrapper shadow-lg mb-3">
-                                    <img src="<?php echo $img_path; ?>"
-                                        onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
-                                </div>
-                                <h5 class="fw-bold mt-3 text-truncate"
-                                    title="<?php echo htmlspecialchars($book['Title']); ?>">
-                                    <?php echo htmlspecialchars($book['Title']); ?>
-                                </h5>
-                                <p class="text-muted small">Tác giả: <?php echo htmlspecialchars($book['Author']); ?></p>
-                                <div class="btn-group">
-                                    <a href="description.php?ID=<?php echo $pid; ?>"
-                                        class="btn btn-outline-dark rounded-pill btn-sm px-3">Chi tiết</a>
-                                    <button onclick='openQuickView(<?php echo json_encode($book); ?>)'
-                                        class="btn btn-outline-dark rounded-pill btn-sm px-3" title="Xem nhanh">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
+                        <div class="swiper-slide">
+                            <div class="bestseller-card position-relative text-center">
+                                <div class="rank-number"><?php echo str_pad($rank++, 2, '0', STR_PAD_LEFT); ?></div>
+                                <div class="book-card-glass border-0 bg-transparent shadow-none">
+                                    <div class="book-img-wrapper shadow-lg mb-3">
+                                        <img src="<?php echo $img_path; ?>"
+                                            onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
+                                    </div>
+                                    <h5 class="fw-bold mt-3 text-truncate"
+                                        title="<?php echo htmlspecialchars($book['Title']); ?>">
+                                        <?php echo htmlspecialchars($book['Title']); ?>
+                                    </h5>
+                                    <p class="text-muted small">Tác giả: <?php echo htmlspecialchars($book['Author']); ?></p>
+                                    <div class="btn-group">
+                                        <a href="description.php?ID=<?php echo $pid; ?>"
+                                            class="btn btn-outline-dark rounded-pill btn-sm px-3">Chi tiết</a>
+                                        <button onclick='openQuickView(<?php echo json_encode($book); ?>)'
+                                            class="btn btn-outline-dark rounded-pill btn-sm px-3" title="Xem nhanh">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <?php
+                        <?php
                 }
                 ?>
             </div>
@@ -642,18 +695,22 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                                 transform: translateX(0);
                             }
 
-                            25%, 75% {
+                            25%,
+                            75% {
                                 transform: translateX(-5px);
                             }
+
                             50% {
                                 transform: translateX(5px);
                             }
                         }
+
                         .shake-on-hover:hover {
                             animation: shake-horizontal 0.5s ease-in-out;
                         }
                     </style>
-                    <a href="description.php?ID=LIT-20" class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-primary shake-on-hover">Mua Ngay</a>
+                    <a href="description.php?ID=LIT-20"
+                        class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-primary shake-on-hover">Mua Ngay</a>
                 </div>
             </div>
             <div class="col-lg-6 d-none d-lg-block" style="height: 100%;">
