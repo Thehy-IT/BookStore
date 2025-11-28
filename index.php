@@ -634,8 +634,26 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                         </div>
                     </div>
 
-                    <a href="description.php?ID=LIT-20"
-                        class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-primary">Mua Ngay</a>
+                    <style>
+                        @keyframes shake-horizontal {
+
+                            0%,
+                            100% {
+                                transform: translateX(0);
+                            }
+
+                            25%, 75% {
+                                transform: translateX(-5px);
+                            }
+                            50% {
+                                transform: translateX(5px);
+                            }
+                        }
+                        .shake-on-hover:hover {
+                            animation: shake-horizontal 0.5s ease-in-out;
+                        }
+                    </style>
+                    <a href="description.php?ID=LIT-20" class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-primary shake-on-hover">Mua Ngay</a>
                 </div>
             </div>
             <div class="col-lg-6 d-none d-lg-block" style="height: 100%;">
