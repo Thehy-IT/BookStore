@@ -46,19 +46,19 @@ function set_swal($icon, $title, $text = "", $is_toast = false)
 
 if ($con) {
     if (isset($_POST['login'])) {
-        $identity = $_POST['login_identity'] ?? ''; // Có thể là username hoặc email
+        $identity = trim($_POST['login_identity'] ?? ''); // Có thể là username hoặc email
         $password_input = $_POST['login_password'] ?? '';
 
         if (empty($identity) || empty($password_input)) {
             $swal_script = set_swal('warning', 'Thiếu thông tin', 'Vui lòng nhập đầy đủ thông tin đăng nhập.');
         } else {
-
             // 1. Cho phép đăng nhập bằng cả UserName hoặc Email
             $stmt = $con->prepare("SELECT * FROM users WHERE UserName = ? OR Email = ?");
             if ($stmt) {
                 $stmt->bind_param("ss", $identity, $identity);
                 $stmt->execute();
                 $result = $stmt->get_result();
+
                 if ($result && $result->num_rows > 0) {
                     $row = $result->fetch_assoc(); // Lấy thông tin người dùng
 
@@ -72,18 +72,18 @@ if ($con) {
                             header("Location: admin.php");
                             exit();
                         } else {
-                            // Đặt thông báo chào mừng và tải lại trang
+                            // Đặt thông báo chào mừng và tải lại trang hiện tại
                             $_SESSION['flash_message'] = "Đăng nhập thành công! Chào mừng trở lại, " . htmlspecialchars($row['UserName']) . ".";
                             $_SESSION['flash_type'] = "success";
                             header("Location: " . $_SERVER['PHP_SELF']); // Tải lại trang hiện tại
                             exit();
                         }
                     } else {
-                        // Thông báo chung để tránh dò tên người dùng
+                        // Mật khẩu sai. Thông báo chung để tránh dò tên người dùng.
                         $swal_script = set_swal('error', 'Đăng nhập thất bại', 'Tên đăng nhập hoặc mật khẩu không chính xác.');
                     }
                 } else {
-                    // Thông báo chung để tránh dò tên người dùng
+                    // Tên đăng nhập/email không tồn tại. Thông báo chung.
                     $swal_script = set_swal('error', 'Đăng nhập thất bại', 'Tên đăng nhập hoặc mật khẩu không chính xác.');
                 }
                 $stmt->close();
