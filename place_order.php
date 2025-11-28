@@ -128,11 +128,27 @@ try {
     // Xóa session sản phẩm đã chọn
     unset($_SESSION['selected_products_for_order']);
 
-    // 8. CHUYỂN HƯỚNG THÀNH CÔNG
-    $_SESSION['flash_message'] = 'Đặt hàng thành công! Cảm ơn bạn đã mua sắm.';
-    $_SESSION['flash_type'] = 'success';
-    header("Location: order_tracking.php?id=" . $order_id);
-    exit();
+    // 8. CHUYỂN HƯỚNG DỰA TRÊN PHƯƠNG THỨC THANH TOÁN
+    if ($payment_method == 'cod') {
+        // Đối với COD, chuyển hướng đến trang theo dõi đơn hàng như cũ
+        $_SESSION['flash_message'] = 'Đặt hàng thành công! Cảm ơn bạn đã mua sắm.';
+        $_SESSION['flash_type'] = 'success';
+        header("Location: order_tracking.php?id=" . $order_id);
+        exit();
+    } else {
+        // Đối với các phương thức thanh toán online khác (Momo, ZaloPay, VNPAY,...)
+        // Chuyển hướng đến một trang xử lý thanh toán của bên thứ ba.
+        // Trang này sẽ chứa logic để gọi API của các cổng thanh toán.
+        // Ta truyền order_id, tổng tiền và phương thức thanh toán qua URL.
+        $redirect_url = sprintf(
+            "handle_payment.php?order_id=%d&amount=%s&method=%s",
+            $order_id,
+            $final_total_amount,
+            $payment_method
+        );
+        header("Location: " . $redirect_url);
+        exit();
+    }
 
 } catch (Exception $e) {
     // ROLLBACK TRANSACTION nếu có lỗi
