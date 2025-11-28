@@ -94,7 +94,8 @@ if (isset($_SESSION['flash_message'])) {
 <!-- ============== Wishlist Content ==============-->
 <div class="container" style="padding-top: 100px; padding-bottom: 50px;">
     <!-- NEW: Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
+    <nav aria-label="breadcrumb" class="mb-4"
+        style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
             <li class="breadcrumb-item active" aria-current="page">Danh sách yêu thích</li>
@@ -116,44 +117,56 @@ if (isset($_SESSION['flash_message'])) {
             <p class="text-muted">Bộ sưu tập những cuốn sách bạn yêu thích.</p>
         </div>
         <div class="d-flex align-items-center">
-            <?php if ($wishlist_result->num_rows > 0) : ?>
-                <button onclick="confirmClearAll()" class="btn btn-outline-danger rounded-pill me-2"><i class="fas fa-trash-alt me-1"></i> Xóa tất cả</button>
-                <a href="wishlist_action.php?action=add_all_to_cart" class="btn btn-primary rounded-pill me-2"><i class="fas fa-cart-plus me-1"></i> Thêm tất cả vào giỏ</a>
+            <?php if ($wishlist_result->num_rows > 0): ?>
+                <button onclick="confirmClearAll()" class="btn btn-outline-danger rounded-pill me-2"><i
+                        class="fas fa-trash-alt me-1"></i> Xóa tất cả</button>
+                <a href="wishlist_action.php?action=add_all_to_cart" class="btn btn-primary rounded-pill me-2"><i
+                        class="fas fa-cart-plus me-1"></i> Thêm tất cả vào giỏ</a>
             <?php endif; ?>
-            <a href="index.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Quay lại cửa hàng</a>
+            <a href="index.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Quay lại cửa
+                hàng</a>
         </div>
     </div>
 
     <div class="row g-4">
-        <?php if ($wishlist_result->num_rows > 0) : ?>
-            <?php while ($row = $wishlist_result->fetch_assoc()) :
+        <?php if ($wishlist_result->num_rows > 0): ?>
+            <?php while ($row = $wishlist_result->fetch_assoc()):
                 $path = "img/books/" . $row['PID'] . ".jpg";
                 $link = "description.php?ID=" . $row["PID"];
-            ?>
+                ?>
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="book-card">
                         <a href="<?php echo $link; ?>">
-                            <img src="<?php echo $path; ?>" class="book-img" alt="<?php echo htmlspecialchars($row['Title']); ?>" onerror="this.src='https://placehold.co/400x600?text=No+Image'">
+                            <img src="<?php echo $path; ?>" class="book-img"
+                                alt="<?php echo htmlspecialchars($row['Title']); ?>"
+                                onerror="this.src='https://placehold.co/400x600?text=No+Image'">
                         </a>
-                        <h5 class="book-title"><a href="<?php echo $link; ?>" class="text-decoration-none text-dark"><?php echo htmlspecialchars($row['Title']); ?></a></h5>
-                        <p class="text-muted small mb-2"><i class="fas fa-pen-nib me-1"></i> <?php echo htmlspecialchars($row['Author']); ?></p>
+                        <h5 class="book-title"><a href="<?php echo $link; ?>"
+                                class="text-decoration-none text-dark"><?php echo htmlspecialchars($row['Title']); ?></a></h5>
+                        <p class="text-muted small mb-2"><i class="fas fa-pen-nib me-1"></i>
+                            <?php echo htmlspecialchars($row['Author']); ?></p>
                         <div class="price-tag mb-3"><?php echo number_format($row['Price']); ?> đ</div>
 
                         <div class="card-footer-actions d-flex gap-2" style="z-index: 2; position: relative;">
-                            <a href="wishlist_action.php?action=add_to_cart&id=<?php echo $row['PID']; ?>" class="btn btn-sm btn-primary flex-grow-1" title="Thêm vào giỏ hàng"><i class="fas fa-cart-plus"></i></a>
-                            <a href="wishlist_action.php?action=remove&id=<?php echo $row['PID']; ?>" class="btn btn-sm btn-outline-danger" title="Xóa khỏi danh sách yêu thích"><i class="fas fa-trash-alt"></i></a>
+                            <a href="wishlist_action.php?action=add_to_cart&id=<?php echo $row['PID']; ?>"
+                                class="btn btn-sm btn-primary flex-grow-1" title="Thêm vào giỏ hàng"><i
+                                    class="fas fa-cart-plus"></i></a>
+                            <a href="wishlist_action.php?action=remove&id=<?php echo $row['PID']; ?>"
+                                class="btn btn-sm btn-outline-danger" title="Xóa khỏi danh sách yêu thích"><i
+                                    class="fas fa-trash-alt"></i></a>
                         </div>
                     </div>
                 </div>
             <?php endwhile; ?>
-        <?php else : ?>
+        <?php else: ?>
             <!-- Empty State -->
             <div class="col-12">
                 <div class="empty-wishlist">
                     <div style="font-size: 4rem; color: #cbd5e1;"><i class="far fa-heart"></i></div>
                     <h3 class="mt-3 text-muted">Danh sách yêu thích của bạn đang trống</h3>
                     <p class="text-muted">Hãy thêm những cuốn sách bạn thích vào đây nhé.</p>
-                    <a href="index.php" class="btn btn-primary rounded-pill px-4 mt-3" style="background: var(--primary);">Xem sách</a>
+                    <a href="index.php" class="btn btn-primary rounded-pill px-4 mt-3"
+                        style="background: var(--primary);">Xem sách</a>
                 </div>
             </div>
         <?php endif; ?>

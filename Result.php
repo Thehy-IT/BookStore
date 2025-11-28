@@ -86,7 +86,8 @@ $keyword = "%{$keyword_raw}%";
     ?>
 
     <!-- NEW: Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
+    <nav aria-label="breadcrumb" class="mb-4"
+        style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
             <li class="breadcrumb-item active" aria-current="page">Tìm kiếm</li>
@@ -96,8 +97,10 @@ $keyword = "%{$keyword_raw}%";
     <!-- Header Result -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <p class="text-muted mb-0">Kết quả tìm kiếm cho: "<strong class="text-dark"><?php echo htmlspecialchars($keyword_raw); ?></strong>"</p>
-            <h2 class="fw-bold" style="font-family: 'Playfair Display', serif;">Tìm thấy <span style="color: var(--accent)"><?php echo $count; ?></span> cuốn sách</h2>
+            <p class="text-muted mb-0">Kết quả tìm kiếm cho: "<strong
+                    class="text-dark"><?php echo htmlspecialchars($keyword_raw); ?></strong>"</p>
+            <h2 class="fw-bold" style="font-family: 'Playfair Display', serif;">Tìm thấy <span
+                    style="color: var(--accent)"><?php echo $count; ?></span> cuốn sách</h2>
         </div>
         <a href="index.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Về trang chủ</a>
     </div>
@@ -110,7 +113,7 @@ $keyword = "%{$keyword_raw}%";
                 $path = "img/books/" . $row['PID'] . ".jpg";
                 // Nếu ảnh lỗi thì dùng ảnh placeholder (tuỳ chọn)
                 $link = "description.php?ID=" . $row["PID"];
-            ?>
+                ?>
                 <div class="col-6 col-md-4 col-lg-3">
                     <a href="<?php echo $link; ?>" class="text-decoration-none text-dark">
                         <div class="book-card">
@@ -120,12 +123,14 @@ $keyword = "%{$keyword_raw}%";
                             <?php endif; ?>
 
                             <!-- Ảnh -->
-                            <img src="<?php echo $path; ?>" class="book-img" alt="<?php echo $row['Title']; ?>" onerror="this.src='https://placehold.co/400x600?text=No+Image'">
+                            <img src="<?php echo $path; ?>" class="book-img" alt="<?php echo $row['Title']; ?>"
+                                onerror="this.src='https://placehold.co/400x600?text=No+Image'">
 
                             <!-- Thông tin -->
                             <div class="mt-2">
                                 <h5 class="book-title"><?php echo $row['Title']; ?></h5>
-                                <p class="text-muted small mb-2"><i class="fas fa-pen-nib me-1"></i> <?php echo $row['Author']; ?></p>
+                                <p class="text-muted small mb-2"><i class="fas fa-pen-nib me-1"></i>
+                                    <?php echo $row['Author']; ?></p>
 
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="price-tag">
