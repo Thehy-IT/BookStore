@@ -199,9 +199,9 @@
                 <ul class="list-unstyled text-white-50">
                     <li class="mb-2"><a href="#" class="text-decoration-none text-white-50 footer-link">Về BookZ</a>
                     </li>
-                    <li class="mb-2"><a href="index.php#contact" class="text-decoration-none text-white-50 footer-link">Liên hệ</a></li>
+                    <li class="mb-2"><a href="faq.php" class="text-decoration-none text-white-50 footer-link">Liên hệ</a></li>
                     <li class="mb-2"><a href="faq.php" class="text-decoration-none text-white-50 footer-link">FAQs</a></li>
-                    <li class="mb-2"><a href="#" class="text-decoration-none text-white-50 footer-link">Chính sách</a>
+                    <li class="mb-2"><a href="policy.php" class="text-decoration-none text-white-50 footer-link">Chính sách</a>
                     </li>
                 </ul>
             </div>
