@@ -130,7 +130,8 @@
         <img src="img/decor/noen1.png" alt="Christmas Decoration"
             style="position: relative; animation: sleigh-ride 25s linear infinite; height: 100px; transform: scaleX(-1);">
     </div>
-    <div id="snowman-family" style="position: absolute; bottom: 0; right: 0; width: 400px; height: 200px; z-index: 3; pointer-events: none;">
+    <div id="snowman-family"
+        style="position: absolute; bottom: 0; right: 0; width: 400px; height: 200px; z-index: 3; pointer-events: none;">
         <!-- Cây thông Noel -->
         <img src="img/decor/noen2.png" alt="Christmas Tree"
             style="position: absolute; bottom: 0; right: 60px; height: 200px;">
@@ -162,10 +163,23 @@
     </style>
     <style>
         @keyframes sway {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(5deg); }
-            50% { transform: rotate(0deg); }
-            75% { transform: rotate(-5deg); }
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            25% {
+                transform: rotate(5deg);
+            }
+
+            50% {
+                transform: rotate(0deg);
+            }
+
+            75% {
+                transform: rotate(-5deg);
+            }
         }
     </style>
     <style>
@@ -271,9 +285,10 @@
             <div class="col-lg-2 col-6">
                 <h5 class="text-warning mb-3">Support</h5>
                 <ul class="list-unstyled text-white-50">
-                    <li class="mb-2"><a href="#" class="text-decoration-none text-white-50 footer-link">Về BookZ</a>
+                    <li class="mb-2"><a href="about.php" class="text-decoration-none text-white-50 footer-link">Về
+                            BookZ</a>
                     </li>
-                    <li class="mb-2"><a href="faq.php" class="text-decoration-none text-white-50 footer-link">Liên
+                    <li class="mb-2"><a href="contact.php" class="text-decoration-none text-white-50 footer-link">Liên
                             hệ</a></li>
                     <li class="mb-2"><a href="faq.php" class="text-decoration-none text-white-50 footer-link">FAQs</a>
                     </li>
