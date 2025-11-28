@@ -1,9 +1,9 @@
 <?php
-    // session_start();
+// session_start();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-error_reporting(0); 
+error_reporting(0);
 ini_set('display_errors', 0);
 
 // Khởi tạo biến swal_script rỗng để header không báo lỗi "Undefined variable"
@@ -102,10 +102,10 @@ $category_translations = [
     'health and cooking' => 'Sức khỏe & Nấu ăn',
     'literature and fiction' => 'Văn học & Hư cấu',
     'regional books' => 'Sách tiếng Việt',
-    'self-help' => 'Phát triển bản thân', 
+    'self-help' => 'Phát triển bản thân',
     'fiction' => 'Tiểu thuyết',
-    'thriller' => 'Kinh dị & Giật gân', 
-    'romance' => 'Lãng mạn', 
+    'thriller' => 'Kinh dị & Giật gân',
+    'romance' => 'Lãng mạn',
     'fantasy' => 'Giả tưởng',
 ];
 
@@ -275,6 +275,28 @@ if (isset($_SESSION['user_id'])) {
     .search-button:hover {
         background: rgba(0, 0, 0, 0.05);
     }
+
+    /* Thêm CSS cho navbar khi cuộn */
+    .header-container.scrolled #mainNavbar {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease-in-out;
+    }
+
+    /* CSS cho hiệu ứng fade-in khi cuộn */
+    .fade-in-element {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    .fade-in-element.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
 </style>
 
 <body>
@@ -437,7 +459,8 @@ if (isset($_SESSION['user_id'])) {
                                             <i class="fas fa-box-open me-2 text-muted"></i> Đơn mua
                                         </a>
                                     </li>
-                                    <li><a class="dropdown-item text-danger" href="destroy.php"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
+                                    <li><a class="dropdown-item text-danger" href="destroy.php"><i
+                                                class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
                                 </ul>
                             </li>
                         <?php endif; ?>
@@ -491,18 +514,18 @@ if (isset($_SESSION['user_id'])) {
             });
             // --- 2. XỬ LÝ PRELOADER (Tắt màn hình chờ khi tải xong) ---
             const preloader = document.getElementById('preloader');
-            if(preloader) {
+            if (preloader) {
                 // Đợi khi toàn bộ trang tải xong (bao gồm ảnh) thì ẩn preloader
-                window.addEventListener('load', function() {
+                window.addEventListener('load', function () {
                     preloader.style.opacity = '0';
-                    setTimeout(function(){
+                    setTimeout(function () {
                         preloader.style.display = 'none';
                     }, 500); // Đợi hiệu ứng mờ dần kết thúc
                 });
-                
+
                 // Fallback: Nếu mạng lag quá, tự tắt sau 3 giây
-                setTimeout(function(){
-                     preloader.style.display = 'none';
+                setTimeout(function () {
+                    preloader.style.display = 'none';
                 }, 3000);
             }
         });

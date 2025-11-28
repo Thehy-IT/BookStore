@@ -351,6 +351,29 @@
                 }
             });
 
+            // NEW: Fade-in on scroll effect
+            document.addEventListener('DOMContentLoaded', function() {
+                const fadeInElements = document.querySelectorAll('.fade-in-element');
+
+                if (fadeInElements.length > 0) {
+                    const observer = new IntersectionObserver((entries, observer) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('is-visible');
+                                observer.unobserve(entry.target); // Ngừng quan sát sau khi đã hiển thị
+                            }
+                        });
+                    }, {
+                        rootMargin: '0px',
+                        threshold: 0.1 // Kích hoạt khi 10% phần tử hiển thị
+                    });
+
+                    fadeInElements.forEach(el => {
+                        observer.observe(el);
+                    });
+                }
+            });
+
             // Multi-level dropdown script
             document.addEventListener("DOMContentLoaded", function() {
                 document.querySelectorAll('.dropdown-menu .dropdown-submenu').forEach(function(element) {

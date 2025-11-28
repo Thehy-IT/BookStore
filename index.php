@@ -317,7 +317,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
         <!-- Cột trái: Châm ngôn -->
         <div class="col-lg-6">
             <div id="quote-container" class="text-center p-4 d-flex flex-column justify-content-center"
-                style="transition: opacity 0.5s ease-in-out; min-height: 250px;">
+                style="transition: opacity 0.5s ease-in-out; height: 250px;">
                 <i class="fas fa-quote-left fa-2x mb-3" style="color: var(--accent);"></i>
                 <h3 id="quote-text" class="fw-normal fst-italic"
                     style="font-family: 'Playfair Display', serif; line-height: 1.7;">Một cuốn sách hay trên giá sách là
@@ -395,7 +395,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 </script>
 
 <!-- ============== Categories Cards ==============-->
-<div class="container my-5">
+<div class="container my-5 fade-in-element">
     <div class="row g-4">
         <?php
         $cats = [
@@ -427,7 +427,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 </div>
 
 <!-- ============== New Arrivals Section ==============-->
-<div class="container py-5" id="new">
+<div class="container py-5 fade-in-element" id="new">
     <div class="d-flex justify-content-between align-items-end mb-5">
         <div>
             <h6 class="text-uppercase text-warning fw-bold ls-2">Mới phát hành</h6>
@@ -493,34 +493,34 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                 $badge_text = 'MỚI';
             }
             ?>
-                <div class="col book-item">
-                    <div class="book-card-glass h-100 d-flex flex-column">
-                        <div class="badge-glass <?php echo $badge_class; ?>"><span><?php echo $badge_text; ?></span></div>
-                        <div class="book-img-wrapper">
-                            <img src="<?php echo $img_path; ?>"
-                                onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'"
-                                alt="<?php echo htmlspecialchars($book['Title']); ?>">
-                            <div class="action-overlay">
-                                <button onclick="addToCartAjax('<?php echo $pid; ?>', 1)" class="btn-icon"
-                                    title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></button>
-                                <button onclick='openQuickView(<?php echo json_encode($book); ?>)' class="btn-icon"
-                                    title="Xem nhanh"><i class="fas fa-eye"></i></button>
-                                <button onclick="addToWishlist('<?php echo $pid; ?>')" class="btn-icon" title="Yêu thích"><i
-                                        class="fas fa-heart"></i></button>
-                            </div>
+            <div class="col book-item">
+                <div class="book-card-glass h-100 d-flex flex-column">
+                    <div class="badge-glass <?php echo $badge_class; ?>"><span><?php echo $badge_text; ?></span></div>
+                    <div class="book-img-wrapper">
+                        <img src="<?php echo $img_path; ?>"
+                            onerror="this.src='https://placehold.co/400x600/eee/31343C?text=Book+Cover'"
+                            alt="<?php echo htmlspecialchars($book['Title']); ?>">
+                        <div class="action-overlay">
+                            <button onclick="addToCartAjax('<?php echo $pid; ?>', 1)" class="btn-icon"
+                                title="Thêm vào giỏ"><i class="fas fa-shopping-cart"></i></button>
+                            <button onclick='openQuickView(<?php echo json_encode($book); ?>)' class="btn-icon"
+                                title="Xem nhanh"><i class="fas fa-eye"></i></button>
+                            <button onclick="addToWishlist('<?php echo $pid; ?>')" class="btn-icon" title="Yêu thích"><i
+                                    class="fas fa-heart"></i></button>
                         </div>
-                        <div class="mt-auto">
-                            <h6 class="fw-bold text-truncate" title="<?php echo htmlspecialchars($book['Title']); ?>">
-                                <a href="description.php?ID=<?php echo $pid; ?>"
-                                    class="text-decoration-none text-dark"><?php echo htmlspecialchars($book['Title']); ?></a>
-                            </h6>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-primary fw-bold"><?php echo number_format($book['Price']); ?> đ</span>
-                                <div class="text-warning small"><i class="fas fa-star"></i> 4.8</div>
-                            </div>
+                    </div>
+                    <div class="mt-auto">
+                        <h6 class="fw-bold text-truncate" title="<?php echo htmlspecialchars($book['Title']); ?>">
+                            <a href="description.php?ID=<?php echo $pid; ?>"
+                                class="text-decoration-none text-dark"><?php echo htmlspecialchars($book['Title']); ?></a>
+                        </h6>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-primary fw-bold"><?php echo number_format($book['Price']); ?> đ</span>
+                            <div class="text-warning small"><i class="fas fa-star"></i> 4.8</div>
                         </div>
                     </div>
                 </div>
+            </div>
         <?php } ?>
     </div>
 
@@ -532,7 +532,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 </div>
 
 <!-- ============== Featured Authors Section ==============-->
-<div class="container py-5">
+<div class="container py-5 fade-in-element">
     <div class="text-center mb-5">
         <h6 class="text-uppercase text-primary fw-bold ls-2">Gương mặt tiêu biểu</h6>
         <h2 class="fw-bold display-6">Tác giả nổi bật</h2>
@@ -587,22 +587,22 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
         while ($author = mysqli_fetch_assoc($featured_authors_result)):
             $author_avatar = !empty($author['image_url']) ? htmlspecialchars($author['image_url']) : "https://ui-avatars.com/api/?name=" . urlencode($author['name']) . "&background=d2af37&color=fff&size=120&font-size=0.33&bold=true";
             ?>
-                <div class="col-lg-3 col-md-6">
-                    <a href="author.php?value=<?php echo urlencode($author['name']); ?>" class="text-decoration-none">
-                        <div class="author-card h-100">
-                            <img src="<?php echo $author_avatar; ?>"
-                                alt="Tác giả <?php echo htmlspecialchars($author['name']); ?>" class="author-avatar">
-                            <h5 class="author-name mb-1"><?php echo htmlspecialchars($author['name']); ?></h5>
-                            <p class="author-book-count mb-0"><?php echo $author['book_count']; ?> tác phẩm</p>
-                        </div>
-                    </a>
-                </div>
+            <div class="col-lg-3 col-md-6">
+                <a href="author.php?value=<?php echo urlencode($author['name']); ?>" class="text-decoration-none">
+                    <div class="author-card h-100">
+                        <img src="<?php echo $author_avatar; ?>"
+                            alt="Tác giả <?php echo htmlspecialchars($author['name']); ?>" class="author-avatar">
+                        <h5 class="author-name mb-1"><?php echo htmlspecialchars($author['name']); ?></h5>
+                        <p class="author-book-count mb-0"><?php echo $author['book_count']; ?> tác phẩm</p>
+                    </div>
+                </a>
+            </div>
         <?php endwhile; ?>
     </div>
 </div>
 
 <!-- ============== SECTION 1: BESTSELLERS (LAYOUT: CAROUSEL) ==============-->
-<div class="bestseller-section" id="bestseller">
+<div class="bestseller-section fade-in-element" id="bestseller">
     <div class="container">
         <div class="text-center mb-5">
             <span class="badge bg-primary px-3 py-2 rounded-pill mb-2">Xu Hướng</span>
@@ -622,31 +622,31 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
                     $pid = htmlspecialchars($book['PID']);
                     $img_path = "img/books/" . $pid . ".jpg";
                     ?>
-                        <div class="swiper-slide">
-                            <div class="bestseller-card position-relative text-center">
-                                <div class="rank-number"><?php echo str_pad($rank++, 2, '0', STR_PAD_LEFT); ?></div>
-                                <div class="book-card-glass border-0 bg-transparent shadow-none">
-                                    <div class="book-img-wrapper shadow-lg mb-3">
-                                        <img src="<?php echo $img_path; ?>"
-                                            onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
-                                    </div>
-                                    <h5 class="fw-bold mt-3 text-truncate"
-                                        title="<?php echo htmlspecialchars($book['Title']); ?>">
-                                        <?php echo htmlspecialchars($book['Title']); ?>
-                                    </h5>
-                                    <p class="text-muted small">Tác giả: <?php echo htmlspecialchars($book['Author']); ?></p>
-                                    <div class="btn-group">
-                                        <a href="description.php?ID=<?php echo $pid; ?>"
-                                            class="btn btn-outline-dark rounded-pill btn-sm px-3">Chi tiết</a>
-                                        <button onclick='openQuickView(<?php echo json_encode($book); ?>)'
-                                            class="btn btn-outline-dark rounded-pill btn-sm px-3" title="Xem nhanh">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
+                    <div class="swiper-slide">
+                        <div class="bestseller-card position-relative text-center">
+                            <div class="rank-number"><?php echo str_pad($rank++, 2, '0', STR_PAD_LEFT); ?></div>
+                            <div class="book-card-glass border-0 bg-transparent shadow-none">
+                                <div class="book-img-wrapper shadow-lg mb-3">
+                                    <img src="<?php echo $img_path; ?>"
+                                        onerror="this.src='https://placehold.co/400x600?text=Bestseller'" class="rounded-3">
+                                </div>
+                                <h5 class="fw-bold mt-3 text-truncate"
+                                    title="<?php echo htmlspecialchars($book['Title']); ?>">
+                                    <?php echo htmlspecialchars($book['Title']); ?>
+                                </h5>
+                                <p class="text-muted small">Tác giả: <?php echo htmlspecialchars($book['Author']); ?></p>
+                                <div class="btn-group">
+                                    <a href="description.php?ID=<?php echo $pid; ?>"
+                                        class="btn btn-outline-dark rounded-pill btn-sm px-3">Chi tiết</a>
+                                    <button onclick='openQuickView(<?php echo json_encode($book); ?>)'
+                                        class="btn btn-outline-dark rounded-pill btn-sm px-3" title="Xem nhanh">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                        <?php
+                    </div>
+                    <?php
                 }
                 ?>
             </div>
@@ -661,7 +661,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 </div>
 
 <!-- ============== SECTION 2: DEALS (LAYOUT: SPLIT BANNER) ==============-->
-<div class="container py-5" id="deals">
+<div class="container py-5 fade-in-element" id="deals">
     <div class="deal-wrapper">
         <div class="row g-0 align-items-center">
             <div class="col-lg-6">
@@ -763,7 +763,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 </div>
 
 <!-- ============== Quote Section ==============-->
-<div class="container py-5">
+<div class="container py-5 fade-in-element">
     <style>
         .quote-container {
             border-radius: 20px;
@@ -833,7 +833,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
 </div>
 
 <!-- ============== SECTION 3: NEWS (LAYOUT: GRID MASONRY) ==============-->
-<div class="container py-5" id="news">
+<div class="container py-5 fade-in-element" id="news">
     <div class="section-header text-center mb-5">
         <h6 class="text-uppercase text-primary fw-bold">Từ Blog</h6>
         <h2 class="fw-bold">Tin Tức Văn Học Mới Nhất</h2>
