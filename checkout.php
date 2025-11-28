@@ -26,8 +26,11 @@ $sql = "SELECT p.PID, p.Title, p.Price, c.Quantity
         FROM cart c 
         JOIN products p ON c.ProductID = p.PID 
         WHERE c.UserID = ? AND p.PID IN ($placeholders)";
+
+$types = 'i' . str_repeat('s', count($selected_products));
+$params = array_merge([$user_id], $selected_products);
 $stmt = $con->prepare($sql);
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -46,6 +49,9 @@ if ($result->num_rows > 0) {
     header("Location: cart.php");
     exit();
 }
+
+// Lưu các sản phẩm đã chọn vào session để place_order.php sử dụng
+$_SESSION['selected_products_for_order'] = $selected_products;
 
 // Xóa session coupon cũ khi vào trang để tránh áp dụng nhầm
 unset($_SESSION['coupon_code']);
@@ -258,11 +264,13 @@ if (isset($_SESSION['flash_message'])) {
                                     onerror="this.src='https://placehold.co/100x150?text=Book'">
                                 <div class="flex-grow-1">
                                     <p class="fw-bold mb-0 small text-truncate">
-                                        <?php echo htmlspecialchars($item['Title']); ?></p>
+                                        <?php echo htmlspecialchars($item['Title']); ?>
+                                    </p>
                                     <small class="text-muted">Số lượng: <?php echo $item['Quantity']; ?></small>
                                 </div>
                                 <p class="fw-bold small mb-0">
-                                    <?php echo number_format($item['Price'] * $item['Quantity']); ?> đ</p>
+                                    <?php echo number_format($item['Price'] * $item['Quantity']); ?> đ
+                                </p>
                             </div>
                         <?php endforeach; ?>
                     </div>

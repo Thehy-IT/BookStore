@@ -237,7 +237,8 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
 
 <div class="container" style="padding-top: 100px; padding-bottom: 50px;">
     <div class="tw-max-w-6xl tw-mx-auto tw-w-full">
-        <div class="tw-bg-white/70 tw-backdrop-blur-xl tw-rounded-2xl tw-shadow-lg tw-overflow-hidden tw-min-h-[500px] tw-border tw-border-white/50">
+        <div
+            class="tw-bg-white/70 tw-backdrop-blur-xl tw-rounded-2xl tw-shadow-lg tw-overflow-hidden tw-min-h-[500px] tw-border tw-border-white/50">
 
             <div class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-100">
                 <ol class="tw-list-none tw-flex tw-text-gray-700 tw-text-sm tw-m-0 tw-p-0">
@@ -290,7 +291,8 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
 
                     <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-12 tw-gap-10 tw-mb-8">
                         <div class="md:tw-col-span-4">
-                            <h3 class="tw-text-lg tw-font-bold tw-mb-4 tw-text-gray-800 tw-flex tw-items-center" style="color: var(--primary);">
+                            <h3 class="tw-text-lg tw-font-bold tw-mb-4 tw-text-gray-800 tw-flex tw-items-center"
+                                style="color: var(--primary);">
                                 <span class="material-symbols-outlined tw-mr-2 text-orange">location_on</span> Địa Chỉ Nhận
                                 Hàng
                             </h3>
@@ -308,7 +310,8 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                         </div>
 
                         <div class="md:tw-col-span-8 md:tw-border-l md:tw-border-gray-100 md:tw-pl-10">
-                            <h3 class="tw-text-lg tw-font-bold tw-mb-4 tw-text-gray-800 tw-flex tw-items-center" style="color: var(--primary);">
+                            <h3 class="tw-text-lg tw-font-bold tw-mb-4 tw-text-gray-800 tw-flex tw-items-center"
+                                style="color: var(--primary);">
                                 <span class="material-symbols-outlined tw-mr-2 tw-text-blue-500">local_shipping</span> Trạng
                                 Thái Vận Chuyển
                             </h3>
@@ -429,7 +432,8 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                             </a>
                         </div>
 
-                        <div class="tw-bg-white/50 tw-border tw-border-gray-100 tw-rounded-xl tw-overflow-hidden tw-shadow-sm">
+                        <div
+                            class="tw-bg-white/50 tw-border tw-border-gray-100 tw-rounded-xl tw-overflow-hidden tw-shadow-sm">
                             <?php
                             $subtotal = 0;
                             foreach ($order_items as $item):
@@ -475,8 +479,8 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                                 <div
                                     class="tw-flex tw-justify-between tw-items-end tw-pt-4 tw-mt-4 tw-border-0 tw-border-t tw-border-gray-200 tw-border-solid">
                                     <span class="tw-text-gray-800 tw-font-medium tw-text-base">Thành tiền</span>
-                                    <span
-                                        class="tw-text-2xl tw-font-bold" style="color: var(--accent);"><?php echo number_format($order['total_amount']); ?>đ</span>
+                                    <span class="tw-text-2xl tw-font-bold"
+                                        style="color: var(--accent);"><?php echo number_format($order['total_amount']); ?>đ</span>
                                 </div>
                             </div>
                         </div>
@@ -558,7 +562,9 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                                                     class="tw-inline-block tw-text-red-500 tw-font-bold tw-uppercase tw-text-xs tw-border tw-border-red-200 tw-bg-red-50 tw-px-3 tw-py-1.5 tw-rounded-full">Đã
                                                     hủy</span>
                                             <?php else: ?>
-                                                <span class="tw-inline-block tw-font-bold tw-uppercase tw-text-xs tw-border tw-px-3 tw-py-1.5 tw-rounded-full" style="color: var(--primary); border-color: #e2e8f0; background-color: #f8fafc;">
+                                                <span
+                                                    class="tw-inline-block tw-font-bold tw-uppercase tw-text-xs tw-border tw-px-3 tw-py-1.5 tw-rounded-full"
+                                                    style="color: var(--primary); border-color: #e2e8f0; background-color: #f8fafc;">
                                                     <?php echo getStatusLabel($history_item['status'], $status_labels); ?>
                                                 </span>
                                             <?php endif; ?>
@@ -572,8 +578,8 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                                         </div>
                                         <div class="tw-text-right">
                                             <span class="tw-text-gray-500 tw-text-sm">Tổng thanh toán:</span>
-                                            <span
-                                                class="tw-text-xl tw-font-bold tw-ml-2" style="color: var(--accent);"><?php echo number_format($history_item['total_amount']); ?>đ</span>
+                                            <span class="tw-text-xl tw-font-bold tw-ml-2"
+                                                style="color: var(--accent);"><?php echo number_format($history_item['total_amount']); ?>đ</span>
                                         </div>
                                     </div>
                                 </div>

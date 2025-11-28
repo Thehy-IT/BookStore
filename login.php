@@ -1,7 +1,6 @@
 <?php
 session_start();
 include "dbconnect.php"; // Đảm bảo file này kết nối đúng DB
-include_once 'functions.php'; // Giả sử hàm set_swal() ở đây
 
 $message = "";
 $message_type = "";
@@ -48,20 +47,18 @@ if (isset($_POST['submit']) && $_POST['submit'] == "login") {
         }
         exit();
       } else {
-        $_SESSION['flash_message'] = "Mật khẩu không chính xác.";
-        $_SESSION['flash_type'] = "error";
-        header("Location: login.php");
-        exit();
+        $message = "Mật khẩu không chính xác.";
+        $message_type = "error";
       }
     } else {
-      $_SESSION['flash_message'] = "Tài khoản không tồn tại.";
-      $_SESSION['flash_type'] = "error";
-      header("Location: login.php");
-      exit();
+      $message = "Tài khoản không tồn tại.";
+      $message_type = "error";
     }
     $stmt->close();
   } else {
     // Lỗi này nên được ghi vào log thay vì hiển thị cho người dùng
+    $message = "Lỗi hệ thống, không thể chuẩn bị truy vấn.";
+    $message_type = "error";
   }
 }
 ?>
@@ -209,9 +206,9 @@ if (isset($_POST['submit']) && $_POST['submit'] == "login") {
         Sign In <i class="fas fa-arrow-right ms-2"></i>
       </button>
 
-      <div class="d-flex justify-content-between align-items-center mt-4">
+      <div class="d-flex justify-content-center align-items-center mt-4">
         <a href="index.php" class="back-link"><i class="fas fa-arrow-left me-1"></i> Back to Home</a>
-        <a href="register.php" class="text-primary fw-bold text-decoration-none">Create Account</a>
+        <a href="register.php" class="text-primary fw-bold text-decoration-none ms-4">Create Account</a>
       </div>
     </form>
   </div>

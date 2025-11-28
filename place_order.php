@@ -25,8 +25,10 @@ $sql = "SELECT p.PID, p.Price, c.Quantity
         FROM cart c 
         JOIN products p ON c.ProductID = p.PID 
         WHERE c.UserID = ? AND p.PID IN ($placeholders)";
+$types = 'i' . str_repeat('s', count($selected_products));
+$params = array_merge([$user_id], $selected_products);
 $stmt_cart = $con->prepare($sql);
-$stmt_cart->bind_param("i", $user_id);
+$stmt_cart->bind_param($types, ...$params);
 $stmt_cart->execute();
 $result_cart = $stmt_cart->get_result();
 

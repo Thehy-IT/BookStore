@@ -76,7 +76,7 @@ switch ($action) {
         break;
 
     case 'edit':
-        $pid = (int)$_POST['pid'];
+        $pid = (int) $_POST['pid'];
         $current_image = $_POST['current_image'];
 
         $image_path = handle_image_upload('image_file', $current_image);
@@ -106,13 +106,34 @@ switch ($action) {
         break;
 
     case 'delete':
-        $pid = (int)$_GET['id'];
-        $sql = "DELETE FROM products WHERE PID = $pid";
+        $pid = $_GET['id'];
+        if (empty($pid)) {
+            set_message("ID sản phẩm không hợp lệ.", "warning");
+            break;
+        }
 
-        if (mysqli_query($con, $sql)) {
-            set_message("Xóa sản phẩm thành công!", "success");
-        } else {
-            set_message("Lỗi: " . mysqli_error($con), "danger");
+        // Bắt đầu một transaction để đảm bảo toàn vẹn dữ liệu
+        $con->begin_transaction();
+
+        try {
+            // Xóa các bản ghi liên quan trước
+            $con->prepare("DELETE FROM cart WHERE ProductID = ?")->execute([$pid]);
+            $con->prepare("DELETE FROM wishlist WHERE ProductID = ?")->execute([$pid]);
+            $con->prepare("DELETE FROM reviews WHERE product_id = ?")->execute([$pid]);
+            $con->prepare("DELETE FROM order_items WHERE product_id = ?")->execute([$pid]);
+
+            // Cuối cùng, xóa sản phẩm
+            $stmt = $con->prepare("DELETE FROM products WHERE PID = ?");
+            $stmt->bind_param("s", $pid);
+            $stmt->execute();
+
+            // Nếu mọi thứ thành công, commit transaction
+            $con->commit();
+            set_message("Xóa sản phẩm và các dữ liệu liên quan thành công!", "success");
+        } catch (mysqli_sql_exception $exception) {
+            // Nếu có lỗi, rollback lại
+            $con->rollback();
+            set_message("Lỗi khi xóa sản phẩm: " . $exception->getMessage(), "danger");
         }
         break;
 
