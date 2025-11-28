@@ -405,7 +405,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
             ['icon' => 'fa-dragon', 'title' => 'Hư cấu', 'slug' => 'fantasy', 'bg' => 'img/new/th4.jpg', 'text_color' => '#c8dcdaff'],
             ['icon' => 'fa-user-tie', 'title' => 'Tiểu sử & Tự truyện', 'slug' => 'biography', 'bg' => 'img/new/th5.jpg', 'text_color' => '#c8dcdaff'],
             ['icon' => 'fa-mask', 'title' => 'Kinh dị & Giật gân', 'slug' => 'thriller', 'bg' => 'img/new/th6.jpg', 'text_color' => '#c8dcdaff'],
-            ['icon' => 'fa-briefcase', 'title' => 'Kinh doanh & Quản lý', 'slug' => 'business', 'bg' => 'img/new/th7.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-briefcase', 'title' => 'Kinh doanh & Quản lý ', 'slug' => 'business', 'bg' => 'img/new/th7.jpg', 'text_color' => '#c8dcdaff'],
             ['icon' => 'fa-child', 'title' => 'Thiếu nhi', 'slug' => 'kids', 'bg' => 'img/new/th8.jpg', 'text_color' => '#c8dcdaff']
         ];
         foreach ($cats as $c) {
