@@ -136,7 +136,7 @@ if (isset($_SESSION['flash_message'])) {
     <!-- Sử dụng class mới để dễ dàng target bằng CSS -->
     <div class="d-flex justify-content-between align-items-center mb-4 wishlist-header">
         <div>
-            <h1 class="fw-bold display-4" style="font-family: 'Playfair Display', serif;">Danh sách yêu thích</h1>
+            <h1 class="fw-bold display-6" style="font-family: 'Playfair Display', serif;">Danh sách yêu thích</h1>
             <p class="text-muted">Bộ sưu tập những cuốn sách bạn yêu thích.</p>
         </div>
         <div class="d-flex align-items-center wishlist-actions">

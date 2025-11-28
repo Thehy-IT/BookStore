@@ -304,11 +304,11 @@ if (isset($_SESSION['user_id'])) {
 
     /* Thêm CSS cho navbar khi cuộn */
     .header-container.scrolled #mainNavbar {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
         transition: all 0.3s ease-in-out;
     }
 
@@ -326,11 +326,11 @@ if (isset($_SESSION['user_id'])) {
 
     /* CSS cho modal tìm kiếm */
     .search-modal .modal-content {
-        background-color: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(15px);
+        background-color: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(12px);
         border: var(--glass-border);
         border-radius: 16px;
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
     }
 
     .search-modal .modal-header,
@@ -350,13 +350,13 @@ if (isset($_SESSION['user_id'])) {
         /* Hiển thị ngay bên dưới form */
         left: 0;
         right: 0;
-        background-color: #ffffff;
+        background-color: rgba(255, 255, 255, 0.99);
         z-index: 1056;
         /* Hiển thị trên các thành phần khác của modal */
         border-radius: 16px;
         overflow: hidden;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        border: 1px solid #eee;
+        border: 1px solid rgba(0, 0, 0, 0.06);
     }
 
     .autocomplete-suggestion {
@@ -416,7 +416,7 @@ if (isset($_SESSION['user_id'])) {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(10px);
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
     }
 
@@ -424,10 +424,102 @@ if (isset($_SESSION['user_id'])) {
         .search-modal .modal-dialog {
             padding: 0 10px;
         }
+
         #searchInputModal {
-            font-size: 1.1rem; /* Tăng kích thước font cho dễ nhập liệu */
+            font-size: 1.1rem;
+            /* Tăng kích thước font cho dễ nhập liệu */
             padding: 12px 20px;
         }
+    }
+
+    /* Tùy chỉnh vị trí menu thả xuống */
+    @media (min-width: 992px) {
+
+        /* Chỉ áp dụng cho màn hình lớn (desktop) */
+        .navbar-nav .dropdown-menu {
+            margin-top: 1.3rem;
+            /* Tạo khoảng cách 1rem (khoảng 16px) từ menu xuống */
+            border-top: 3px solid var(--accent);
+            /* Thêm một đường viền màu nhấn để đẹp hơn */
+        }
+
+        /* --- Hiệu ứng hover cho menu chính --- */
+        .navbar-nav .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            /* Điều chỉnh vị trí của gạch chân */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background-color: var(--accent, #f5a623);
+            /* Sử dụng màu nhấn, có màu dự phòng */
+            transition: width 0.3s ease-in-out;
+        }
+
+        .navbar-nav .nav-link:hover::after,
+        .navbar-nav .nav-link.active::after {
+            width: calc(100% - 1rem);
+            /* Chiều rộng gạch chân bằng padding của nav-link */
+        }
+
+        /* --- Keyframes cho hiệu ứng lắc --- */
+        @keyframes shake {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            25% {
+                transform: rotate(8deg);
+            }
+
+            50% {
+                transform: rotate(-8deg);
+            }
+
+            75% {
+                transform: rotate(8deg);
+            }
+
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        /* --- Hiệu ứng hover cho các icon hành động --- */
+        .navbar-nav.flex-row .nav-item .btn,
+        .navbar-nav.flex-row .nav-item .nav-link,
+        .navbar-nav.flex-row .nav-item img {
+            /* Giữ lại transition để có hiệu ứng mượt mà khi không hover nữa */
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-nav.flex-row .nav-item .btn:hover,
+        .navbar-nav.flex-row .nav-item .nav-link:hover,
+        .navbar-nav.flex-row .nav-item a:hover img {
+            /* Áp dụng animation lắc khi hover */
+            animation: shake 0.4s ease-in-out;
+        }
+    }
+
+    /* Đổi màu chữ khi hover vào item trong dropdown thể loại */
+    .navbar-nav .dropdown-menu .dropdown-item {
+        transition: color 0.18s ease, background-color 0.18s ease;
+        color: inherit;
+    }
+
+    .navbar-nav .dropdown-menu .dropdown-item:hover,
+    .navbar-nav .dropdown-menu .dropdown-item:focus {
+        color: var(--accent);
+        background-color: rgba(0, 0, 0, 0.06);
     }
 </style>
 
