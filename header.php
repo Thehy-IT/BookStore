@@ -13,6 +13,9 @@ ini_set('display_startup_errors', 1); // Hiển thị cả lỗi khởi động 
 
 // Khởi tạo biến swal_script rỗng để header không báo lỗi "Undefined variable"
 $swal_script = "";
+// KHỞI TẠO BIẾN LỖI CHO MODAL
+$login_error = "";
+$register_error = "";
 
 include_once "dbconnect.php";
 
@@ -50,7 +53,7 @@ if ($con) {
         $password_input = $_POST['login_password'] ?? '';
 
         if (empty($identity) || empty($password_input)) {
-            $swal_script = set_swal('warning', 'Thiếu thông tin', 'Vui lòng nhập đầy đủ thông tin đăng nhập.');
+            $login_error = "Vui lòng nhập đầy đủ thông tin đăng nhập.";
         } else {
             // 1. Cho phép đăng nhập bằng cả UserName hoặc Email
             $stmt = $con->prepare("SELECT * FROM users WHERE UserName = ? OR Email = ?");
@@ -80,11 +83,11 @@ if ($con) {
                         }
                     } else {
                         // Mật khẩu sai. Thông báo chung để tránh dò tên người dùng.
-                        $swal_script = set_swal('error', 'Đăng nhập thất bại', 'Tên đăng nhập hoặc mật khẩu không chính xác.');
+                        $login_error = "Tên đăng nhập hoặc mật khẩu không chính xác.";
                     }
                 } else {
                     // Tên đăng nhập/email không tồn tại. Thông báo chung.
-                    $swal_script = set_swal('error', 'Đăng nhập thất bại', 'Tên đăng nhập hoặc mật khẩu không chính xác.');
+                    $login_error = "Tên đăng nhập hoặc mật khẩu không chính xác.";
                 }
                 $stmt->close();
             }
@@ -106,13 +109,13 @@ if ($con) {
 
         // --- VALIDATION ---
         if (empty($username) || empty($fullname) || empty($email) || empty($password) || empty($confirm_password)) {
-            $swal_script = set_swal('warning', 'Thiếu thông tin', 'Vui lòng điền đầy đủ các trường.');
+            $register_error = "Vui lòng điền đầy đủ các trường.";
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $swal_script = set_swal('warning', 'Email không hợp lệ', 'Vui lòng nhập một địa chỉ email hợp lệ.');
+            $register_error = "Vui lòng nhập một địa chỉ email hợp lệ.";
         } elseif (strlen($password) < 6) {
-            $swal_script = set_swal('warning', 'Mật khẩu không hợp lệ', 'Mật khẩu phải có ít nhất 6 ký tự.');
+            $register_error = "Mật khẩu phải có ít nhất 6 ký tự.";
         } elseif ($password !== $confirm_password) {
-            $swal_script = set_swal('warning', 'Mật khẩu không khớp', 'Mật khẩu xác nhận không giống nhau.');
+            $register_error = "Mật khẩu xác nhận không giống nhau.";
         } else {
             // 1. Kiểm tra xem username hoặc email đã tồn tại chưa
             $stmt_check = $con->prepare("SELECT UserID FROM users WHERE UserName = ? OR Email = ?");
@@ -121,7 +124,7 @@ if ($con) {
             $stmt_check->store_result();
 
             if ($stmt_check->num_rows > 0) {
-                $swal_script = set_swal('error', 'Đăng ký thất bại', 'Tên đăng nhập hoặc Email đã được sử dụng.');
+                $register_error = "Tên đăng nhập hoặc Email đã được sử dụng.";
             } else {
                 // 2. Nếu chưa tồn tại, tiến hành thêm người dùng mới
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -137,12 +140,29 @@ if ($con) {
                     header("Location: " . $_SERVER['PHP_SELF']);
                     exit();
                 } else {
-                    $swal_script = set_swal('error', 'Lỗi hệ thống', 'Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+                    $register_error = "Đã có lỗi xảy ra. Vui lòng thử lại sau.";
                 }
             }
             $stmt_check->close();
         }
     }
+}
+
+// MỞ LẠI MODAL KHI CÓ LỖI
+if (!empty($login_error)) {
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        });
+    </script>";
+} elseif (!empty($register_error)) {
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+            registerModal.show();
+        });
+    </script>";
 }
 
 // --- Lấy danh sách thể loại tự động từ cơ sở dữ liệu cho menu ---

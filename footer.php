@@ -8,6 +8,12 @@
             </div>
             <div class="modal-body">
                 <form method="post">
+                    <!-- VÙNG HIỂN THỊ LỖI ĐĂNG NHẬP -->
+                    <?php if (!empty($login_error)): ?>
+                        <div class="alert alert-danger small p-2 mb-3" role="alert">
+                            <?php echo $login_error; ?>
+                        </div>
+                    <?php endif; ?>
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control rounded-4 bg-light border-0" id="login_identity"
                             name="login_identity" placeholder="Tên đăng nhập hoặc Email" required>
@@ -39,6 +45,12 @@
             </div>
             <div class="modal-body">
                 <form method="post">
+                    <!-- VÙNG HIỂN THỊ LỖI ĐĂNG KÝ -->
+                    <?php if (!empty($register_error)): ?>
+                        <div class="alert alert-danger small p-2 mb-3" role="alert">
+                            <?php echo $register_error; ?>
+                        </div>
+                    <?php endif; ?>
                     <!-- NEW: FullName -->
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control rounded-4 bg-light border-0" name="register_fullname"
