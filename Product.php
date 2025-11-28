@@ -31,6 +31,14 @@ if (isset($_GET['publisher']) && !empty($_GET['publisher'])) {
     $bindValues[] = $_GET['publisher'];
     $urlParams['publisher'] = $_GET['publisher'];
 }
+// 6. Lọc theo Tác giả
+if (isset($_GET['author']) && !empty($_GET['author'])) {
+    $whereClauses[] = "Author = ?";
+    $bindTypes .= 's';
+    $bindValues[] = $_GET['author'];
+    $urlParams['author'] = $_GET['author'];
+}
+
 
 // 5. Sắp xếp
 $sort_option = isset($_GET['sort']) ? $_GET['sort'] : 'newest';
@@ -135,6 +143,18 @@ if ($result_publishers && mysqli_num_rows($result_publishers) > 0) {
 
 // Lấy publisher hiện tại từ URL để đánh dấu 'active'
 $current_publisher = isset($_GET['publisher']) ? $_GET['publisher'] : '';
+
+// --- Lấy danh sách tác giả tự động từ cơ sở dữ liệu ---
+$authors = [];
+$sql_authors = "SELECT DISTINCT Author FROM products WHERE Author IS NOT NULL AND Author != '' ORDER BY Author ASC";
+$result_authors = mysqli_query($con, $sql_authors);
+if ($result_authors && mysqli_num_rows($result_authors) > 0) {
+    while ($row_author = mysqli_fetch_assoc($result_authors)) {
+        $authors[] = trim($row_author['Author']);
+    }
+}
+// Lấy tác giả hiện tại từ URL để đánh dấu 'active'
+$current_author = isset($_GET['author']) ? $_GET['author'] : '';
 
 // Tạo chuỗi query cho URL phân trang
 $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '']));
@@ -309,6 +329,20 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                     </div>
                 </div>
 
+                <!-- Authors -->
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3">Tác giả</h6>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        <?php
+                        foreach ($authors as $author_name) {
+                            $active_class = ($current_author == $author_name) ? 'fw-bold text-primary' : 'text-dark';
+                            echo '<div class="mb-2"><a href="Product.php?author=' . urlencode($author_name) . '" class="text-decoration-none ' . $active_class . ' d-flex justify-content-between"><span>' . htmlspecialchars($author_name) . '</span></a></div>';
+                        }
+                        ?>
+                    </div>
+                </div>
+
+
                 <form id="filterForm" action="Product.php" method="GET">
                     <!-- Hidden inputs for existing filters -->
                     <?php if (!empty($current_category))
@@ -321,6 +355,8 @@ $pagination_query_string = http_build_query(array_merge($urlParams, ['page' => '
                         echo '<input type="hidden" name="rating" value="' . htmlspecialchars($_GET['rating']) . '">'; ?>
                     <?php if (!empty($current_publisher))
                         echo '<input type="hidden" name="publisher" value="' . htmlspecialchars($current_publisher) . '">'; ?>
+                    <?php if (!empty($current_author))
+                        echo '<input type="hidden" name="author" value="' . htmlspecialchars($current_author) . '">'; ?>
 
                     <!-- Rating -->
                     <div class="mb-4">
