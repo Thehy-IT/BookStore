@@ -407,6 +407,28 @@ if (isset($_SESSION['user_id'])) {
         transition: width 0.05s linear;
         /* Hiệu ứng chuyển động mượt mà */
     }
+
+    /* Tối ưu header cho di động */
+    @media (max-width: 991.98px) {
+        .navbar-collapse {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .search-modal .modal-dialog {
+            padding: 0 10px;
+        }
+        #searchInputModal {
+            font-size: 1.1rem; /* Tăng kích thước font cho dễ nhập liệu */
+            padding: 12px 20px;
+        }
+    }
 </style>
 
 <body>
@@ -510,7 +532,7 @@ if (isset($_SESSION['user_id'])) {
                                     <?php endif; ?>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 glass-panel mt-2"
-                                    style="width: 300px;">
+                                    style="min-width: 300px; max-width: 90vw;">
                                     <li class="px-3 py-2 fw-bold">Thông báo</li>
                                     <li>
                                         <hr class="dropdown-divider m-0">

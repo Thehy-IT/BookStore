@@ -48,16 +48,24 @@ $products_res = mysqli_query($con, "SELECT * FROM products ORDER BY PID DESC");
         .sidebar {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
-            height: 100vh;
+            height: 100%;
             position: fixed;
             width: 250px;
-            padding-top: 20px;
             border-right: 1px solid rgba(255, 255, 255, 0.5);
+            z-index: 1030;
+            transition: transform 0.3s ease-in-out;
         }
 
         .main-content {
             margin-left: 250px;
             padding: 40px;
+        }
+
+        .top-navbar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 1.5rem;
+            margin-left: 250px;
         }
 
         .nav-link {
@@ -79,6 +87,37 @@ $products_res = mysqli_query($con, "SELECT * FROM products ORDER BY PID DESC");
         .text-accent {
             color: var(--accent);
         }
+
+        /* Responsive styles */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content,
+            .top-navbar {
+                margin-left: 0;
+            }
+        }
+
+        .sidebar-brand {
+            padding: 20px 0;
+            color: var(--primary);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1029;
+        }
     </style>
 </head>
 
@@ -87,8 +126,8 @@ $products_res = mysqli_query($con, "SELECT * FROM products ORDER BY PID DESC");
 
     <!-- Sidebar -->
     <div class="sidebar">
-        <h3 class="text-center fw-bold mb-4">BOOK<span class="text-accent">Z</span> ADMIN</h3>
-        <ul class="nav flex-column">
+        <h3 class="text-center fw-bold sidebar-brand">BOOK<span class="text-accent">Z</span> ADMIN</h3>
+        <ul class="nav flex-column" id="sidebar">
             <li class="nav-item"><a href="admin.php" class="nav-link"><i class="fas fa-tachometer-alt me-2"></i> Bảng điều khiển</a></li>
             <li class="nav-item"><a href="manage_products.php" class="nav-link active"><i class="fas fa-book me-2"></i> Quản lý sản phẩm</a></li>
             <li class="nav-item"><a href="manage_news.php" class="nav-link"><i class="fas fa-newspaper me-2"></i> Quản lý Tin tức</a></li>
@@ -99,10 +138,20 @@ $products_res = mysqli_query($con, "SELECT * FROM products ORDER BY PID DESC");
         </ul>
     </div>
 
+    <!-- Overlay để làm mờ nền khi sidebar mở trên mobile -->
+    <div class="sidebar-overlay d-none" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
     <!-- Main Content -->
     <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold">Quản lý sản phẩm</h2>
+        <!-- Top Navbar for Mobile Toggle -->
+        <nav class="top-navbar d-lg-none d-flex justify-content-between align-items-center mb-4 sticky-top">
+            <h4 class="fw-bold mb-0">Quản lý sản phẩm</h4>
+            <button class="btn btn-outline-primary" type="button" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+        <div class="d-flex justify-content-between align-items-center mb-4 d-none d-lg-flex">
+            <h2 class="fw-bold mb-0">Quản lý sản phẩm</h2>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal" onclick="prepareAddModal()">
                 <i class="fas fa-plus me-2"></i> Thêm sản phẩm mới
             </button>
@@ -120,7 +169,7 @@ $products_res = mysqli_query($con, "SELECT * FROM products ORDER BY PID DESC");
         endif;
         ?>
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden table-responsive">
             <table class="table table-hover mb-0 align-middle">
                 <thead class="table-light">
                     <tr>
@@ -205,6 +254,19 @@ $products_res = mysqli_query($con, "SELECT * FROM products ORDER BY PID DESC");
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // --- LOGIC CHO SIDEBAR RESPONSIVE ---
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            if (sidebar.classList.contains('show')) {
+                overlay.classList.remove('d-none');
+            } else {
+                overlay.classList.add('d-none');
+            }
+        }
+
         const productModal = new bootstrap.Modal(document.getElementById('productModal'));
         const modalTitle = document.getElementById('productModalLabel');
         const formAction = document.getElementById('formAction');

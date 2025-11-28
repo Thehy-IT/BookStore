@@ -89,6 +89,29 @@ if (isset($_SESSION['flash_message'])) {
         border: var(--glass-border);
         border-radius: 20px;
     }
+
+    /* Tối ưu cho di động */
+    @media (max-width: 767.98px) {
+        .wishlist-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+
+        .wishlist-actions {
+            width: 100%;
+            margin-top: 1rem;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .wishlist-actions .btn {
+            width: 100%;
+        }
+
+        h1.display-4 {
+            font-size: 2.5rem;
+        }
+    }
 </style>
 
 <!-- ============== Wishlist Content ==============-->
@@ -110,20 +133,20 @@ if (isset($_SESSION['flash_message'])) {
     $stmt->execute();
     $wishlist_result = $stmt->get_result();
     ?>
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Sử dụng class mới để dễ dàng target bằng CSS -->
+    <div class="d-flex justify-content-between align-items-center mb-4 wishlist-header">
         <div>
-            <h1 class="fw-bold" style="font-family: 'Playfair Display', serif;">Danh sách yêu thích</h1>
+            <h1 class="fw-bold display-4" style="font-family: 'Playfair Display', serif;">Danh sách yêu thích</h1>
             <p class="text-muted">Bộ sưu tập những cuốn sách bạn yêu thích.</p>
         </div>
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center wishlist-actions">
             <?php if ($wishlist_result->num_rows > 0): ?>
                 <button onclick="confirmClearAll()" class="btn btn-outline-danger rounded-pill me-2"><i
                         class="fas fa-trash-alt me-1"></i> Xóa tất cả</button>
                 <a href="wishlist_action.php?action=add_all_to_cart" class="btn btn-primary rounded-pill me-2"><i
                         class="fas fa-cart-plus me-1"></i> Thêm tất cả vào giỏ</a>
             <?php endif; ?>
-            <a href="index.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Quay lại cửa
+            <a href="Product.php" class="btn btn-light rounded-pill"><i class="fas fa-arrow-left me-2"></i>Quay lại cửa
                 hàng</a>
         </div>
     </div>

@@ -159,6 +159,39 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
             opacity: 0;
         }
     }
+
+    /* Tối ưu cho di động */
+    @media (max-width: 767.98px) {
+        .hero-wrapper h1.display-4 {
+            font-size: 2.5rem;
+            /* Giảm kích thước font cho tiêu đề chính */
+        }
+
+        .hero-slider .swiper-slide img {
+            height: 300px !important;
+            /* Giảm chiều cao slider */
+        }
+
+        .bestseller-section h2.display-6 {
+            font-size: 2rem;
+            /* Giảm kích thước font cho tiêu đề bán chạy */
+        }
+
+        #typewriter-container {
+            height: 8rem;
+            /* Tăng chiều cao để chứa đủ 3 dòng trên mobile */
+        }
+
+        .deal-content h2.display-5 {
+            font-size: 2.25rem;
+            /* Giảm kích thước font cho tiêu đề deal */
+        }
+
+        .quote-container .quote-text {
+            font-size: 1.25rem;
+            /* Giảm kích thước font cho trích dẫn */
+        }
+    }
 </style>
 
 <!-- ============== Hero Section ==============-->
@@ -317,7 +350,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
         <!-- Cột trái: Châm ngôn -->
         <div class="col-lg-6">
             <div id="quote-container" class="text-center p-4 d-flex flex-column justify-content-center"
-                style="transition: opacity 0.5s ease-in-out; height: 250px;">
+                style="transition: opacity 0.5s ease-in-out; min-height: 250px;">
                 <i class="fas fa-quote-left fa-2x mb-3" style="color: var(--accent);"></i>
                 <h3 id="quote-text" class="fw-normal fst-italic"
                     style="font-family: 'Playfair Display', serif; line-height: 1.7;">Một cuốn sách hay trên giá sách là
@@ -550,8 +583,10 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
             border: 1px solid #e2e8f0;
             background-color: white;
             flex-shrink: 0;
-            width: 250px; /* Đặt chiều rộng cố định cho mỗi card */
-            margin: 0 15px; /* Thêm khoảng cách giữa các card */
+            width: 250px;
+            /* Đặt chiều rộng cố định cho mỗi card */
+            margin: 0 15px;
+            /* Thêm khoảng cách giữa các card */
         }
 
         .author-card:hover {
@@ -583,6 +618,20 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
         .author-book-count {
             font-size: 0.9rem;
             color: #64748b;
+        }
+
+        /* Tối ưu cho di động */
+        @media (max-width: 767.98px) {
+            .author-card {
+                width: 200px;
+                /* Giảm chiều rộng card */
+            }
+
+            .author-avatar {
+                width: 100px;
+                /* Giảm kích thước avatar */
+                height: 100px;
+            }
         }
     </style>
 

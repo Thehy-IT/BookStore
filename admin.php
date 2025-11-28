@@ -122,16 +122,25 @@ while ($row = mysqli_fetch_assoc($rev_cat_res)) {
         .sidebar {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
-            height: 100vh;
+            height: 100%;
             position: fixed;
             width: 250px;
-            padding-top: 20px;
             border-right: 1px solid rgba(255, 255, 255, 0.5);
+            z-index: 1030;
+            /* Cao hơn nội dung chính */
+            transition: transform 0.3s ease-in-out;
         }
 
         .main-content {
             margin-left: 250px;
             padding: 40px;
+        }
+
+        .top-navbar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 1.5rem;
+            margin-left: 250px;
         }
 
         .stat-card {
@@ -174,6 +183,37 @@ while ($row = mysqli_fetch_assoc($rev_cat_res)) {
         .table-hover tbody tr:hover {
             background-color: #f8f9fa;
         }
+
+        /* Responsive styles */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content,
+            .top-navbar {
+                margin-left: 0;
+            }
+        }
+
+        .sidebar-brand {
+            padding: 20px 0;
+            color: var(--primary);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1029;
+        }
     </style>
 </head>
 
@@ -181,8 +221,8 @@ while ($row = mysqli_fetch_assoc($rev_cat_res)) {
     <div class="bg-blobs"></div>
 
     <!-- Sidebar -->
-    <div class="sidebar">
-        <h3 class="text-center fw-bold mb-4">BOOK<span class="text-accent">Z</span> ADMIN</h3>
+    <div class="sidebar" id="sidebar">
+        <h3 class="text-center fw-bold sidebar-brand">BOOK<span class="text-accent">Z</span> ADMIN</h3>
         <ul class="nav flex-column">
             <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-tachometer-alt me-2"></i> Bảng
                     điều khiển</a></li>
@@ -201,9 +241,20 @@ while ($row = mysqli_fetch_assoc($rev_cat_res)) {
         </ul>
     </div>
 
+    <!-- Overlay để làm mờ nền khi sidebar mở trên mobile -->
+    <div class="sidebar-overlay d-none" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
     <!-- Main Content -->
-    <div class="main-content">
-        <h2 class="fw-bold mb-4">Tổng quan</h2>
+    <div class="main-content" id="main-content">
+        <!-- Top Navbar for Mobile Toggle -->
+        <nav class="top-navbar d-lg-none d-flex justify-content-between align-items-center mb-4 sticky-top">
+            <h4 class="fw-bold mb-0">Tổng quan</h4>
+            <button class="btn btn-outline-primary" type="button" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+
+        <h2 class="fw-bold mb-4 d-none d-lg-block">Tổng quan</h2>
 
         <!-- Hiển thị thông báo (nếu có) -->
         <?php if (isset($_SESSION['message'])): ?>
@@ -298,7 +349,7 @@ while ($row = mysqli_fetch_assoc($rev_cat_res)) {
         </div>
 
         <h4 class="fw-bold mt-5 mb-3">Sản phẩm gần đây</h4>
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card border-0 shadow-sm rounded-4 table-responsive">
             <table class="table table-hover mb-0">
                 <thead class="table-light">
                     <tr>
@@ -384,6 +435,20 @@ while ($row = mysqli_fetch_assoc($rev_cat_res)) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // --- LOGIC CHO SIDEBAR RESPONSIVE ---
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            if (sidebar.classList.contains('show')) {
+                overlay.classList.remove('d-none');
+            } else {
+                overlay.classList.add('d-none');
+            }
+        }
+
+
         // JS cho modal chỉnh sửa sản phẩm - Lấy từ manage_products.php
         const productModal = new bootstrap.Modal(document.getElementById('productModal'));
         const modalTitle = document.getElementById('productModalLabel');
