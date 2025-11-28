@@ -203,75 +203,24 @@ if (isset($_SESSION['user_id'])) {
 
 <style>
     .search-form-hover {
-        display: flex;
-        align-items: center;
-        background: transparent;
-        border-radius: 50px;
-        padding: 5px;
-        position: relative;
-        transition: all 0.4s ease;
+        background: #fff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 
     /* Ô nhập liệu */
     .search-input {
         border: none;
         outline: none;
-        background: transparent;
-        width: 0;
-        padding: 0;
-        opacity: 0;
+        background: #fff;
+        width: 100%;
+        /* Luôn chiếm đủ chiều rộng */
+        padding: 8px 15px;
+        opacity: 1;
         font-size: 1rem;
-        transition: all 0.4s ease;
         color: #333;
     }
 
     /* Nút kính lúp */
-    .search-button {
-        background: transparent;
-        border: none;
-        font-size: 1.2rem;
-        color: #333;
-        cursor: pointer;
-        padding: 0 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        transition: background 0.3s ease;
-    }
-
-    /* Khi Hover chuột vào form */
-    .search-form-hover:hover .search-input {
-        width: 100px;
-        padding-left: 15px;
-        padding-right: 5px;
-        opacity: 1;
-    }
-
-    /* Khi đang gõ (Focus) */
-    .search-input:focus {
-        width: 100px;
-        padding-left: 15px;
-        padding-right: 5px;
-        opacity: 1;
-    }
-
-    .search-input.is-filled {
-        width: 220px !important;
-        padding-left: 15px !important;
-        padding-right: 5px !important;
-        opacity: 1 !important;
-    }
-
-    .search-form-hover:hover,
-    .search-form-hover:focus-within,
-    .search-form-hover.is-filled-wrapper {
-        background: #fff;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
     .search-button:hover {
         background: rgba(0, 0, 0, 0.05);
     }
@@ -297,22 +246,74 @@ if (isset($_SESSION['user_id'])) {
         opacity: 1;
         transform: translateY(0);
     }
+
+    /* CSS cho modal tìm kiếm */
+    .search-modal .modal-content {
+        background-color: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(15px);
+        border: var(--glass-border);
+        border-radius: 16px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-modal .modal-header,
+    .search-modal .modal-footer {
+        border: none;
+    }
+
+    /* CSS cho gợi ý tìm kiếm (autocomplete) */
+    #searchResultsContainer {
+        position: relative;
+        /* Vùng chứa tương đối cho danh sách gợi ý */
+    }
+
+    .autocomplete-suggestions {
+        position: absolute;
+        top: 0;
+        /* Hiển thị ngay bên dưới form */
+        left: 0;
+        right: 0;
+        background-color: #ffffff;
+        z-index: 1056;
+        /* Hiển thị trên các thành phần khác của modal */
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border: 1px solid #eee;
+    }
+
+    .autocomplete-suggestion {
+        padding: 10px 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .autocomplete-suggestion:hover {
+        background-color: #f8f9fa;
+    }
+
+    .autocomplete-suggestion img {
+        width: 40px;
+        height: 60px;
+        object-fit: cover;
+        margin-right: 15px;
+        border-radius: 4px;
+    }
+
+    .autocomplete-suggestion .info .title {
+        font-weight: 600;
+    }
+
+    .autocomplete-suggestion .info .author {
+        font-size: 0.9em;
+        color: #6c757d;
+    }
 </style>
 
 <body>
-    <?php echo $swal_script; ?>
-
-    <!-- ============== Preloader ==============-->
-    <div id="preloader">
-        <div class="spinner"></div>
-    </div>
-    <!-- Container cho tuyết rơi (sẽ được tạo bằng JS) -->
-    <div id="snow-container"></div>
-
-    <!-- Background Elements -->
-    <div class="bg-blobs"></div>
-
-    <!-- ============== Navbar ==============-->
     <header class="header-container">
         <!-- Hàng 1: Logo, Search, User -->
         <nav class="navbar navbar-expand-lg" id="mainNavbar">
@@ -354,16 +355,6 @@ if (isset($_SESSION['user_id'])) {
 
                     <!-- User Actions -->
                     <ul class="navbar-nav ms-auto flex-row align-items-center">
-                        <li class="nav-item me-2">
-                            <form action="Result.php" method="POST" class="search-form-hover">
-                                <input type="search" name="keyword" class="search-input" placeholder="Tìm kiếm sách..."
-                                    autocomplete="off">
-                                <button type="submit" class="search-button">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </form>
-                        </li>
-
                         <?php if (!isset($_SESSION['user'])): ?>
                             <li class="nav-item"><button class="btn btn-primary-glass btn-sm" data-bs-toggle="modal"
                                     data-bs-target="#loginModal">Đăng nhập</button></li>
@@ -372,7 +363,22 @@ if (isset($_SESSION['user_id'])) {
                                 <li class="nav-item"><a href="admin.php"
                                         class="btn btn-warning btn-sm rounded-pill fw-bold shadow-sm px-3"><i
                                             class="fas fa-user-shield me-1"></i> Admin</a></li>
+                                <!-- Icon tìm kiếm cho Admin -->
+                                <li class="nav-item ms-2">
+                                    <button class="btn btn-outline-dark rounded-circle border-0"
+                                        style="width:40px; height:40px;" title="Tìm kiếm" data-bs-toggle="modal"
+                                        data-bs-target="#searchModal">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </li>
                             <?php else: ?>
+                                <li class="nav-item">
+                                    <button class="btn btn-outline-dark rounded-circle border-0"
+                                        style="width:40px; height:40px;" title="Tìm kiếm" data-bs-toggle="modal"
+                                        data-bs-target="#searchModal">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </li>
                                 <li class="nav-item">
                                     <a href="wishlist.php"
                                         class="btn btn-outline-dark rounded-circle position-relative border-0"
@@ -468,68 +474,104 @@ if (isset($_SESSION['user_id'])) {
                 </div>
             </div>
         </nav>
+        <!-- Hàng 2: Thanh tìm kiếm đã được chuyển vào Modal -->
     </header>
+
+    <!-- ========================= Search Modal ========================= -->
+    <div class="modal fade search-modal" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="searchModalLabel" style="font-family: 'Playfair Display', serif;">Tìm
+                        kiếm sách</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="Result.php" method="POST" class="d-flex search-form-hover rounded-pill border"
+                        id="modalSearchForm">
+                        <input type="search" id="searchInputModal" name="keyword"
+                            class="form-control border-0 bg-transparent" placeholder="Nhập tên sách, tác giả..."
+                            autocomplete="off">
+                        <button type="submit" class="btn btn-link text-dark px-3"><i class="fas fa-search"></i></button>
+                    </form>
+                    <!-- Vùng chứa để hiển thị kết quả gợi ý -->
+                    <div id="searchResultsContainer" class="mt-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Lấy tất cả ô tìm kiếm
-            const inputs = document.querySelectorAll('.search-input');
+            // Lấy phần tử modal
+            var searchModal = document.getElementById('searchModal');
+            // Lấy phần tử input bên trong modal
+            var searchInput = document.getElementById('searchInputModal');
 
-            inputs.forEach(input => {
-                const form = input.closest('.search-form-hover');
-
-                // Hàm ép buộc giao diện
-                const forceState = () => {
-                    const hasText = input.value.trim().length > 0;
-
-                    if (hasText) {
-                        input.style.width = '220px';
-                        input.style.paddingLeft = '15px';
-                        input.style.paddingRight = '5px';
-                        input.style.opacity = '1';
-
-                        if (form) {
-                            form.style.background = '#fff';
-                            form.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
-                        }
-                    } else {
-                        // KHÔNG CHỮ: Xóa style inline -> Trả về cho CSS tự lo (Hover mới hiện)
-                        input.style.width = '';
-                        input.style.paddingLeft = '';
-                        input.style.paddingRight = '';
-                        input.style.opacity = '';
-
-                        if (form) {
-                            form.style.background = '';
-                            form.style.boxShadow = '';
-                        }
-                    }
-                };
-
-                // Lắng nghe mọi sự kiện
-                input.addEventListener('input', forceState);   // Khi gõ
-                input.addEventListener('change', forceState);  // Khi paste
-                input.addEventListener('blur', forceState);    // Khi click ra ngoài
-
-                setTimeout(forceState, 100);
+            // Thêm sự kiện 'shown.bs.modal' cho modal
+            searchModal.addEventListener('shown.bs.modal', function () {
+                // Tự động focus vào ô input khi modal được hiển thị
+                searchInput.focus();
             });
-            // --- 2. XỬ LÝ PRELOADER (Tắt màn hình chờ khi tải xong) ---
-            const preloader = document.getElementById('preloader');
-            if (preloader) {
-                // Đợi khi toàn bộ trang tải xong (bao gồm ảnh) thì ẩn preloader
-                window.addEventListener('load', function () {
-                    preloader.style.opacity = '0';
-                    setTimeout(function () {
-                        preloader.style.display = 'none';
-                    }, 500); // Đợi hiệu ứng mờ dần kết thúc
-                });
 
-                // Fallback: Nếu mạng lag quá, tự tắt sau 3 giây
-                setTimeout(function () {
-                    preloader.style.display = 'none';
-                }, 3000);
-            }
+            // --- LOGIC CHO AUTOCOMPLETE SEARCH ---
+            const searchInputModal = document.getElementById('searchInputModal');
+            const resultsContainer = document.getElementById('searchResultsContainer');
+
+            searchInputModal.addEventListener('keyup', function () {
+                const keyword = this.value.trim();
+
+                // Nếu từ khóa rỗng hoặc quá ngắn, xóa gợi ý và dừng lại
+                if (keyword.length < 2) {
+                    resultsContainer.innerHTML = '';
+                    return;
+                }
+
+                // Gửi yêu cầu AJAX đến server
+                fetch(`ajax_search.php?keyword=${encodeURIComponent(keyword)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Xóa các gợi ý cũ
+                        resultsContainer.innerHTML = '';
+
+                        if (data.length > 0) {
+                            // Tạo một list group để chứa các gợi ý
+                            const suggestionsList = document.createElement('div');
+                            suggestionsList.className = 'autocomplete-suggestions';
+
+                            data.forEach(book => {
+                                const bookLink = `description.php?ID=${book.PID}`;
+                                const bookImg = `img/books/${book.PID}.jpg`;
+
+                                // Tạo một thẻ a cho mỗi gợi ý
+                                const suggestionItem = document.createElement('a');
+                                suggestionItem.href = bookLink;
+                                suggestionItem.className = 'autocomplete-suggestion';
+                                suggestionItem.innerHTML = `
+                                <img src="${bookImg}" alt="${book.Title}" onerror="this.src='https://placehold.co/80x120?text=N/A'">
+                                <div class="info">
+                                    <div class="title">${book.Title}</div>
+                                    <div class="author">${book.Author}</div>
+                                </div>
+                            `;
+                                suggestionsList.appendChild(suggestionItem);
+                            });
+
+                            resultsContainer.appendChild(suggestionsList);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Lỗi khi tìm kiếm:', error);
+                        resultsContainer.innerHTML = ''; // Xóa gợi ý nếu có lỗi
+                    });
+            });
+
+            // Đóng gợi ý khi click ra ngoài
+            document.addEventListener('click', (e) => { if (!resultsContainer.contains(e.target)) resultsContainer.innerHTML = ''; });
         });
     </script>
+
 </body>
 
 </html>
