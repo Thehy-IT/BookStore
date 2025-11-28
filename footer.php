@@ -125,14 +125,55 @@
 
 <!-- ============== Footer ==============-->
 <footer id="contact">
-    <div class="footer-wave">
-        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path
-                d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
-                fill="#f0f4f8"></path>
-        </svg>
+    <div id="noel-decoration"
+        style="position: absolute; top: 50px; left: 0; width: 100%; overflow: hidden; z-index: 1; pointer-events: none; transform: translateY(-50%);">
+        <img src="img/decor/noen1.png" alt="Christmas Decoration"
+            style="position: relative; animation: sleigh-ride 25s linear infinite; height: 100px; transform: scaleX(-1);">
+    </div>
+    <div id="snowman-family" style="position: absolute; bottom: 0; right: 0; width: 400px; height: 200px; z-index: 3; pointer-events: none;">
+        <!-- Cây thông Noel -->
+        <img src="img/decor/noen2.png" alt="Christmas Tree"
+            style="position: absolute; bottom: 0; right: 60px; height: 200px;">
+        <!-- Người tuyết gốc -->
+        <img src="img/decor/noen3.png" alt="Snowman Decoration"
+            style="position: absolute; bottom: 0; right: 120px; height: 150px; transform-origin: bottom center; animation: sway 3s ease-in-out infinite;">
+        <!-- Người tuyết nhỏ hơn -->
+        <img src="img/decor/noen3.png" alt="Snowman Decoration"
+            style="position: absolute; bottom: 5px; right: 280px; height: 100px; transform-origin: bottom center; animation: sway 4s ease-in-out infinite -1s;">
+        <!-- Người tuyết cỡ trung -->
+        <img src="img/decor/noen3.png" alt="Snowman Decoration"
+            style="position: absolute; bottom: 0; right: 360px; height: 120px; transform-origin: bottom center; animation: sway 3.5s ease-in-out infinite -0.5s;">
+    </div>
+    <div id="noel-decoration"
+        style="position: absolute; top: 50px; left: 0; width: 100%; overflow: hidden; z-index: 1; pointer-events: none; transform: translateY(-50%);">
+        <img src="img/decor/noen1.png" alt="Christmas Decoration"
+            style="position: relative; animation: sleigh-ride 25s linear infinite; height: 100px; transform: scaleX(-1);">
     </div>
     <style>
+        @keyframes sleigh-ride {
+            0% {
+                transform: translateX(100vw) scaleX(1);
+            }
+
+            100% {
+                transform: translateX(-20%) scaleX(1);
+            }
+        }
+    </style>
+    <style>
+        @keyframes sway {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-5deg); }
+        }
+    </style>
+    <style>
+        footer#contact {
+            border-top-left-radius: 80px !important;
+            border-top-right-radius: 80px !important;
+        }
+
         .footer-logos-section {
             padding-top: 20px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
