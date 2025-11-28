@@ -1,9 +1,17 @@
 <?php
 session_start();
 include "dbconnect.php";
+include_once 'functions.php'; // Giả sử hàm set_swal() ở đây
 
 $message = "";
 $message_type = "";
+
+// Hiển thị thông báo flash nếu có
+if (isset($_SESSION['flash_message'])) {
+    $message = $_SESSION['flash_message'];
+    $message_type = $_SESSION['flash_type'];
+    unset($_SESSION['flash_message'], $_SESSION['flash_type']);
+}
 
 if (isset($_POST['submit']) && $_POST['submit'] == "register") {
     // 1. Lấy dữ liệu và làm sạch
@@ -11,13 +19,17 @@ if (isset($_POST['submit']) && $_POST['submit'] == "register") {
     $password = $_POST['register_password'];
     $confirm_password = $_POST['confirm_password'];
 
+    $should_redirect = false;
+
     // 2. Validate cơ bản
     if (empty($username) || empty($password)) {
-        $message = "Vui lòng điền đầy đủ thông tin.";
-        $message_type = "warning";
+        $_SESSION['flash_message'] = "Vui lòng điền đầy đủ thông tin.";
+        $_SESSION['flash_type'] = "warning";
+        $should_redirect = true;
     } elseif ($password !== $confirm_password) {
-        $message = "Mật khẩu xác nhận không khớp.";
-        $message_type = "error";
+        $_SESSION['flash_message'] = "Mật khẩu xác nhận không khớp.";
+        $_SESSION['flash_type'] = "error";
+        $should_redirect = true;
     } else {
         // 3. Kiểm tra Username đã tồn tại chưa (Dùng Prepared Statement)
         $stmt = $con->prepare("SELECT UserName FROM users WHERE UserName = ?");
@@ -26,8 +38,9 @@ if (isset($_POST['submit']) && $_POST['submit'] == "register") {
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            $message = "Tên đăng nhập '$username' đã được sử dụng.";
-            $message_type = "error";
+            $_SESSION['flash_message'] = "Tên đăng nhập '$username' đã được sử dụng.";
+            $_SESSION['flash_type'] = "error";
+            $should_redirect = true;
         } else {
             // 4. Mã hóa mật khẩu (Quan trọng!)
             // Mật khẩu sẽ được biến đổi thành chuỗi ký tự ngẫu nhiên an toàn
@@ -43,14 +56,19 @@ if (isset($_POST['submit']) && $_POST['submit'] == "register") {
                 $_SESSION['flash_message'] = "Đăng ký thành công! Bây giờ bạn có thể đăng nhập.";
                 $_SESSION['flash_type'] = "success";
                 header("Location: login.php");
-                // Tự động chuyển hướng sau 2 giây (Xử lý bằng JS bên dưới)
+                exit();
             } else {
-                $message = "Lỗi hệ thống: " . $con->error;
-                $message_type = "error";
+                $_SESSION['flash_message'] = "Lỗi hệ thống, không thể tạo tài khoản.";
+                $_SESSION['flash_type'] = "error";
+                $should_redirect = true;
             }
             $insert_stmt->close();
         }
         $stmt->close();
+    }
+    if ($should_redirect) {
+        header("Location: register.php");
+        exit();
     }
 }
 ?>
@@ -64,7 +82,9 @@ if (isset($_POST['submit']) && $_POST['submit'] == "register") {
     <title>Register | BookZ Store</title>
 
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 -->
@@ -164,8 +184,10 @@ if (isset($_POST['submit']) && $_POST['submit'] == "register") {
             <div class="mb-3">
                 <label class="form-label fw-bold text-secondary small">Username</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-transparent border-0 ps-0"><i class="fas fa-user text-muted"></i></span>
-                    <input type="text" class="form-control" name="register_username" placeholder="Choose a username" required>
+                    <span class="input-group-text bg-transparent border-0 ps-0"><i
+                            class="fas fa-user text-muted"></i></span>
+                    <input type="text" class="form-control" name="register_username" placeholder="Choose a username"
+                        required>
                 </div>
             </div>
 
@@ -173,8 +195,10 @@ if (isset($_POST['submit']) && $_POST['submit'] == "register") {
             <div class="mb-3">
                 <label class="form-label fw-bold text-secondary small">Password</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-transparent border-0 ps-0"><i class="fas fa-lock text-muted"></i></span>
-                    <input type="password" class="form-control" name="register_password" placeholder="Create a password" required>
+                    <span class="input-group-text bg-transparent border-0 ps-0"><i
+                            class="fas fa-lock text-muted"></i></span>
+                    <input type="password" class="form-control" name="register_password" placeholder="Create a password"
+                        required>
                 </div>
             </div>
 
@@ -182,8 +206,10 @@ if (isset($_POST['submit']) && $_POST['submit'] == "register") {
             <div class="mb-4">
                 <label class="form-label fw-bold text-secondary small">Confirm Password</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-transparent border-0 ps-0"><i class="fas fa-check-circle text-muted"></i></span>
-                    <input type="password" class="form-control" name="confirm_password" placeholder="Repeat your password" required>
+                    <span class="input-group-text bg-transparent border-0 ps-0"><i
+                            class="fas fa-check-circle text-muted"></i></span>
+                    <input type="password" class="form-control" name="confirm_password"
+                        placeholder="Repeat your password" required>
                 </div>
             </div>
 
@@ -200,16 +226,15 @@ if (isset($_POST['submit']) && $_POST['submit'] == "register") {
 
     <!-- Script xử lý thông báo -->
     <?php if (!empty($message)): ?>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    icon: '<?php echo $message_type; ?>',
-                    title: 'Thông báo',
-                    text: '<?php echo $message; ?>',
-                    confirmButtonColor: '#0f172a'
-                });
-            });
-        </script>
+        <?php
+        // Sử dụng hàm set_swal() để đồng bộ
+        $swal_script = set_swal(
+            $message_type,
+            'Thông báo',
+            $message
+        );
+        echo $swal_script;
+        ?>
     <?php endif; ?>
 
 </body>

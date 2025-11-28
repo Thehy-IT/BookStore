@@ -1,9 +1,17 @@
 <?php
 session_start();
 include "dbconnect.php"; // Đảm bảo file này kết nối đúng DB
+include_once 'functions.php'; // Giả sử hàm set_swal() ở đây
 
 $message = "";
 $message_type = "";
+
+// Hiển thị thông báo flash nếu có
+if (isset($_SESSION['flash_message'])) {
+  $message = $_SESSION['flash_message'];
+  $message_type = $_SESSION['flash_type'];
+  unset($_SESSION['flash_message'], $_SESSION['flash_type']);
+}
 
 // --- XỬ LÝ LOGIC ĐĂNG NHẬP ---
 if (isset($_POST['submit']) && $_POST['submit'] == "login") {
@@ -40,17 +48,20 @@ if (isset($_POST['submit']) && $_POST['submit'] == "login") {
         }
         exit();
       } else {
-        $message = "Mật khẩu không chính xác.";
-        $message_type = "error";
+        $_SESSION['flash_message'] = "Mật khẩu không chính xác.";
+        $_SESSION['flash_type'] = "error";
+        header("Location: login.php");
+        exit();
       }
     } else {
-      $message = "Tài khoản không tồn tại.";
-      $message_type = "error";
+      $_SESSION['flash_message'] = "Tài khoản không tồn tại.";
+      $_SESSION['flash_type'] = "error";
+      header("Location: login.php");
+      exit();
     }
     $stmt->close();
   } else {
-    $message = "Lỗi kết nối cơ sở dữ liệu.";
-    $message_type = "error";
+    // Lỗi này nên được ghi vào log thay vì hiển thị cho người dùng
   }
 }
 ?>
@@ -207,16 +218,15 @@ if (isset($_POST['submit']) && $_POST['submit'] == "login") {
 
   <!-- Hiển thị thông báo lỗi (nếu có) -->
   <?php if (!empty($message)): ?>
-    <script>
-      Swal.fire({
-        icon: '<?php echo $message_type; ?>',
-        title: '<?php echo ($message_type == "error" ? "Login Failed" : "Success"); ?>',
-        text: '<?php echo $message; ?>',
-        confirmButtonColor: '#0f172a',
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdrop: `rgba(0,0,0,0.4)`
-      });
-    </script>
+    <?php
+    // Sử dụng hàm set_swal() để đồng bộ
+    $swal_script = set_swal(
+      $message_type,
+      'Thông báo',
+      $message
+    );
+    echo $swal_script;
+    ?>
   <?php endif; ?>
 
 </body>

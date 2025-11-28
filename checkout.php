@@ -3,17 +3,29 @@ include 'header.php'; // Sử dụng header chung
 
 // 1. Kiểm tra đăng nhập
 if (!isset($_SESSION['user_id'])) {
-    // Nếu chưa đăng nhập, chuyển hướng về trang giỏ hàng để hiển thị thông báo
+    $_SESSION['flash_message'] = "Bạn cần đăng nhập để thanh toán.";
+    $_SESSION['flash_type'] = "warning";
     header("Location: cart.php");
     exit();
 }
 $user_id = $_SESSION['user_id'];
 
-// 2. Lấy dữ liệu giỏ hàng để hiển thị và tính toán
+// 2. Lấy danh sách sản phẩm được chọn từ POST
+$selected_products = $_POST['selected_products'] ?? [];
+
+if (empty($selected_products)) {
+    $_SESSION['flash_message'] = "Bạn chưa chọn sản phẩm nào để thanh toán.";
+    $_SESSION['flash_type'] = "warning";
+    header("Location: cart.php");
+    exit();
+}
+
+// Tạo chuỗi placeholder cho câu lệnh IN (...)
+$placeholders = implode(',', array_fill(0, count($selected_products), '?'));
 $sql = "SELECT p.PID, p.Title, p.Price, c.Quantity 
         FROM cart c 
         JOIN products p ON c.ProductID = p.PID 
-        WHERE c.UserID = ?";
+        WHERE c.UserID = ? AND p.PID IN ($placeholders)";
 $stmt = $con->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -113,12 +125,14 @@ if (isset($_SESSION['flash_message'])) {
     }
 </style>
 
-<?php if ($swal_script) echo $swal_script; ?>
+<?php if ($swal_script)
+    echo $swal_script; ?>
 
 <!-- ============== Checkout Content ==============-->
 <div class="container" style="padding-top: 100px; padding-bottom: 50px;">
     <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4" style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
+    <nav aria-label="breadcrumb" class="mb-4"
+        style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
             <li class="breadcrumb-item"><a href="cart.php">Giỏ hàng</a></li>
@@ -137,15 +151,18 @@ if (isset($_SESSION['flash_message'])) {
                     <div class="row g-3">
                         <div class="col-12">
                             <label for="customer_name" class="form-label">Họ và tên người nhận</label>
-                            <input type="text" class="form-control form-control-glass" id="customer_name" name="customer_name" placeholder="Nguyễn Văn A" required>
+                            <input type="text" class="form-control form-control-glass" id="customer_name"
+                                name="customer_name" placeholder="Nguyễn Văn A" required>
                         </div>
                         <div class="col-md-6">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control form-control-glass" id="email" name="email" placeholder="example@email.com" required>
+                            <input type="email" class="form-control form-control-glass" id="email" name="email"
+                                placeholder="example@email.com" required>
                         </div>
                         <div class="col-md-6">
                             <label for="phone_number" class="form-label">Số điện thoại</label>
-                            <input type="tel" class="form-control form-control-glass" id="phone_number" name="phone_number" placeholder="09xxxxxxxx" required>
+                            <input type="tel" class="form-control form-control-glass" id="phone_number"
+                                name="phone_number" placeholder="09xxxxxxxx" required>
                         </div>
                         <div class="col-md-6">
                             <label for="country" class="form-label">Quốc gia</label>
@@ -156,19 +173,23 @@ if (isset($_SESSION['flash_message'])) {
                         </div>
                         <div class="col-md-6">
                             <label for="province" class="form-label">Tỉnh/Thành Phố</label>
-                            <input type="text" class="form-control form-control-glass" id="province" name="province" required>
+                            <input type="text" class="form-control form-control-glass" id="province" name="province"
+                                required>
                         </div>
                         <div class="col-md-6">
                             <label for="district" class="form-label">Quận/Huyện</label>
-                            <input type="text" class="form-control form-control-glass" id="district" name="district" required>
+                            <input type="text" class="form-control form-control-glass" id="district" name="district"
+                                required>
                         </div>
                         <div class="col-md-6">
                             <label for="ward" class="form-label">Phường/Xã</label>
                             <input type="text" class="form-control form-control-glass" id="ward" name="ward" required>
                         </div>
                         <div class="col-12">
-                            <label for="shipping_address" class="form-label">Địa chỉ nhận hàng (Số nhà, tên đường)</label>
-                            <textarea class="form-control form-control-glass" id="shipping_address" name="shipping_address" rows="2" placeholder="Ví dụ: 123 Đường ABC" required></textarea>
+                            <label for="shipping_address" class="form-label">Địa chỉ nhận hàng (Số nhà, tên
+                                đường)</label>
+                            <textarea class="form-control form-control-glass" id="shipping_address"
+                                name="shipping_address" rows="2" placeholder="Ví dụ: 123 Đường ABC" required></textarea>
                         </div>
                     </div>
                     <div class="mt-4">
@@ -176,37 +197,47 @@ if (isset($_SESSION['flash_message'])) {
                         <div class="vstack gap-2">
                             <!-- Thanh toán khi nhận hàng (COD) -->
                             <div class="form-check p-3 rounded-3 payment-option">
-                                <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod" checked>
+                                <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod"
+                                    checked>
                                 <label class="form-check-label fw-bold" for="cod">
                                     <i class="fas fa-truck me-2 text-muted"></i> Thanh toán bằng tiền mặt khi nhận hàng
                                 </label>
                             </div>
                             <!-- Ví Momo -->
                             <div class="form-check p-3 rounded-3 payment-option">
-                                <input class="form-check-input" type="radio" name="payment_method" id="momo" value="momo">
+                                <input class="form-check-input" type="radio" name="payment_method" id="momo"
+                                    value="momo">
                                 <label class="form-check-label fw-bold" for="momo">
-                                    <img src="img/footer/momo.png" alt="Momo" style="height: 20px; margin-right: 8px;"> Ví Momo
+                                    <img src="img/footer/momo.png" alt="Momo" style="height: 20px; margin-right: 8px;">
+                                    Ví Momo
                                 </label>
                             </div>
                             <!-- Ví ZaloPay -->
                             <div class="form-check p-3 rounded-3 payment-option">
-                                <input class="form-check-input" type="radio" name="payment_method" id="zalopay" value="zalopay">
+                                <input class="form-check-input" type="radio" name="payment_method" id="zalopay"
+                                    value="zalopay">
                                 <label class="form-check-label fw-bold" for="zalopay">
-                                    <img src="img/footer/zalopay.png" alt="ZaloPay" style="height: 20px; margin-right: 8px;"> Ví ZaloPay
+                                    <img src="img/footer/zalopay.png" alt="ZaloPay"
+                                        style="height: 20px; margin-right: 8px;"> Ví ZaloPay
                                 </label>
                             </div>
                             <!-- Ví ShopeePay -->
                             <div class="form-check p-3 rounded-3 payment-option">
-                                <input class="form-check-input" type="radio" name="payment_method" id="shopeepay" value="shopeepay">
+                                <input class="form-check-input" type="radio" name="payment_method" id="shopeepay"
+                                    value="shopeepay">
                                 <label class="form-check-label fw-bold" for="shopeepay">
-                                    <img src="img/footer/shopee.png" alt="ShopeePay" style="height: 20px; margin-right: 8px;"> Ví ShopeePay
+                                    <img src="img/footer/shopee.png" alt="ShopeePay"
+                                        style="height: 20px; margin-right: 8px;"> Ví ShopeePay
                                 </label>
                             </div>
                             <!-- VNPAY -->
                             <div class="form-check p-3 rounded-3 payment-option">
-                                <input class="form-check-input" type="radio" name="payment_method" id="vnpay" value="vnpay">
+                                <input class="form-check-input" type="radio" name="payment_method" id="vnpay"
+                                    value="vnpay">
                                 <label class="form-check-label fw-bold" for="vnpay">
-                                    <img src="img/footer/vnpay.png" alt="VNPAY" style="height: 20px; margin-right: 8px;"> VNPAY (ATM/Internet Banking/Visa/Master/JCB)
+                                    <img src="img/footer/vnpay.png" alt="VNPAY"
+                                        style="height: 20px; margin-right: 8px;"> VNPAY (ATM/Internet
+                                    Banking/Visa/Master/JCB)
                                 </label>
                             </div>
 
@@ -221,14 +252,17 @@ if (isset($_SESSION['flash_message'])) {
                     <h5 class="fw-bold mb-4">Đơn hàng của bạn (<?php echo $total_items; ?> sản phẩm)</h5>
 
                     <div style="max-height: 300px; overflow-y: auto;" class="mb-3 pe-2">
-                        <?php foreach ($cart_items as $item) : ?>
+                        <?php foreach ($cart_items as $item): ?>
                             <div class="summary-item">
-                                <img src="img/books/<?php echo $item['PID']; ?>.jpg" class="summary-item-img" onerror="this.src='https://placehold.co/100x150?text=Book'">
+                                <img src="img/books/<?php echo $item['PID']; ?>.jpg" class="summary-item-img"
+                                    onerror="this.src='https://placehold.co/100x150?text=Book'">
                                 <div class="flex-grow-1">
-                                    <p class="fw-bold mb-0 small text-truncate"><?php echo htmlspecialchars($item['Title']); ?></p>
+                                    <p class="fw-bold mb-0 small text-truncate">
+                                        <?php echo htmlspecialchars($item['Title']); ?></p>
                                     <small class="text-muted">Số lượng: <?php echo $item['Quantity']; ?></small>
                                 </div>
-                                <p class="fw-bold small mb-0"><?php echo number_format($item['Price'] * $item['Quantity']); ?> đ</p>
+                                <p class="fw-bold small mb-0">
+                                    <?php echo number_format($item['Price'] * $item['Quantity']); ?> đ</p>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -239,8 +273,10 @@ if (isset($_SESSION['flash_message'])) {
                     <div class="mb-3">
                         <label class="form-label">Mã giảm giá</label>
                         <div class="input-group">
-                            <input type="text" class="form-control form-control-glass" placeholder="Nhập mã giảm giá" id="coupon-code">
-                            <button class="btn btn-outline-dark" type="button" id="apply-coupon-btn" onclick="applyCoupon()">Áp dụng</button>
+                            <input type="text" class="form-control form-control-glass" placeholder="Nhập mã giảm giá"
+                                id="coupon-code">
+                            <button class="btn btn-outline-dark" type="button" id="apply-coupon-btn"
+                                onclick="applyCoupon()">Áp dụng</button>
                         </div>
                         <div id="coupon-message" class="small mt-2"></div>
                     </div>
@@ -261,7 +297,8 @@ if (isset($_SESSION['flash_message'])) {
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <span class="fs-5 fw-bold">Tổng cộng</span>
-                        <span class="fs-4 fw-bold" style="color: var(--accent);" id="final-total"><?php echo number_format($total_amount); ?> đ</span>
+                        <span class="fs-4 fw-bold" style="color: var(--accent);"
+                            id="final-total"><?php echo number_format($total_amount); ?> đ</span>
                     </div>
 
                     <button type="submit" class="btn-place-order">
@@ -290,12 +327,12 @@ if (isset($_SESSION['flash_message'])) {
         applyBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
 
         fetch('apply_coupon.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `coupon_code=${couponCode}`
-            })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `coupon_code=${couponCode}`
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -325,4 +362,3 @@ if (isset($_SESSION['flash_message'])) {
 <?php
 include 'footer.php'; // Sử dụng footer chung
 ?>
-

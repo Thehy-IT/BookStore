@@ -174,14 +174,23 @@ while ($row = $result->fetch_assoc()) {
     </nav>
     <h2 class="fw-bold mb-4" style="font-family: 'Playfair Display', serif; margin-top: 2rem;">Giỏ hàng của bạn</h2>
 
-    <?php if (!empty($cart_items)): ?>
-        <div class="row g-4">
+    <form action="checkout.php" method="POST" id="cart-form">
+        <?php if (!empty($cart_items)): ?>
+            <div class="row g-4">
             <!-- Cột trái: Danh sách sản phẩm -->
             <div class="col-lg-8">
+                <!-- Header của danh sách sản phẩm -->
                 <div class="vstack gap-3">
                     <?php foreach ($cart_items as $item): ?>
                         <div class="cart-item-card" id="cart-item-<?php echo htmlspecialchars($item['PID']); ?>">
                             <div class="row g-3 align-items-center">
+                                <!-- NEW: Checkbox -->
+                                <div class="col-auto d-flex align-items-center">
+                                    <input class="form-check-input item-checkbox" type="checkbox" name="selected_products[]" 
+                                           value="<?php echo htmlspecialchars($item['PID']); ?>" 
+                                           data-price="<?php echo $item['Price']; ?>" 
+                                           data-quantity="<?php echo $item['Quantity']; ?>" checked>
+                                </div>
                                 <!-- Ảnh -->
                                 <div class="col-auto">
                                     <img src="img/books/<?php echo htmlspecialchars($item['PID']); ?>.jpg" class="cart-item-img" onerror="this.src='https://placehold.co/100x150?text=Book'">
@@ -214,13 +223,21 @@ while ($row = $result->fetch_assoc()) {
                     <?php endforeach; ?>
                 </div>
 
-                <div class="mt-4 d-flex justify-content-between align-items-center">
+                <div class="cart-item-card mt-4 d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="select-all-checkbox" checked>
+                        <label class="form-check-label fw-bold" for="select-all-checkbox">
+                            Chọn tất cả (<span id="total-items-in-cart"><?php echo $total_items; ?></span> sản phẩm)
+                        </label>
+                    </div>
                     <a href="index.php" class="btn btn-light rounded-pill">
                         <i class="fas fa-arrow-left me-2"></i> Tiếp tục mua sắm
                     </a>
-                    <button onclick="confirmClearAll()" class="btn btn-outline-danger rounded-pill">
-                        <i class="fas fa-trash-alt me-1"></i> Xóa tất cả
-                    </button>
+                    <div>
+                        <button type="button" onclick="confirmClearAll()" class="btn btn-outline-danger rounded-pill">
+                            <i class="fas fa-trash-alt me-1"></i> Xóa toàn bộ giỏ hàng
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -230,8 +247,8 @@ while ($row = $result->fetch_assoc()) {
                     <h5 class="fw-bold mb-4">Tóm tắt đơn hàng</h5>
 
                     <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted">Tạm tính (<span id="total-items"><?php echo $total_items; ?></span> sản phẩm)</span>
-                        <span class="fw-bold"><span id="subtotal-amount"><?php echo number_format($subtotal); ?></span> đ</span>
+                        <span class="text-muted">Tạm tính (<span id="selected-items-count"><?php echo $total_items; ?></span> sản phẩm đã chọn)</span>
+                        <span class="fw-bold" id="subtotal-amount"><?php echo number_format($subtotal); ?> đ</span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-muted">Phí vận chuyển</span>
@@ -240,22 +257,22 @@ while ($row = $result->fetch_assoc()) {
                     <hr>
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <span class="fs-5 fw-bold">Tổng cộng</span>
-                        <span class="fs-4 fw-bold" style="color: var(--accent);"><span id="total-amount"><?php echo number_format($subtotal); ?></span> đ</span>
+                        <span class="fs-4 fw-bold" style="color: var(--accent);" id="total-amount"><?php echo number_format($subtotal); ?> đ</span>
                     </div>
 
                     <!-- Form đặt hàng -->
-                    <a href="checkout.php" class="btn-checkout text-center text-decoration-none">
+                    <button type="submit" id="checkout-btn" class="btn-checkout text-center text-decoration-none">
                         Tiến hành thanh toán <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
+                    </button>
 
                     <div class="mt-3 text-center small text-muted">
                         <i class="fas fa-shield-alt me-1"></i> Thanh toán an toàn
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
 
-    <?php else: ?>
+        <?php else: ?>
         <!-- Giỏ hàng trống -->
         <div class="empty-cart">
             <div style="font-size: 5rem; color: #cbd5e1;"><i class="fas fa-shopping-basket"></i></div>
@@ -265,8 +282,8 @@ while ($row = $result->fetch_assoc()) {
                 Bắt đầu mua sắm
             </a>
         </div>
-    <?php endif; ?>
-
+        <?php endif; ?>
+    </form>
 </div>
 
 <script>
@@ -406,10 +423,13 @@ while ($row = $result->fetch_assoc()) {
 
     // Hàm phụ để cập nhật tóm tắt đơn hàng và header
     function updateSummaryAndHeader(data) {
-        document.getElementById('subtotal-amount').textContent = formatter.format(data.new_total_amount);
-        document.getElementById('total-amount').textContent = formatter.format(data.new_total_amount);
-        document.getElementById('total-items').textContent = data.new_total_items;
+        // Cập nhật tổng tiền dựa trên các mục đã chọn
+        updateSelectedSummary();
 
+        // Cập nhật số lượng trên header (tổng số sản phẩm trong giỏ)
+        const totalItemsInCart = Array.from(document.querySelectorAll('.item-checkbox')).length;
+        document.getElementById('total-items-in-cart').textContent = totalItemsInCart;
+        
         const headerCartBadge = document.getElementById('header-cart-count');
         if (headerCartBadge) {
             if (data.new_total_items > 0) {
@@ -420,6 +440,58 @@ while ($row = $result->fetch_assoc()) {
             }
         }
     }
+
+    // NEW: Logic cho checkbox
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+        const checkoutBtn = document.getElementById('checkout-btn');
+
+        function updateSelectedSummary() {
+            let selectedSubtotal = 0;
+            let selectedCount = 0;
+
+            itemCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const price = parseFloat(checkbox.dataset.price);
+                    const quantity = parseInt(document.getElementById(`quantity-${checkbox.value}`).value);
+                    selectedSubtotal += price * quantity;
+                    selectedCount++;
+                }
+            });
+
+            document.getElementById('subtotal-amount').textContent = formatter.format(selectedSubtotal) + ' đ';
+            document.getElementById('total-amount').textContent = formatter.format(selectedSubtotal) + ' đ';
+            document.getElementById('selected-items-count').textContent = selectedCount;
+
+            // Vô hiệu hóa nút thanh toán nếu không có sản phẩm nào được chọn
+            if (checkoutBtn) {
+                checkoutBtn.disabled = selectedCount === 0;
+            }
+        }
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                itemCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateSelectedSummary();
+            });
+        }
+
+        itemCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const allChecked = Array.from(itemCheckboxes).every(cb => cb.checked);
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = allChecked;
+                }
+                updateSelectedSummary();
+            });
+        });
+
+        // Cập nhật tổng tiền lần đầu khi tải trang
+        updateSelectedSummary();
+    });
 </script>
 <?php
 include 'footer.php'; // Sử dụng footer chung

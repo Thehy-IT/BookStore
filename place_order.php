@@ -9,11 +9,22 @@ if (!isset($_SESSION['user_id']) || $_SERVER["REQUEST_METHOD"] !== "POST") {
 }
 $user_id = $_SESSION['user_id'];
 
-// 2. LẤY DỮ LIỆU GIỎ HÀNG VÀ TÍNH TỔNG TIỀN TRỞ LẠI
+// 2. LẤY DỮ LIỆU CÁC SẢN PHẨM ĐÃ CHỌN TỪ GIỎ HÀNG VÀ TÍNH TỔNG TIỀN
+$selected_products = $_SESSION['selected_products_for_order'] ?? [];
+
+if (empty($selected_products)) {
+    // Nếu không có sản phẩm nào trong session, có thể người dùng truy cập trực tiếp
+    $_SESSION['flash_message'] = "Không có sản phẩm nào để đặt hàng.";
+    $_SESSION['flash_type'] = "error";
+    header("Location: cart.php");
+    exit();
+}
+
+$placeholders = implode(',', array_fill(0, count($selected_products), '?'));
 $sql = "SELECT p.PID, p.Price, c.Quantity 
         FROM cart c 
         JOIN products p ON c.ProductID = p.PID 
-        WHERE c.UserID = ?";
+        WHERE c.UserID = ? AND p.PID IN ($placeholders)";
 $stmt_cart = $con->prepare($sql);
 $stmt_cart->bind_param("i", $user_id);
 $stmt_cart->execute();
@@ -24,7 +35,8 @@ $total_amount_calculated = 0;
 
 if ($result_cart->num_rows === 0) {
     // Nếu giỏ hàng trống, không thể đặt hàng
-    // set_flash_message('error', 'Giỏ hàng của bạn đang trống.');
+    $_SESSION['flash_message'] = 'Giỏ hàng của bạn đang trống hoặc sản phẩm đã chọn không hợp lệ.';
+    $_SESSION['flash_type'] = 'error';
     header("Location: cart.php");
     exit();
 }
@@ -41,13 +53,13 @@ $phone_number = trim($_POST['phone_number']);
 $payment_method = $_POST['payment_method'];
 
 // Ghép địa chỉ lại thành một chuỗi duy nhất để lưu vào DB
-$shipping_address = trim($_POST['shipping_address']) . 
-                    ', ' . trim($_POST['ward']) . 
-                    ', ' . trim($_POST['district']) . 
-                    ', ' . trim($_POST['province']) . 
-                    ', ' . trim($_POST['country']);
+$shipping_address = trim($_POST['shipping_address']) .
+    ', ' . trim($_POST['ward']) .
+    ', ' . trim($_POST['district']) .
+    ', ' . trim($_POST['province']) .
+    ', ' . trim($_POST['country']);
 
-$final_total_amount = $total_amount_calculated; 
+$final_total_amount = $total_amount_calculated;
 // (Nếu có coupon, cần áp dụng và cập nhật biến này)
 
 // --- BẮT ĐẦU TRANSACTION ĐỂ ĐẢM BẢO TÍNH TOÀN VẸN DỮ LIỆU ---
@@ -60,12 +72,12 @@ try {
                   VALUES (?, ?, ?, ?, ?, 'Pending', ?)";
     $stmt_order = $con->prepare($sql_order);
     $stmt_order->bind_param(
-        "isssds", 
-        $user_id, 
-        $customer_name, 
-        $shipping_address, 
-        $phone_number, 
-        $final_total_amount, 
+        "isssds",
+        $user_id,
+        $customer_name,
+        $shipping_address,
+        $phone_number,
+        $final_total_amount,
         $payment_method
     );
     $stmt_order->execute();
@@ -77,28 +89,31 @@ try {
     // 6. INSERT VÀO BẢNG order_items
     $sql_items = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
     $stmt_items = $con->prepare($sql_items);
-    
+
     foreach ($cart_items as $item) {
         $product_price_at_checkout = $item['Price']; // Giá tại thời điểm đặt hàng
         $stmt_items->bind_param(
-            "isid", 
-            $order_id, 
-            $item['PID'], 
-            $item['Quantity'], 
+            "isid",
+            $order_id,
+            $item['PID'],
+            $item['Quantity'],
             $product_price_at_checkout
         );
         if (!$stmt_items->execute()) {
             $success = false;
-            break; 
+            break;
         }
     }
     $stmt_items->close();
 
     // 7. XÓA GIỎ HÀNG (Nếu 6 thành công)
+    // Chỉ xóa những sản phẩm đã được đặt hàng
     if ($success) {
-        $sql_delete_cart = "DELETE FROM cart WHERE UserID = ?";
+        $delete_placeholders = implode(',', array_fill(0, count($selected_products), '?'));
+        $sql_delete_cart = "DELETE FROM cart WHERE UserID = ? AND ProductID IN ($delete_placeholders)";
         $stmt_delete = $con->prepare($sql_delete_cart);
-        $stmt_delete->bind_param("i", $user_id);
+        $types = 'i' . str_repeat('s', count($selected_products));
+        $stmt_delete->bind_param($types, $user_id, ...$selected_products);
         $stmt_delete->execute();
         $stmt_delete->close();
     } else {
@@ -108,15 +123,20 @@ try {
     // COMMIT TRANSACTION
     $con->commit();
 
+    // Xóa session sản phẩm đã chọn
+    unset($_SESSION['selected_products_for_order']);
+
     // 8. CHUYỂN HƯỚNG THÀNH CÔNG
-    // set_flash_message('success', 'Đặt hàng thành công! Vui lòng kiểm tra email để xem chi tiết.');
-    header("Location: order_tracking.php?id=" . $order_id); 
+    $_SESSION['flash_message'] = 'Đặt hàng thành công! Cảm ơn bạn đã mua sắm.';
+    $_SESSION['flash_type'] = 'success';
+    header("Location: order_tracking.php?id=" . $order_id);
     exit();
 
 } catch (Exception $e) {
     // ROLLBACK TRANSACTION nếu có lỗi
     $con->rollback();
-    // set_flash_message('error', 'Đã xảy ra lỗi hệ thống khi đặt hàng. Vui lòng thử lại. Lỗi: ' . $e->getMessage());
+    $_SESSION['flash_message'] = 'Đã xảy ra lỗi hệ thống khi đặt hàng. Vui lòng thử lại.';
+    $_SESSION['flash_type'] = 'error';
     header("Location: checkout.php");
     exit();
 }
