@@ -1,23 +1,21 @@
 <?php
 // --- 1. CẤU HÌNH PHP & SESSION ---
-error_reporting(0);
-ini_set('display_errors', 0);
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-include_once "dbconnect.php";
+include 'dbconnect.php'; // Chỉ include dbconnect để xử lý logic
 
-// Kiểm tra đăng nhập
+// --- 2. XỬ LÝ LOGIC TRƯỚC KHI HIỂN THỊ ---
+
+// Kiểm tra đăng nhập sớm
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-
 $user_id = $_SESSION['user_id'];
 
-// --- 2. XỬ LÝ LOGIC HỦY ĐƠN ---
+// XỬ LÝ LOGIC HỦY ĐƠN
 if (isset($_POST['cancel_order']) && isset($_POST['order_id_to_cancel'])) {
     $cancel_id = intval($_POST['order_id_to_cancel']);
     $check_stmt = $con->prepare("SELECT status FROM orders WHERE order_id = ? AND user_id = ?");
@@ -31,11 +29,42 @@ if (isset($_POST['cancel_order']) && isset($_POST['order_id_to_cancel'])) {
             $update_stmt = $con->prepare("UPDATE orders SET status = 'Cancelled' WHERE order_id = ?");
             $update_stmt->bind_param("i", $cancel_id);
             if ($update_stmt->execute()) {
-                header("Location: order_tracking.php?id=" . $cancel_id);
+                $_SESSION['flash_message'] = "Đã hủy đơn hàng #" . $cancel_id . " thành công.";
+                $_SESSION['flash_type'] = "success";
+                header("Location: order_tracking.php"); // Chuyển hướng về trang danh sách
                 exit();
             }
         }
     }
+}
+
+// --- BẮT ĐẦU HIỂN THỊ GIAO DIỆN ---
+include 'header.php';
+
+/*
+// Kiểm tra đăng nhập
+if (!isset($_SESSION['user_id'])) {
+    // Nếu chưa đăng nhập, hiển thị thông báo và yêu cầu đăng nhập
+    echo "<div class='container text-center py-5' style='margin-top: 80px; min-height: 60vh;'>
+            <h3>Vui lòng đăng nhập</h3>
+            <p class='text-muted'>Bạn cần đăng nhập để xem lịch sử đơn hàng.</p>
+            <button class='btn btn-primary-glass' data-bs-toggle='modal' data-bs-target='#loginModal'>Đăng nhập ngay</button>
+          </div>";
+    include 'footer.php';
+    header("Location: login.php");
+    exit();
+}
+*/
+
+// Hiển thị thông báo flash nếu có
+if (isset($_SESSION['flash_message'])) {
+    $swal_script = set_swal(
+        $_SESSION['flash_type'],
+        'Thông báo',
+        $_SESSION['flash_message']
+    );
+    echo $swal_script;
+    unset($_SESSION['flash_message'], $_SESSION['flash_type']);
 }
 
 // --- 3. LẤY DỮ LIỆU ---
@@ -143,14 +172,13 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
     </div>';
 }
 ?>
-
-<?php include "header.php"; ?>
-
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
     tailwind.config = {
         prefix: 'tw-',
-        corePlugins: { preflight: false }
+        corePlugins: {
+            preflight: false
+        }
     }
 </script>
 
@@ -159,20 +187,12 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
 <style>
-    .tracking-wrapper {
-        font-family: 'Roboto', sans-serif;
-    }
-
     .bookz-border-top {
         background-image: repeating-linear-gradient(45deg, #6fa6d6, #6fa6d6 33px, transparent 0, transparent 41px, #f18d9b 0, #f18d9b 74px, transparent 0, transparent 82px);
         background-position-x: -1.875rem;
         background-size: 7.25rem .1875rem;
         height: .1875rem;
         width: 100%;
-    }
-
-    .text-orange {
-        color: #ee4d2d;
     }
 
     /* Timeline Styles */
@@ -213,52 +233,13 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
         background-color: #ef4444;
         box-shadow: 0 0 0 2px #ef4444;
     }
-
-    .timeline-time {
-        font-weight: 500;
-        font-size: 0.875rem;
-        color: #6b7280;
-    }
-
-    /* Snow Effect */
-    #snow-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100vh;
-        pointer-events: none;
-        z-index: 9999;
-        overflow: hidden;
-    }
-
-    .snowflake {
-        position: absolute;
-        top: -10px;
-        background-color: white;
-        border-radius: 50%;
-        opacity: 0.7;
-        animation: fall linear infinite;
-    }
-
-    @keyframes fall {
-        0% {
-            transform: translateY(0) translateX(0);
-        }
-
-        100% {
-            transform: translateY(105vh) translateX(var(--drift));
-        }
-    }
 </style>
 
-<div id="snow-container"></div>
+<div class="container" style="padding-top: 100px; padding-bottom: 50px;">
+    <div class="tw-max-w-6xl tw-mx-auto tw-w-full">
+        <div class="tw-bg-white/70 tw-backdrop-blur-xl tw-rounded-2xl tw-shadow-lg tw-overflow-hidden tw-min-h-[500px] tw-border tw-border-white/50">
 
-<div class="tracking-wrapper tw-flex tw-flex-col tw-min-h-screen tw-w-full">
-    <div class="tw-max-w-6xl tw-mx-auto tw-px-4 tw-mt-32 tw-mb-10 tw-w-full tw-flex-grow">
-        <div class="tw-bg-white tw-rounded-2xl tw-shadow-lg tw-overflow-hidden tw-min-h-[500px]">
-
-            <div class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-100 tw-bg-gray-50/50">
+            <div class="tw-px-6 tw-py-4 tw-border-b tw-border-gray-100">
                 <ol class="tw-list-none tw-flex tw-text-gray-700 tw-text-sm tw-m-0 tw-p-0">
                     <li>
                         <?php if ($view_mode == 'detail'): ?>
@@ -266,8 +247,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                                 class="tw-text-blue-600 tw-no-underline tw-font-medium hover:tw-text-blue-800">Đơn hàng của
                                 tôi</a>
                         <?php else: ?>
-                            <a href="index.php"
-                                class="tw-text-blue-600 tw-no-underline tw-font-medium hover:tw-text-blue-800">Trang chủ</a>
+                            <span class="tw-font-medium tw-text-gray-800">Đơn hàng của tôi</span>
                         <?php endif; ?>
                     </li>
                     <li><span class="tw-mx-2 tw-text-gray-400">/</span></li>
@@ -277,7 +257,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                 </ol>
             </div>
 
-            <div class="tw-p-6 md:tw-p-8">
+            <div class="tw-p-4 md:tw-p-8">
 
                 <?php if ($view_mode == 'detail'): ?>
                     <?php
@@ -310,7 +290,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
 
                     <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-12 tw-gap-10 tw-mb-8">
                         <div class="md:tw-col-span-4">
-                            <h3 class="tw-text-lg tw-font-bold tw-mb-4 tw-text-gray-800 tw-flex tw-items-center">
+                            <h3 class="tw-text-lg tw-font-bold tw-mb-4 tw-text-gray-800 tw-flex tw-items-center" style="color: var(--primary);">
                                 <span class="material-symbols-outlined tw-mr-2 text-orange">location_on</span> Địa Chỉ Nhận
                                 Hàng
                             </h3>
@@ -328,7 +308,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                         </div>
 
                         <div class="md:tw-col-span-8 md:tw-border-l md:tw-border-gray-100 md:tw-pl-10">
-                            <h3 class="tw-text-lg tw-font-bold tw-mb-4 tw-text-gray-800 tw-flex tw-items-center">
+                            <h3 class="tw-text-lg tw-font-bold tw-mb-4 tw-text-gray-800 tw-flex tw-items-center" style="color: var(--primary);">
                                 <span class="material-symbols-outlined tw-mr-2 tw-text-blue-500">local_shipping</span> Trạng
                                 Thái Vận Chuyển
                             </h3>
@@ -429,7 +409,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                                 <div class="timeline-item">
                                     <div class="timeline-dot <?php echo ($level == 1) ? 'active' : 'tw-bg-gray-300'; ?>">
                                     </div>
-                                    <div class="tw-text-sm">
+                                    <div class="tw-text-sm tw-flex tw-items-center tw-gap-4">
                                         <span
                                             class="timeline-time <?php echo ($level == 1) ? '!tw-text-green-600 tw-font-bold' : '!tw-text-gray-500 tw-font-normal'; ?>">
                                             <?php echo date('H:i d-m-Y', strtotime($order['order_date'])); ?>
@@ -443,14 +423,13 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
 
                     <div class="tw-mb-6">
                         <div class="tw-flex tw-items-center tw-gap-2 tw-mb-4">
-                            <span
-                                class="tw-bg-red-500 tw-text-white tw-text-xs tw-px-2 tw-py-0.5 tw-rounded tw-font-bold">Yêu
-                                thích</span>
-                            <span class="tw-font-bold tw-text-gray-800 tw-text-lg">BookZ Shop</span>
+                            <a href="index.php" class="tw-flex tw-items-center tw-gap-2 tw-no-underline">
+                                <i class="fas fa-book-open tw-text-yellow-500"></i>
+                                <span class="tw-font-bold tw-text-gray-800 tw-text-lg">BookZ Shop</span>
+                            </a>
                         </div>
 
-                        <div
-                            class="tw-bg-white tw-border tw-border-gray-100 tw-rounded-2xl tw-overflow-hidden tw-shadow-sm">
+                        <div class="tw-bg-white/50 tw-border tw-border-gray-100 tw-rounded-xl tw-overflow-hidden tw-shadow-sm">
                             <?php
                             $subtotal = 0;
                             foreach ($order_items as $item):
@@ -459,7 +438,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                                 <div
                                     class="tw-p-4 tw-border-b tw-border-gray-100 tw-flex tw-gap-4 tw-items-start last:tw-border-b-0 hover:tw-bg-gray-50 tw-transition">
                                     <img src="img/books/<?php echo $item['product_id']; ?>.jpg"
-                                        onerror="this.src='https://placehold.co/80x80?text=No+Image'"
+                                        onerror="this.src='https://placehold.co/80x120?text=No+Image'"
                                         class="tw-w-20 tw-h-20 tw-object-cover tw-border tw-border-gray-200 tw-rounded-md">
 
                                     <div class="tw-flex-1">
@@ -471,7 +450,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                                     </div>
 
                                     <div class="tw-text-right">
-                                        <p class="text-orange tw-font-bold tw-text-base">
+                                        <p class="tw-font-bold tw-text-base" style="color: var(--primary);">
                                             <?php echo number_format($item['price']); ?>đ
                                         </p>
                                     </div>
@@ -480,7 +459,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                         </div>
                     </div>
 
-                    <div class="tw-bg-white tw-rounded-2xl tw-border tw-border-gray-200 tw-shadow-sm tw-overflow-hidden">
+                    <div class="tw-bg-white/50 tw-rounded-xl tw-border tw-border-gray-200 tw-shadow-sm tw-overflow-hidden">
 
                         <div class="tw-p-6 tw-border-b tw-border-gray-100">
                             <div class="tw-w-full md:tw-w-1/2 tw-ml-auto tw-space-y-3 tw-text-sm">
@@ -497,7 +476,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                                     class="tw-flex tw-justify-between tw-items-end tw-pt-4 tw-mt-4 tw-border-0 tw-border-t tw-border-gray-200 tw-border-solid">
                                     <span class="tw-text-gray-800 tw-font-medium tw-text-base">Thành tiền</span>
                                     <span
-                                        class="tw-text-2xl tw-font-bold text-orange"><?php echo number_format($order['total_amount']); ?>đ</span>
+                                        class="tw-text-2xl tw-font-bold" style="color: var(--accent);"><?php echo number_format($order['total_amount']); ?>đ</span>
                                 </div>
                             </div>
                         </div>
@@ -511,10 +490,17 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                                         <input type="hidden" name="order_id_to_cancel"
                                             value="<?php echo $order['order_id']; ?>">
                                         <button type="submit" name="cancel_order"
-                                            class="tw-bg-white tw-border tw-border-red-500 tw-text-red-500 tw-px-6 tw-py-2 tw-rounded-lg hover:tw-bg-red-50 tw-font-medium tw-transition tw-flex tw-items-center tw-gap-2">
+                                            class="tw-bg-white tw-border tw-border-red-500 tw-text-red-500 tw-px-6 tw-py-2 tw-rounded-lg hover:tw-bg-red-50 tw-font-medium tw-transition tw-flex tw-items-center tw-gap-2 tw-shadow-sm">
                                             <span class="material-symbols-outlined tw-text-sm">cancel</span> Hủy Đơn Hàng
                                         </button>
                                     </form>
+                                <?php elseif ($order['status'] == 'Completed' || $order['status'] == 'Delivered'): ?>
+                                    <a href="reorder_action.php?order_id=<?php echo $order['order_id']; ?>"
+                                        class="tw-bg-white tw-border tw-border-blue-500 tw-text-blue-500 tw-px-6 tw-py-2 tw-rounded-lg hover:tw-bg-blue-50 tw-font-medium tw-transition tw-flex tw-items-center tw-gap-2 tw-shadow-sm tw-no-underline"
+                                        onclick="return confirm('Bạn có chắc chắn muốn thêm tất cả sản phẩm từ đơn hàng này vào giỏ hàng không?');"
+                                        title="Thêm tất cả sản phẩm của đơn hàng này vào giỏ hàng hiện tại của bạn">
+                                        <span class="material-symbols-outlined tw-text-sm">replay</span> Mua lại
+                                    </a>
                                 <?php elseif ($order['status'] == 'Cancelled'): ?>
                                     <span
                                         class="tw-bg-red-100 tw-text-red-600 tw-px-4 tw-py-2 tw-rounded-lg tw-font-medium tw-border tw-border-red-200">
@@ -524,7 +510,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                             </div>
 
                             <div class="tw-flex tw-items-center tw-gap-2 tw-text-sm tw-text-gray-700">
-                                <span class="material-symbols-outlined text-orange">payments</span>
+                                <span class="material-symbols-outlined" style="color: var(--accent);">payments</span>
                                 Phương thức thanh toán:
                                 <span
                                     class="tw-font-bold tw-uppercase tw-text-gray-900"><?php echo $order['payment_method']; ?></span>
@@ -539,22 +525,22 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                                 class="tw-bg-gray-50 tw-rounded-full tw-w-24 tw-h-24 tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-4">
                                 <span class="material-symbols-outlined tw-text-5xl tw-text-gray-300">shopping_bag</span>
                             </div>
-                            <h3 class="tw-text-lg tw-font-medium tw-text-gray-900">Bạn chưa có đơn hàng nào</h3>
+                            <h3 class="tw-text-xl tw-font-medium tw-text-gray-900">Bạn chưa có đơn hàng nào</h3>
                             <a href="index.php"
-                                class="tw-inline-block tw-bg-orange-500 tw-text-white tw-px-8 tw-py-3 tw-rounded-full tw-font-medium hover:tw-bg-orange-600 tw-transition tw-shadow-lg">Mua
+                                class="tw-inline-block tw-bg-slate-800 tw-text-white tw-px-8 tw-py-3 tw-rounded-full tw-font-medium hover:tw-bg-yellow-500 tw-transition tw-shadow-lg tw-mt-4 tw-no-underline">Mua
                                 sắm ngay</a>
                         </div>
                     <?php else: ?>
                         <div class="tw-space-y-6">
                             <?php foreach ($orders_list as $history_item): ?>
-                                <div class="tw-border tw-border-gray-200 tw-rounded-xl tw-p-6 hover:tw-shadow-md hover:tw-border-orange-200 tw-transition tw-cursor-pointer tw-group"
+                                <div class="tw-border tw-border-gray-200 tw-rounded-xl tw-p-6 hover:tw-shadow-md hover:tw-border-yellow-300 tw-transition tw-cursor-pointer tw-group"
                                     onclick="window.location.href='order_tracking.php?id=<?php echo $history_item['order_id']; ?>'">
 
                                     <div
                                         class="tw-flex tw-flex-col md:tw-flex-row tw-justify-between md:tw-items-center tw-border-b tw-border-gray-100 tw-pb-4 tw-mb-4 tw-gap-4">
                                         <div class="tw-flex tw-items-center tw-gap-3">
                                             <div
-                                                class="tw-bg-blue-50 tw-text-blue-600 tw-p-2 tw-rounded-lg group-hover:tw-bg-orange-50 group-hover:text-orange tw-transition-colors">
+                                                class="tw-bg-blue-50 tw-text-blue-600 tw-p-2 tw-rounded-lg group-hover:tw-bg-yellow-50 group-hover:tw-text-yellow-600 tw-transition-colors">
                                                 <span class="material-symbols-outlined">receipt_long</span>
                                             </div>
                                             <div>
@@ -572,8 +558,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                                                     class="tw-inline-block tw-text-red-500 tw-font-bold tw-uppercase tw-text-xs tw-border tw-border-red-200 tw-bg-red-50 tw-px-3 tw-py-1.5 tw-rounded-full">Đã
                                                     hủy</span>
                                             <?php else: ?>
-                                                <span
-                                                    class="tw-inline-block text-orange tw-font-bold tw-uppercase tw-text-xs tw-border tw-border-orange-200 tw-bg-orange-50 tw-px-3 tw-py-1.5 tw-rounded-full">
+                                                <span class="tw-inline-block tw-font-bold tw-uppercase tw-text-xs tw-border tw-px-3 tw-py-1.5 tw-rounded-full" style="color: var(--primary); border-color: #e2e8f0; background-color: #f8fafc;">
                                                     <?php echo getStatusLabel($history_item['status'], $status_labels); ?>
                                                 </span>
                                             <?php endif; ?>
@@ -588,7 +573,7 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
                                         <div class="tw-text-right">
                                             <span class="tw-text-gray-500 tw-text-sm">Tổng thanh toán:</span>
                                             <span
-                                                class="tw-text-xl tw-font-bold text-orange tw-ml-2"><?php echo number_format($history_item['total_amount']); ?>đ</span>
+                                                class="tw-text-xl tw-font-bold tw-ml-2" style="color: var(--accent);"><?php echo number_format($history_item['total_amount']); ?>đ</span>
                                         </div>
                                     </div>
                                 </div>
@@ -603,24 +588,3 @@ function renderStep($step_index, $current_step, $icon, $label, $time, $isCancell
 </div>
 
 <?php include "footer.php"; ?>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const snowContainer = document.getElementById('snow-container');
-        if (snowContainer) {
-            const numberOfSnowflakes = 150;
-            for (let i = 0; i < numberOfSnowflakes; i++) {
-                const snowflake = document.createElement('div');
-                const size = Math.random() * 4 + 1;
-                snowflake.className = 'snowflake';
-                snowflake.style.width = `${size}px`;
-                snowflake.style.height = `${size}px`;
-                snowflake.style.left = `${Math.random() * 100}%`;
-                snowflake.style.animationDuration = `${Math.random() * 10 + 5}s`;
-                snowflake.style.animationDelay = `${Math.random() * 5}s`;
-                snowflake.style.setProperty('--drift', `${Math.random() * 200 - 100}px`);
-                snowContainer.appendChild(snowflake);
-            }
-        }
-    });
-</script>

@@ -19,7 +19,7 @@ include 'header.php'; // Bao gồm header để có layout chung
     }
 
     .policy-content-card {
-        background: var(--glass-bg);
+        background: rgba(255, 255, 255, 0.7);
         backdrop-filter: blur(15px);
         border: var(--glass-border);
         border-radius: 20px;
@@ -89,7 +89,8 @@ include 'header.php'; // Bao gồm header để có layout chung
             </p>
             <h3>Quy trình đổi trả:</h3>
             <ol>
-                <li>Liên hệ với bộ phận Chăm sóc khách hàng qua email hoặc hotline, cung cấp mã đơn hàng và hình ảnh/video
+                <li>Liên hệ với bộ phận Chăm sóc khách hàng qua email hoặc hotline, cung cấp mã đơn hàng và hình
+                    ảnh/video
                     chứng minh tình trạng sản phẩm.</li>
                 <li>Sau khi xác nhận, chúng tôi sẽ hướng dẫn bạn cách thức gửi trả hàng.</li>
                 <li>BookZ sẽ gửi lại sản phẩm mới hoặc hoàn tiền 100% giá trị sản phẩm (không bao gồm phí vận chuyển ban
