@@ -316,10 +316,29 @@ if (isset($_SESSION['user_id'])) {
         font-size: 0.9em;
         color: #6c757d;
     }
+
+    /* Scroll Progress Bar */
+    .header-progress-bar {
+        position: fixed;
+        /* Thay đổi từ absolute sang fixed để nó nằm trên cùng của viewport */
+        top: 0;
+        /* Di chuyển lên trên cùng */
+        left: 0;
+        height: 4px;
+        /* Chiều cao của thanh tiến trình */
+        background: var(--accent);
+        /* Màu của thanh tiến trình */
+        width: 0%;
+        /* Chiều rộng ban đầu */
+        z-index: 9999;
+        /* Tăng z-index để đảm bảo nó luôn ở trên cùng */
+        transition: width 0.05s linear;
+        /* Hiệu ứng chuyển động mượt mà */
+    }
 </style>
 
 <body>
-    <header class="header-container">
+    <header class="header-container" id="headerContainer">
         <!-- Hàng 1: Logo, Search, User -->
         <nav class="navbar navbar-expand-lg" id="mainNavbar">
             <div class="container">
@@ -480,6 +499,9 @@ if (isset($_SESSION['user_id'])) {
             </div>
         </nav>
         <!-- Hàng 2: Thanh tìm kiếm đã được chuyển vào Modal -->
+
+        <!-- Thanh tiến trình cuộn trang -->
+        <div class="header-progress-bar" id="headerProgressBar"></div>
     </header>
 
     <!-- ========================= Search Modal ========================= -->
@@ -575,6 +597,21 @@ if (isset($_SESSION['user_id'])) {
             // Đóng gợi ý khi click ra ngoài
             document.addEventListener('click', (e) => { if (!resultsContainer.contains(e.target)) resultsContainer.innerHTML = ''; });
         });
+
+        // --- LOGIC CHO SCROLL PROGRESS BAR ---
+        window.onscroll = function () {
+            updateScrollProgress();
+        };
+
+        function updateScrollProgress() {
+            const progressBar = document.getElementById("headerProgressBar");
+            if (!progressBar) return;
+
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (scrollTop / scrollHeight) * 100;
+            progressBar.style.width = scrolled + "%";
+        }
     </script>
 
 </body>
