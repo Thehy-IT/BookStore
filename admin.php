@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "dbconnect.php";
+include_once "dbconnect.php";
 // CHẶN KHÔNG CHO USER THƯỜNG VÀO
 if (!isset($_SESSION['user']) || $_SESSION['role'] != 'admin') {
     header("Location: index.php");
@@ -66,7 +66,7 @@ $reg_res = mysqli_query($con, "SELECT DATE(created_at) as registration_date, COU
 // Cập nhật số lượng từ CSDL vào mảng
 while ($row = mysqli_fetch_assoc($reg_res)) {
     if (isset($date_range[$row['registration_date']])) {
-        $date_range[$row['registration_date']] = (int)$row['count'];
+        $date_range[$row['registration_date']] = (int) $row['count'];
     }
 }
 
@@ -78,7 +78,7 @@ $revenue_by_category_data = [];
 $rev_cat_res = mysqli_query($con, "SELECT p.Category, SUM(c.Quantity * p.Price) as revenue FROM cart c JOIN products p ON c.ProductID = p.PID WHERE p.Category IS NOT NULL AND p.Category != '' GROUP BY p.Category ORDER BY revenue DESC");
 while ($row = mysqli_fetch_assoc($rev_cat_res)) {
     $revenue_by_category_data['labels'][] = $row['Category'];
-    $revenue_by_category_data['counts'][] = (float)$row['revenue'];
+    $revenue_by_category_data['counts'][] = (float) $row['revenue'];
 }
 
 ?>
@@ -184,13 +184,20 @@ while ($row = mysqli_fetch_assoc($rev_cat_res)) {
     <div class="sidebar">
         <h3 class="text-center fw-bold mb-4">BOOK<span class="text-accent">Z</span> ADMIN</h3>
         <ul class="nav flex-column">
-            <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-tachometer-alt me-2"></i> Bảng điều khiển</a></li>
-            <li class="nav-item"><a href="manage_products.php" class="nav-link"><i class="fas fa-book me-2"></i> Quản lý sản phẩm</a></li>
-            <li class="nav-item"><a href="manage_news.php" class="nav-link"><i class="fas fa-newspaper me-2"></i> Quản lý Tin tức</a></li>
-            <li class="nav-item"><a href="manage_users.php" class="nav-link"><i class="fas fa-users me-2"></i> Quản lý người dùng</a></li>
-            <li class="nav-item"><a href="manage_orders.php" class="nav-link"><i class="fas fa-shipping-fast me-2"></i> Quản lý đơn hàng</a></li>
-            <li class="nav-item"><a href="index.php" class="nav-link"><i class="fas fa-home me-2"></i> Xem website</a></li>
-            <li class="nav-item"><a href="destroy.php" class="nav-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
+            <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-tachometer-alt me-2"></i> Bảng
+                    điều khiển</a></li>
+            <li class="nav-item"><a href="manage_products.php" class="nav-link"><i class="fas fa-book me-2"></i> Quản lý
+                    sản phẩm</a></li>
+            <li class="nav-item"><a href="manage_news.php" class="nav-link"><i class="fas fa-newspaper me-2"></i> Quản
+                    lý Tin tức</a></li>
+            <li class="nav-item"><a href="manage_users.php" class="nav-link"><i class="fas fa-users me-2"></i> Quản lý
+                    người dùng</a></li>
+            <li class="nav-item"><a href="manage_orders.php" class="nav-link"><i class="fas fa-shipping-fast me-2"></i>
+                    Quản lý đơn hàng</a></li>
+            <li class="nav-item"><a href="index.php" class="nav-link"><i class="fas fa-home me-2"></i> Xem website</a>
+            </li>
+            <li class="nav-item"><a href="destroy.php" class="nav-link text-danger"><i
+                        class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
         </ul>
     </div>
 
@@ -199,12 +206,12 @@ while ($row = mysqli_fetch_assoc($rev_cat_res)) {
         <h2 class="fw-bold mb-4">Tổng quan</h2>
 
         <!-- Hiển thị thông báo (nếu có) -->
-        <?php if (isset($_SESSION['message'])) : ?>
+        <?php if (isset($_SESSION['message'])): ?>
             <div class="alert alert-<?php echo $_SESSION['message_type']; ?> alert-dismissible fade show" role="alert">
                 <?php echo $_SESSION['message']; ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        <?php
+            <?php
             // Xóa thông báo sau khi hiển thị
             unset($_SESSION['message']);
             unset($_SESSION['message_type']);
@@ -359,9 +366,11 @@ while ($row = mysqli_fetch_assoc($rev_cat_res)) {
                         <div class="mb-3">
                             <label for="image_file" class="form-label">Tải ảnh sản phẩm</label>
                             <input type="file" class="form-control" id="image_file" name="image_file" accept="image/*">
-                            <small class="form-text text-muted">Để trống nếu không muốn thay đổi ảnh. Tải ảnh mới sẽ ghi đè ảnh cũ.</small>
+                            <small class="form-text text-muted">Để trống nếu không muốn thay đổi ảnh. Tải ảnh mới sẽ ghi
+                                đè ảnh cũ.</small>
                             <input type="hidden" name="current_image" id="current_image">
-                            <img id="image_preview" src="" alt="Ảnh hiện tại" class="img-thumbnail mt-2" style="max-width: 100px; display: none;">
+                            <img id="image_preview" src="" alt="Ảnh hiện tại" class="img-thumbnail mt-2"
+                                style="max-width: 100px; display: none;">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -403,7 +412,7 @@ while ($row = mysqli_fetch_assoc($rev_cat_res)) {
         }
 
         // --- KHỞI TẠO BIỂU ĐỒ ---
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // 1. Biểu đồ sản phẩm theo thể loại
             const ctxCategory = document.getElementById('productsByCategoryChart');
             if (ctxCategory) {
@@ -524,7 +533,7 @@ while ($row = mysqli_fetch_assoc($rev_cat_res)) {
                             },
                             tooltip: {
                                 callbacks: {
-                                    label: function(context) {
+                                    label: function (context) {
                                         let label = context.dataset.label || '';
                                         if (label) {
                                             label += ': ';
