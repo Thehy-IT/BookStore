@@ -14,7 +14,16 @@ if (isset($_GET['category']) && !empty($_GET['category'])) {
     $bindValues[] = $_GET['category'];
     $urlParams['category'] = $_GET['category'];
 }
+
 // 2. Lọc theo Từ khóa
+if (isset($_GET['keyword']) && !empty(trim($_GET['keyword']))) {
+    $keyword = "%" . trim($_GET['keyword']) . "%";
+    $whereClauses[] = "(Title LIKE ? OR Author LIKE ? OR Category LIKE ? OR Publisher LIKE ?)";
+    $bindTypes .= 'ssss';
+    array_push($bindValues, $keyword, $keyword, $keyword, $keyword);
+    $urlParams['keyword'] = trim($_GET['keyword']);
+}
+
 // 4. Lọc theo Đánh giá (Giả định có cột Rating trong DB)
 if (isset($_GET['rating']) && is_numeric($_GET['rating'])) {
     $rating = (int) $_GET['rating'];
