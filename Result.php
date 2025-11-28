@@ -1,9 +1,62 @@
 <?php
 include 'header.php'; // Bao gồm header để có session, kết nối DB và layout
 
+/**
+ * Hàm render một thẻ sách (book card).
+ * Giúp tái sử dụng code và làm cho vòng lặp chính gọn gàng hơn.
+ * @param array $book Dữ liệu của cuốn sách từ database.
+ */
+function render_book_card($book)
+{
+    $path = "img/books/" . htmlspecialchars($book['PID']) . ".jpg";
+    $link = "description.php?ID=" . htmlspecialchars($book['PID']);
+    $title = htmlspecialchars($book['Title']);
+    $author = htmlspecialchars($book['Author']);
+    $discount = $book['Discount'];
+    $price = number_format($book['Price']);
+    $mrp = number_format($book['MRP']);
+    // Giả sử có cột Rating trong DB, nếu không có thì mặc định là 0
+    $rating = isset($book['Rating']) ? htmlspecialchars($book['Rating']) : 0;
+
+    // Bắt đầu output buffer để "capture" HTML
+    ob_start();
+    ?>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="<?php echo $link; ?>" class="text-decoration-none text-dark">
+            <div class="book-card">
+                <?php if ($discount > 0): ?>
+                    <div class="discount-badge">-<?php echo $discount; ?>%</div>
+                <?php endif; ?>
+
+                <img src="<?php echo $path; ?>" class="book-img" alt="<?php echo $title; ?>"
+                    onerror="this.src='https://placehold.co/400x600?text=No+Image'">
+
+                <div class="mt-2">
+                    <h5 class="book-title" title="<?php echo $title; ?>"><?php echo $title; ?></h5>
+                    <p class="text-muted small mb-2"><i class="fas fa-pen-nib me-1"></i><?php echo $author; ?></p>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="price-tag">
+                            <?php echo $price; ?> đ
+                            <?php if ($book['MRP'] > $book['Price']): ?>
+                                <span class="old-price"><?php echo $mrp; ?> đ</span>
+                            <?php endif; ?>
+                        </div>
+                        <?php if ($rating > 0): // Chỉ hiển thị rating nếu lớn hơn 0 ?>
+                            <span class="text-warning small"><i class="fas fa-star"></i> <?php echo $rating; ?></span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <?php
+    // Trả về nội dung HTML đã được capture
+    return ob_get_clean();
+}
+
 // Xử lý từ khóa tìm kiếm
-$keyword_raw = isset($_POST['keyword']) ? $_POST['keyword'] : '';
-$keyword = "%{$keyword_raw}%";
+$keyword_raw = isset($_POST['keyword']) ? trim($_POST['keyword']) : '';
 ?>
 <style>
     /* Các style này có thể được chuyển vào file CSS chung nếu muốn */
@@ -76,13 +129,20 @@ $keyword = "%{$keyword_raw}%";
 <div class="container" style="padding-top: 100px; padding-bottom: 50px;">
 
     <?php
-    // Query DB
-    $query = "SELECT * FROM products WHERE PID LIKE ? OR Title LIKE ? OR Author LIKE ? OR Publisher LIKE ? OR Category LIKE ?";
-    $stmt = $con->prepare($query);
-    $stmt->bind_param("sssss", $keyword, $keyword, $keyword, $keyword, $keyword);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $count = $result->num_rows;
+    // Chỉ thực hiện tìm kiếm nếu có từ khóa
+    if (!empty($keyword_raw)) {
+        $keyword = "%{$keyword_raw}%";
+        // Query DB - Thêm cột Rating vào câu truy vấn
+        $query = "SELECT * FROM products WHERE PID LIKE ? OR Title LIKE ? OR Author LIKE ? OR Publisher LIKE ? OR Category LIKE ?";
+        $stmt = $con->prepare($query);
+        $stmt->bind_param("sssss", $keyword, $keyword, $keyword, $keyword, $keyword);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $count = $result->num_rows;
+    } else {
+        $result = null;
+        $count = 0;
+    }
     ?>
 
     <!-- NEW: Breadcrumb -->
@@ -90,7 +150,9 @@ $keyword = "%{$keyword_raw}%";
         style="background-color: var(--glass-bg); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px); border: var(--glass-border);">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Tìm kiếm</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <?php echo !empty($keyword_raw) ? 'Kết quả cho "' . htmlspecialchars($keyword_raw) . '"' : 'Tìm kiếm'; ?>
+            </li>
         </ol>
     </nav>
 
@@ -98,7 +160,8 @@ $keyword = "%{$keyword_raw}%";
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <p class="text-muted mb-0">Kết quả tìm kiếm cho: "<strong
-                    class="text-dark"><?php echo htmlspecialchars($keyword_raw); ?></strong>"</p>
+                    class="text-dark"><?php echo !empty($keyword_raw) ? htmlspecialchars($keyword_raw) : '...'; ?></strong>"
+            </p>
             <h2 class="fw-bold" style="font-family: 'Playfair Display', serif;">Tìm thấy <span
                     style="color: var(--accent)"><?php echo $count; ?></span> cuốn sách</h2>
         </div>
@@ -107,51 +170,25 @@ $keyword = "%{$keyword_raw}%";
 
     <!-- Grid Books -->
     <div class="row g-4">
-        <?php if ($count > 0): ?>
-            <?php while ($row = $result->fetch_assoc()):
-                // Xử lý đường dẫn ảnh & link
-                $path = "img/books/" . $row['PID'] . ".jpg";
-                // Nếu ảnh lỗi thì dùng ảnh placeholder (tuỳ chọn)
-                $link = "description.php?ID=" . $row["PID"];
-                ?>
-                <div class="col-6 col-md-4 col-lg-3">
-                    <a href="<?php echo $link; ?>" class="text-decoration-none text-dark">
-                        <div class="book-card">
-                            <!-- Badge giảm giá -->
-                            <?php if ($row['Discount'] > 0): ?>
-                                <div class="discount-badge">-<?php echo $row['Discount']; ?>%</div>
-                            <?php endif; ?>
-
-                            <!-- Ảnh -->
-                            <img src="<?php echo $path; ?>" class="book-img" alt="<?php echo $row['Title']; ?>"
-                                onerror="this.src='https://placehold.co/400x600?text=No+Image'">
-
-                            <!-- Thông tin -->
-                            <div class="mt-2">
-                                <h5 class="book-title"><?php echo $row['Title']; ?></h5>
-                                <p class="text-muted small mb-2"><i class="fas fa-pen-nib me-1"></i>
-                                    <?php echo $row['Author']; ?></p>
-
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="price-tag">
-                                        <?php echo number_format($row['Price']); ?> đ
-                                        <?php if ($row['MRP'] > $row['Price']): ?>
-                                            <span class="old-price"><?php echo number_format($row['MRP']); ?> đ</span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <span class="text-warning small"><i class="fas fa-star"></i> 4.7</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            <?php endwhile; ?>
+        <?php if (!empty($keyword_raw) && $count > 0): ?>
+            <?php
+            // Sử dụng hàm render_book_card để hiển thị từng cuốn sách
+            while ($row = $result->fetch_assoc()) {
+                echo render_book_card($row);
+            }
+            ?>
         <?php else: ?>
-            <!-- Empty State (Khi không tìm thấy sách) -->
+            <!-- Empty State (Khi không tìm thấy sách hoặc không có từ khóa) -->
             <div class="col-12 text-center py-5">
-                <div style="font-size: 5rem; color: #cbd5e1;"><i class="fas fa-search"></i></div>
-                <h3 class="mt-3 text-muted">Không tìm thấy sách phù hợp.</h3>
-                <p class="text-muted">Hãy thử kiểm tra lại chính tả hoặc dùng từ khóa khác.</p>
+                <?php if (!empty($keyword_raw)): // Trường hợp tìm kiếm nhưng không có kết quả ?>
+                    <div style="font-size: 5rem; color: #cbd5e1;"><i class="fas fa-book-dead"></i></div>
+                    <h3 class="mt-3 text-muted">Không tìm thấy sách phù hợp.</h3>
+                    <p class="text-muted">Hãy thử kiểm tra lại chính tả hoặc dùng từ khóa khác.</p>
+                <?php else: // Trường hợp không có từ khóa tìm kiếm ?>
+                    <div style="font-size: 5rem; color: #cbd5e1;"><i class="fas fa-search"></i></div>
+                    <h3 class="mt-3 text-muted">Vui lòng nhập từ khóa để tìm kiếm.</h3>
+                    <p class="text-muted">Bạn có thể tìm theo tên sách, tác giả, nhà xuất bản...</p>
+                <?php endif; ?>
                 <a href="Product.php" class="btn btn-primary-glass mt-3">Xem tất cả sách</a>
             </div>
         <?php endif; ?>

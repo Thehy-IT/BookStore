@@ -399,13 +399,13 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
     <div class="row g-4">
         <?php
         $cats = [
-            ['icon' => 'fa-book-open', 'title' => 'Tiểu thuyết', 'slug' => 'fiction', 'bg' => 'img/new/th1.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-book-open', 'title' => 'Học thuật & chuyên nghành', 'slug' => 'fiction', 'bg' => 'img/new/th1.jpg', 'text_color' => '#c8dcdaff'],
             ['icon' => 'fa-brain', 'title' => 'Phát triển bản thân', 'slug' => 'self-help', 'bg' => 'img/new/th2.jpg', 'text_color' => '#c8dcdaff'],
-            ['icon' => 'fa-heart', 'title' => 'Lãng mạn', 'slug' => 'romance', 'bg' => 'img/new/th3.jpg', 'text_color' => '#c8dcdaff'],
-            ['icon' => 'fa-dragon', 'title' => 'Giả tưởng', 'slug' => 'fantasy', 'bg' => 'img/new/th4.jpg', 'text_color' => '#c8dcdaff'],
-            ['icon' => 'fa-user-tie', 'title' => 'Tiểu sử', 'slug' => 'biography', 'bg' => 'img/new/th5.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-heart', 'title' => 'Văn học', 'slug' => 'romance', 'bg' => 'img/new/th3.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-dragon', 'title' => 'Hư cấu', 'slug' => 'fantasy', 'bg' => 'img/new/th4.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-user-tie', 'title' => 'Tiểu sử & Tự truyện', 'slug' => 'biography', 'bg' => 'img/new/th5.jpg', 'text_color' => '#c8dcdaff'],
             ['icon' => 'fa-mask', 'title' => 'Kinh dị & Giật gân', 'slug' => 'thriller', 'bg' => 'img/new/th6.jpg', 'text_color' => '#c8dcdaff'],
-            ['icon' => 'fa-briefcase', 'title' => 'Kinh doanh', 'slug' => 'business', 'bg' => 'img/new/th7.jpg', 'text_color' => '#c8dcdaff'],
+            ['icon' => 'fa-briefcase', 'title' => 'Kinh doanh & Quản lý', 'slug' => 'business', 'bg' => 'img/new/th7.jpg', 'text_color' => '#c8dcdaff'],
             ['icon' => 'fa-child', 'title' => 'Thiếu nhi', 'slug' => 'kids', 'bg' => 'img/new/th8.jpg', 'text_color' => '#c8dcdaff']
         ];
         foreach ($cats as $c) {

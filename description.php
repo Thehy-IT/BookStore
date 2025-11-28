@@ -574,7 +574,7 @@ $category_translations = [
             <a href="Product.php?category=<?php echo urlencode($current_category); ?>" class="btn btn-outline-dark rounded-pill px-4">Xem tất cả</a>
         </div>
         <div class="swiper related-products-swiper">
-            <div class="swiper-wrapper">
+                <div class="swiper-wrapper">
                 <?php foreach ($related_products as $related_book): ?>
                     <div class="swiper-slide h-auto">
                         <div class="book-card-glass h-100 d-flex flex-column">
