@@ -537,6 +537,11 @@ if (isset($_SESSION['user_id'])) {
                                         <hr class="dropdown-divider">
                                     </li>
                                     <li>
+                                        <a class="dropdown-item" href="profile.php">
+                                            <i class="fas fa-user-circle me-2 text-muted"></i> Tài khoản của tôi
+                                        </a>
+                                    </li>
+                                    <li>
                                         <a class="dropdown-item" href="order_tracking.php">
                                             <i class="fas fa-box-open me-2 text-muted"></i> Đơn mua
                                         </a>
