@@ -547,12 +547,20 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
             border-radius: 15px;
             transition: all 0.3s ease;
             overflow: hidden;
-            border: 1px solid transparent;
+            border: 1px solid #e2e8f0;
+            background-color: white;
+            flex-shrink: 0;
+            width: 250px; /* Đặt chiều rộng cố định cho mỗi card */
+            margin: 0 15px; /* Thêm khoảng cách giữa các card */
         }
 
         .author-card:hover {
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            border-color: #e2e8f0;
+            transform: translateY(-5px);
+        }
+
+        .author-card a {
+            color: inherit;
         }
 
         .author-avatar {
@@ -578,26 +586,32 @@ if (isset($_GET['action']) && $_GET['action'] == 'view_deals') {
         }
     </style>
 
-    <div class="row g-4">
-        <?php
-        // Lấy 4 tác giả có nhiều sách nhất trong cửa hàng
-        $featured_authors_query = "SELECT a.name, a.image_url, COUNT(p.PID) as book_count FROM products p JOIN authors a ON p.Author = a.name GROUP BY a.name, a.image_url ORDER BY book_count DESC LIMIT 4";
-        $featured_authors_result = mysqli_query($con, $featured_authors_query);
+    <div class="marquee-container">
+        <div class="marquee-track marquee-track-ltr" style="animation-duration: 60s;">
+            <?php
+            // Lấy 12 tác giả có nhiều sách nhất
+            $featured_authors_query = "SELECT a.name, a.image_url, COUNT(p.PID) as book_count FROM products p JOIN authors a ON p.Author = a.name GROUP BY a.name, a.image_url ORDER BY book_count DESC LIMIT 12";
+            $featured_authors_result = mysqli_query($con, $featured_authors_query);
+            $authors = mysqli_fetch_all($featured_authors_result, MYSQLI_ASSOC);
 
-        while ($author = mysqli_fetch_assoc($featured_authors_result)):
-            $author_avatar = !empty($author['image_url']) ? htmlspecialchars($author['image_url']) : "https://ui-avatars.com/api/?name=" . urlencode($author['name']) . "&background=d2af37&color=fff&size=120&font-size=0.33&bold=true";
-            ?>
-            <div class="col-lg-3 col-md-6">
-                <a href="author.php?value=<?php echo urlencode($author['name']); ?>" class="text-decoration-none">
-                    <div class="author-card h-100">
-                        <img src="<?php echo $author_avatar; ?>"
-                            alt="Tác giả <?php echo htmlspecialchars($author['name']); ?>" class="author-avatar">
-                        <h5 class="author-name mb-1"><?php echo htmlspecialchars($author['name']); ?></h5>
-                        <p class="author-book-count mb-0"><?php echo $author['book_count']; ?> tác phẩm</p>
+            // Lặp 2 lần để tạo hiệu ứng liền mạch
+            for ($i = 0; $i < 2; $i++) {
+                foreach ($authors as $author) {
+                    $author_avatar = !empty($author['image_url']) ? htmlspecialchars($author['image_url']) : "https://ui-avatars.com/api/?name=" . urlencode($author['name']) . "&background=d2af37&color=fff&size=120&font-size=0.33&bold=true";
+                    ?>
+                    <div class="author-card">
+                        <a href="author.php?value=<?php echo urlencode($author['name']); ?>" class="text-decoration-none">
+                            <img src="<?php echo $author_avatar; ?>"
+                                alt="Tác giả <?php echo htmlspecialchars($author['name']); ?>" class="author-avatar">
+                            <h5 class="author-name mb-1"><?php echo htmlspecialchars($author['name']); ?></h5>
+                            <p class="author-book-count mb-0"><?php echo $author['book_count']; ?> tác phẩm</p>
+                        </a>
                     </div>
-                </a>
-            </div>
-        <?php endwhile; ?>
+                    <?php
+                }
+            }
+            ?>
+        </div>
     </div>
 </div>
 
