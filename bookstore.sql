@@ -190,19 +190,25 @@ INSERT INTO `news` (`id`, `title`, `author`, `image_url`, `content`, `created_at
 
 CREATE TABLE `users` (
   `UserID` int(11) NOT NULL AUTO_INCREMENT,
-  `UserName` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `UserName` varchar(50) COLLATE utf8_unicode_ci NOT NULL,  
+  `Email` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `Password` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `FullName` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `PhoneNumber` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Address` text COLLATE utf8_unicode_ci DEFAULT NULL,
   `Role` varchar(20) COLLATE utf8_unicode_ci DEFAULT 'user',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`UserID`),
-  UNIQUE KEY `UserName` (`UserName`)
+  UNIQUE KEY `UserName` (`UserName`),
+  UNIQUE KEY `Email` (`Email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`UserID`, `UserName`, `Password`, `Role`) VALUES
-(1, 'admin', '$2y$10$z1GCPdWGeSMrTdPAAdbXiOjRAVdM14IDhjBmVtFuUwJw9l.aCBOwq', 'admin'); -- password is 'admin123'
+INSERT INTO `users` (`UserID`, `UserName`, `Email`, `Password`, `FullName`, `Role`) VALUES
+(1, 'admin', 'admin@bookstore.com', '$2y$10$z1GCPdWGeSMrTdPAAdbXiOjRAVdM14IDhjBmVtFuUwJw9l.aCBOwq', 'Quản Trị Viên', 'admin'); -- password is 'admin123'
 
 -- --------------------------------------------------------
 

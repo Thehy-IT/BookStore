@@ -15,13 +15,13 @@ if (isset($_SESSION['flash_message'])) {
 // --- XỬ LÝ LOGIC ĐĂNG NHẬP ---
 if (isset($_POST['submit']) && $_POST['submit'] == "login") {
 
-  $username = trim($_POST['login_username']);
+  $identity = trim($_POST['login_identity']); // Có thể là username hoặc email
   $password_input = $_POST['login_password'];
 
   // 1. Sử dụng Prepared Statement để an toàn
-  // Lưu ý: Chúng ta SELECT * để lấy cả cột Role
-  if ($stmt = $con->prepare("SELECT * FROM users WHERE UserName = ?")) {
-    $stmt->bind_param("s", $username);
+  // Cho phép đăng nhập bằng cả UserName hoặc Email
+  if ($stmt = $con->prepare("SELECT * FROM users WHERE UserName = ? OR Email = ?")) {
+    $stmt->bind_param("ss", $identity, $identity);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -47,11 +47,11 @@ if (isset($_POST['submit']) && $_POST['submit'] == "login") {
         }
         exit();
       } else {
-        $message = "Mật khẩu không chính xác.";
+        $message = "Tên đăng nhập hoặc mật khẩu không chính xác.";
         $message_type = "error";
       }
     } else {
-      $message = "Tài khoản không tồn tại.";
+      $message = "Tên đăng nhập hoặc mật khẩu không chính xác.";
       $message_type = "error";
     }
     $stmt->close();
@@ -187,10 +187,10 @@ if (isset($_POST['submit']) && $_POST['submit'] == "login") {
 
     <form action="" method="post">
       <div class="mb-3">
-        <label class="form-label fw-bold text-secondary small">Username</label>
+        <label class="form-label fw-bold text-secondary small">Tên đăng nhập hoặc Email</label>
         <div class="input-group">
           <span class="input-group-text bg-transparent border-0 ps-0"><i class="fas fa-user text-muted"></i></span>
-          <input type="text" class="form-control" name="login_username" placeholder="Enter your username" required>
+          <input type="text" class="form-control" name="login_identity" placeholder="Nhập tên đăng nhập hoặc email" required>
         </div>
       </div>
 
@@ -198,7 +198,7 @@ if (isset($_POST['submit']) && $_POST['submit'] == "login") {
         <label class="form-label fw-bold text-secondary small">Password</label>
         <div class="input-group">
           <span class="input-group-text bg-transparent border-0 ps-0"><i class="fas fa-lock text-muted"></i></span>
-          <input type="password" class="form-control" name="login_password" placeholder="Enter your password" required>
+          <input type="password" class="form-control" name="login_password" placeholder="Nhập mật khẩu của bạn" required>
         </div>
       </div>
 

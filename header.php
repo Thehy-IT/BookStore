@@ -46,52 +46,101 @@ function set_swal($icon, $title, $text = "", $is_toast = false)
 
 if ($con) {
     if (isset($_POST['login'])) {
-        $username = $_POST['login_username'];
-        $password_input = $_POST['login_password'];
+        $identity = $_POST['login_identity'] ?? ''; // Có thể là username hoặc email
+        $password_input = $_POST['login_password'] ?? '';
 
-        // 1. SELECT CẢ CỘT ROLE ĐỂ PHÂN QUYỀN
-        $stmt = $con->prepare("SELECT * FROM users WHERE UserName = ?");
-        if ($stmt) {
-            $stmt->bind_param("s", $username);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            if ($result->num_rows > 0) {
-                $row = $result->fetch_assoc();
+        if (empty($identity) || empty($password_input)) {
+            $swal_script = set_swal('warning', 'Thiếu thông tin', 'Vui lòng nhập đầy đủ thông tin đăng nhập.');
+        } else {
 
-                if (password_verify($password_input, $row['Password'])) {
-                    $_SESSION['user'] = $row['UserName'];
-                    $_SESSION['role'] = $row['Role'];
-                    $_SESSION['user_id'] = $row['UserID'];
+            // 1. Cho phép đăng nhập bằng cả UserName hoặc Email
+            $stmt = $con->prepare("SELECT * FROM users WHERE UserName = ? OR Email = ?");
+            if ($stmt) {
+                $stmt->bind_param("ss", $identity, $identity);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($result && $result->num_rows > 0) {
+                    $row = $result->fetch_assoc(); // Lấy thông tin người dùng
 
-                    // Chuyển hướng dựa trên quyền
-                    if ($row['Role'] == 'admin') {
-                        header("Location: admin.php");
-                        exit();
+                    if (password_verify($password_input, $row['Password'])) {
+                        $_SESSION['user'] = $row['UserName'];
+                        $_SESSION['role'] = $row['Role'];
+                        $_SESSION['user_id'] = $row['UserID'];
+
+                        // Chuyển hướng dựa trên quyền
+                        if ($row['Role'] == 'admin') {
+                            header("Location: admin.php");
+                            exit();
+                        } else {
+                            // Đặt thông báo chào mừng và tải lại trang
+                            $_SESSION['flash_message'] = "Đăng nhập thành công! Chào mừng trở lại, " . htmlspecialchars($row['UserName']) . ".";
+                            $_SESSION['flash_type'] = "success";
+                            header("Location: " . $_SERVER['PHP_SELF']); // Tải lại trang hiện tại
+                            exit();
+                        }
                     } else {
-                        // Với user thường, chỉ cần tải lại trang để cập nhật header
-                        header("Location: index.php");
-                        exit();
+                        // Thông báo chung để tránh dò tên người dùng
+                        $swal_script = set_swal('error', 'Đăng nhập thất bại', 'Tên đăng nhập hoặc mật khẩu không chính xác.');
                     }
                 } else {
-                    $swal_script = set_swal('error', 'Đăng nhập thất bại', 'Sai mật khẩu.');
+                    // Thông báo chung để tránh dò tên người dùng
+                    $swal_script = set_swal('error', 'Đăng nhập thất bại', 'Tên đăng nhập hoặc mật khẩu không chính xác.');
                 }
-            } else {
-                $swal_script = set_swal('error', 'Đăng nhập thất bại', 'Tài khoản không tồn tại.');
+                $stmt->close();
             }
-            $stmt->close();
         }
     } else if (isset($_POST['register'])) {
-        $username = $_POST['register_username'];
-        $password = $_POST['register_password'];
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        // Lấy dữ liệu từ form đăng ký mới
+        $username = $_POST['register_username'] ?? '';
+        $fullname = $_POST['register_fullname'] ?? '';
+        $email = $_POST['register_email'] ?? '';
+        $password = $_POST['register_password'] ?? '';
+        $confirm_password = $_POST['register_confirm_password'] ?? '';
 
-        $stmt = $con->prepare("INSERT INTO users (UserName, Password, Role) VALUES (?, ?, 'user')");
-        $stmt->bind_param("ss", $username, $hashed_password);
+        // --- VALIDATION ---
+        $username = $_POST['register_username'] ?? '';
+        $fullname = $_POST['register_fullname'] ?? '';
+        $email = $_POST['register_email'] ?? '';
+        $password = $_POST['register_password'] ?? '';
+        $confirm_password = $_POST['register_confirm_password'] ?? '';
 
-        if ($stmt->execute()) {
-            $swal_script = set_swal('success', 'Đăng ký thành công!', 'Tài khoản đã tạo thành công. Vui lòng đăng nhập.');
+        // --- VALIDATION ---
+        if (empty($username) || empty($fullname) || empty($email) || empty($password) || empty($confirm_password)) {
+            $swal_script = set_swal('warning', 'Thiếu thông tin', 'Vui lòng điền đầy đủ các trường.');
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $swal_script = set_swal('warning', 'Email không hợp lệ', 'Vui lòng nhập một địa chỉ email hợp lệ.');
+        } elseif (strlen($password) < 6) {
+            $swal_script = set_swal('warning', 'Mật khẩu không hợp lệ', 'Mật khẩu phải có ít nhất 6 ký tự.');
+        } elseif ($password !== $confirm_password) {
+            $swal_script = set_swal('warning', 'Mật khẩu không khớp', 'Mật khẩu xác nhận không giống nhau.');
         } else {
-            $swal_script = set_swal('warning', 'Đăng ký thất bại', 'Tên đăng nhập đã tồn tại.');
+            // 1. Kiểm tra xem username hoặc email đã tồn tại chưa
+            $stmt_check = $con->prepare("SELECT UserID FROM users WHERE UserName = ? OR Email = ?");
+            $stmt_check->bind_param("ss", $username, $email);
+            $stmt_check->execute();
+            $stmt_check->store_result();
+
+            if ($stmt_check->num_rows > 0) {
+                $swal_script = set_swal('error', 'Đăng ký thất bại', 'Tên đăng nhập hoặc Email đã được sử dụng.');
+            } else {
+                // 2. Nếu chưa tồn tại, tiến hành thêm người dùng mới
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                // Thêm FullName và Email vào câu lệnh INSERT
+                $stmt_insert = $con->prepare("INSERT INTO users (UserName, FullName, Email, Password, Role) VALUES (?, ?, ?, ?, 'user')");
+                $stmt_insert->bind_param("ssss", $username, $fullname, $email, $hashed_password);
+
+                if ($stmt_insert->execute()) {
+                    // Chuyển hướng đến trang đăng nhập với thông báo thành công
+                    $_SESSION['flash_message'] = "Đăng ký thành công! Vui lòng đăng nhập.";
+                    $_SESSION['flash_type'] = "success";
+                    // Chuyển hướng để tránh gửi lại form và hiển thị thông báo
+                    header("Location: " . $_SERVER['PHP_SELF']);
+                    exit();
+                } else {
+                    $swal_script = set_swal('error', 'Lỗi hệ thống', 'Đã có lỗi xảy ra. Vui lòng thử lại sau.');
+                }
+            }
+            $stmt_check->close();
         }
     }
 }
@@ -203,6 +252,9 @@ if (isset($_SESSION['user_id'])) {
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Hiển thị thông báo từ PHP (nếu có) -->
+    <?php echo $swal_script; ?>
 
 </head>
 

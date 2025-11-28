@@ -9,14 +9,14 @@
             <div class="modal-body">
                 <form method="post">
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control rounded-4 bg-light border-0" id="uLogin"
-                            name="login_username" placeholder="Username" required>
-                        <label for="uLogin">Username</label>
+                        <input type="text" class="form-control rounded-4 bg-light border-0" id="login_identity"
+                            name="login_identity" placeholder="Tên đăng nhập hoặc Email" required>
+                        <label for="login_identity">Tên đăng nhập hoặc Email</label>
                     </div>
                     <div class="form-floating mb-4">
-                        <input type="password" class="form-control rounded-4 bg-light border-0" id="pLogin"
+                        <input type="password" class="form-control rounded-4 bg-light border-0" id="login_password"
                             name="login_password" placeholder="Password" required>
-                        <label for="pLogin">Password</label>
+                        <label for="login_password">Mật khẩu</label>
                     </div>
                     <button type="submit" name="login" class="btn btn-primary-glass w-100 btn-lg">Đăng nhập</button>
                 </form>
@@ -39,18 +39,39 @@
             </div>
             <div class="modal-body">
                 <form method="post">
+                    <!-- NEW: FullName -->
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control rounded-4 bg-light border-0" name="register_fullname"
+                            placeholder="Họ và tên" required>
+                        <label>Họ và tên</label>
+                    </div>
+                    <!-- NEW: Email -->
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control rounded-4 bg-light border-0" name="register_email"
+                            placeholder="Email" required>
+                        <label>Email</label>
+                    </div>
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control rounded-4 bg-light border-0" name="register_username"
                             placeholder="Username" required>
-                        <label>Chọn tên đăng nhập</label>
+                        <label>Tên đăng nhập</label>
                     </div>
-                    <div class="form-floating mb-4">
+                    <div class="form-floating mb-3">
                         <input type="password" class="form-control rounded-4 bg-light border-0" name="register_password"
                             placeholder="Password" required>
-                        <label>Chọn mật khẩu</label>
+                        <label>Mật khẩu (ít nhất 6 ký tự)</label>
+                    </div>
+                    <!-- NEW: Confirm Password -->
+                    <div class="form-floating mb-4">
+                        <input type="password" class="form-control rounded-4 bg-light border-0"
+                            name="register_confirm_password" placeholder="Confirm Password" required>
+                        <label>Xác nhận mật khẩu</label>
                     </div>
                     <button type="submit" name="register" class="btn btn-primary-glass w-100 btn-lg">Đăng ký</button>
                 </form>
+                <div class="text-center mt-3"><small class="text-muted">Đã có tài khoản? <a href="#"
+                            data-bs-toggle="modal" data-bs-target="#loginModal" class="fw-bold text-primary">Đăng
+                            nhập</a></small></div>
             </div>
         </div>
     </div>
@@ -199,9 +220,12 @@
                 <ul class="list-unstyled text-white-50">
                     <li class="mb-2"><a href="#" class="text-decoration-none text-white-50 footer-link">Về BookZ</a>
                     </li>
-                    <li class="mb-2"><a href="faq.php" class="text-decoration-none text-white-50 footer-link">Liên hệ</a></li>
-                    <li class="mb-2"><a href="faq.php" class="text-decoration-none text-white-50 footer-link">FAQs</a></li>
-                    <li class="mb-2"><a href="policy.php" class="text-decoration-none text-white-50 footer-link">Chính sách</a>
+                    <li class="mb-2"><a href="faq.php" class="text-decoration-none text-white-50 footer-link">Liên
+                            hệ</a></li>
+                    <li class="mb-2"><a href="faq.php" class="text-decoration-none text-white-50 footer-link">FAQs</a>
+                    </li>
+                    <li class="mb-2"><a href="policy.php" class="text-decoration-none text-white-50 footer-link">Chính
+                            sách</a>
                     </li>
                 </ul>
             </div>

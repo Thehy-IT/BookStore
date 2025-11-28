@@ -1,242 +1,188 @@
 <?php
-session_start();
-include "dbconnect.php";
-include_once 'functions.php'; // Giả sử hàm set_swal() ở đây
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once 'dbconnect.php'; // Đảm bảo bạn đã có file kết nối CSDL
 
-$message = "";
-$message_type = "";
-
-// Hiển thị thông báo flash nếu có
-if (isset($_SESSION['flash_message'])) {
-    $message = $_SESSION['flash_message'];
-    $message_type = $_SESSION['flash_type'];
-    unset($_SESSION['flash_message'], $_SESSION['flash_type']);
+// Nếu người dùng đã đăng nhập, chuyển hướng họ về trang chủ
+if (isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
 }
 
-if (isset($_POST['submit']) && $_POST['submit'] == "register") {
-    // 1. Lấy dữ liệu và làm sạch
-    $username = trim($_POST['register_username']);
-    $password = $_POST['register_password'];
+$errors = [];
+$username = $email = $fullname = $phonenumber = $address = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Lấy và làm sạch dữ liệu
+    $username = trim($_POST['username']);
+    $email = trim($_POST['email']);
+    $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
+    $fullname = trim($_POST['fullname']);
+    $phonenumber = trim($_POST['phonenumber']);
+    $address = trim($_POST['address']);
 
-    $should_redirect = false;
+    // --- Bắt đầu Validate ---
+    if (empty($username)) {
+        $errors[] = "Tên đăng nhập là bắt buộc.";
+    }
 
-    // 2. Validate cơ bản
-    if (empty($username) || empty($password)) {
-        $_SESSION['flash_message'] = "Vui lòng điền đầy đủ thông tin.";
-        $_SESSION['flash_type'] = "warning";
-        $should_redirect = true;
-    } elseif ($password !== $confirm_password) {
-        $_SESSION['flash_message'] = "Mật khẩu xác nhận không khớp.";
-        $_SESSION['flash_type'] = "error";
-        $should_redirect = true;
-    } else {
-        // 3. Kiểm tra Username đã tồn tại chưa (Dùng Prepared Statement)
-        $stmt = $con->prepare("SELECT UserName FROM users WHERE UserName = ?");
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
+    if (empty($email)) {
+        $errors[] = "Email là bắt buộc.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Định dạng email không hợp lệ.";
+    }
 
-        if ($result->num_rows > 0) {
-            $_SESSION['flash_message'] = "Tên đăng nhập '$username' đã được sử dụng.";
-            $_SESSION['flash_type'] = "error";
-            $should_redirect = true;
-        } else {
-            // 4. Mã hóa mật khẩu (Quan trọng!)
-            // Mật khẩu sẽ được biến đổi thành chuỗi ký tự ngẫu nhiên an toàn
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    if (empty($password)) {
+        $errors[] = "Mật khẩu là bắt buộc.";
+    } elseif (strlen($password) < 6) {
+        $errors[] = "Mật khẩu phải có ít nhất 6 ký tự.";
+    }
 
-            // 5. Thêm vào CSDL (Chỉ định rõ cột UserName và Password)
-            // Lưu ý: Cấu trúc bảng users cần có cột (UserName, Password)
-            $insert_stmt = $con->prepare("INSERT INTO users (UserName, Password) VALUES (?, ?)");
-            $insert_stmt->bind_param("ss", $username, $hashed_password);
+    if ($password !== $confirm_password) {
+        $errors[] = "Mật khẩu xác nhận không khớp.";
+    }
 
-            if ($insert_stmt->execute()) {
-                // Đặt session flash để hiển thị thông báo trên trang đăng nhập
-                $_SESSION['flash_message'] = "Đăng ký thành công! Bây giờ bạn có thể đăng nhập.";
+    if (empty($fullname)) {
+        $errors[] = "Họ và tên là bắt buộc.";
+    }
+
+    // Kiểm tra username hoặc email đã tồn tại chưa
+    if (empty($errors)) {
+        $sql = "SELECT UserID FROM users WHERE UserName = ? OR Email = ?";
+        if ($stmt = $con->prepare($sql)) {
+            $stmt->bind_param("ss", $username, $email);
+            $stmt->execute();
+            $stmt->store_result();
+
+            if ($stmt->num_rows > 0) {
+                $errors[] = "Tên đăng nhập hoặc Email đã tồn tại.";
+            }
+            $stmt->close();
+        }
+    }
+    // --- Kết thúc Validate ---
+
+    // Nếu không có lỗi, tiến hành đăng ký
+    if (empty($errors)) {
+        // Mã hóa mật khẩu
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        $sql = "INSERT INTO users (UserName, Email, Password, FullName, PhoneNumber, Address) VALUES (?, ?, ?, ?, ?, ?)";
+
+        if ($stmt = $con->prepare($sql)) {
+            $stmt->bind_param("ssssss", $username, $email, $hashed_password, $fullname, $phonenumber, $address);
+
+            if ($stmt->execute()) {
+                // Đăng ký thành công, chuyển hướng đến trang đăng nhập
+                $_SESSION['flash_message'] = "Đăng ký tài khoản thành công! Vui lòng đăng nhập.";
                 $_SESSION['flash_type'] = "success";
-                header("Location: login.php");
+                header("location: login.php");
                 exit();
             } else {
-                $_SESSION['flash_message'] = "Lỗi hệ thống, không thể tạo tài khoản.";
-                $_SESSION['flash_type'] = "error";
-                $should_redirect = true;
+                $errors[] = "Đã có lỗi xảy ra. Vui lòng thử lại sau.";
             }
-            $insert_stmt->close();
+            $stmt->close();
         }
-        $stmt->close();
     }
-    if ($should_redirect) {
-        header("Location: register.php");
-        exit();
-    }
+    // Không cần đóng kết nối ở đây nếu các file khác còn dùng
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Register | BookZ Store</title>
-
-    <!-- Fonts & Icons -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
-        rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Tài Khoản - BookZ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <style>
-        :root {
-            --primary: #0f172a;
-            --accent: #d4af37;
-        }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #f0f4f8;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* --- BACKGROUND BLOBS --- */
-        .bg-blobs {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle at 80% 10%, rgba(212, 175, 55, 0.15), transparent 40%),
-                radial-gradient(circle at 20% 90%, rgba(15, 23, 42, 0.15), transparent 40%);
-        }
-
-        /* --- GLASS CARD --- */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-            border-radius: 24px;
-            padding: 40px;
-            width: 100%;
-            max-width: 500px;
-        }
-
-        h2 {
-            font-family: 'Playfair Display', serif;
-            color: var(--primary);
-        }
-
-        .form-control {
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            padding: 12px 15px;
-            transition: 0.3s;
-        }
-
-        .form-control:focus {
-            background: white;
-            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
-            border-color: var(--accent);
-        }
-
-        .btn-glass {
-            background: var(--primary);
-            color: white;
-            border-radius: 12px;
-            padding: 12px;
-            font-weight: 600;
-            transition: 0.3s;
-            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
-        }
-
-        .btn-glass:hover {
-            background: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.3);
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css"> <!-- File CSS tùy chỉnh của bạn -->
 </head>
 
 <body>
+    <?php include 'includes/header.php'; ?>
 
-    <div class="bg-blobs"></div>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <h2 class="text-center mb-4">Tạo Tài Khoản Mới</h2>
 
-    <div class="glass-card fade-in-up">
-        <div class="text-center mb-4">
-            <h2 class="fw-bold">Create Account</h2>
-            <p class="text-muted">Join our community of book lovers</p>
+                        <?php if (!empty($errors)): ?>
+                            <div class="alert alert-danger">
+                                <?php foreach ($errors as $error): ?>
+                                    <p class="mb-0"><?php echo $error; ?></p>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                            <div class="mb-3">
+                                <label for="fullname" class="form-label">Họ và Tên</label>
+                                <input type="text" name="fullname" id="fullname" class="form-control"
+                                    value="<?php echo htmlspecialchars($fullname); ?>" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="username" class="form-label">Tên đăng nhập</label>
+                                    <input type="text" name="username" id="username" class="form-control"
+                                        value="<?php echo htmlspecialchars($username); ?>" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" name="email" id="email" class="form-control"
+                                        value="<?php echo htmlspecialchars($email); ?>" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="password" class="form-label">Mật khẩu</label>
+                                    <input type="password" name="password" id="password" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="confirm_password" class="form-label">Xác nhận mật khẩu</label>
+                                    <input type="password" name="confirm_password" id="confirm_password"
+                                        class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="phonenumber" class="form-label">Số điện thoại</label>
+                                <input type="tel" name="phonenumber" id="phonenumber" class="form-control"
+                                    value="<?php echo htmlspecialchars($phonenumber); ?>">
+                            </div>
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Địa chỉ</label>
+                                <textarea name="address" id="address" class="form-control"
+                                    rows="3"><?php echo htmlspecialchars($address); ?></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Đăng Ký</button>
+                            </div>
+                            <p class="text-center mt-3">
+                                Đã có tài khoản? <a href="login.php">Đăng nhập tại đây</a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <form action="" method="post">
-            <!-- Username -->
-            <div class="mb-3">
-                <label class="form-label fw-bold text-secondary small">Username</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent border-0 ps-0"><i
-                            class="fas fa-user text-muted"></i></span>
-                    <input type="text" class="form-control" name="register_username" placeholder="Choose a username"
-                        required>
-                </div>
-            </div>
-
-            <!-- Password -->
-            <div class="mb-3">
-                <label class="form-label fw-bold text-secondary small">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent border-0 ps-0"><i
-                            class="fas fa-lock text-muted"></i></span>
-                    <input type="password" class="form-control" name="register_password" placeholder="Create a password"
-                        required>
-                </div>
-            </div>
-
-            <!-- Confirm Password -->
-            <div class="mb-4">
-                <label class="form-label fw-bold text-secondary small">Confirm Password</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent border-0 ps-0"><i
-                            class="fas fa-check-circle text-muted"></i></span>
-                    <input type="password" class="form-control" name="confirm_password"
-                        placeholder="Repeat your password" required>
-                </div>
-            </div>
-
-            <button type="submit" name="submit" value="register" class="btn btn-glass w-100 mb-3">
-                Sign Up Now
-            </button>
-
-            <div class="text-center mt-4">
-                <span class="text-muted">Already have an account?</span>
-                <a href="login.php" class="text-primary fw-bold text-decoration-none ms-1">Log In</a>
-            </div>
-        </form>
     </div>
 
-    <!-- Script xử lý thông báo -->
-    <?php if (!empty($message)): ?>
-        <?php
-        // Sử dụng hàm set_swal() để đồng bộ
-        $swal_script = set_swal(
-            $message_type,
-            'Thông báo',
-            $message
-        );
-        echo $swal_script;
-        ?>
-    <?php endif; ?>
-
+    <?php include 'includes/footer.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
+
+```
+
+### Bước 3: Cải thiện Form và Logic Đăng nhập (`login.php`)
+
+Bây giờ, tôi sẽ tạo tệp `login.php`. Điểm cải tiến quan trọng ở đây là cho phép người dùng đăng nhập bằng **cả Tên đăng
+nhập hoặc Email**.
+
+```diff
