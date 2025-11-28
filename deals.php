@@ -304,9 +304,9 @@ $result = mysqli_query($con, $query); // Với ứng dụng lớn, nên dùng pr
                 <div class="promo-card">
                     <div class="promo-icon bg-danger"><i class="fas fa-ticket-alt"></i></div>
                     <h5 class="promo-title">Giảm giá 20%</h5>
-                    <p class="promo-description">Nhập mã <strong class="promo-code">XMAS2024</strong> để được giảm 20%
-                        cho tất cả đơn hàng từ 500.000đ.</p>
-                    <button class="btn btn-outline-danger btn-sm" onclick="copyCode('XMAS2024', this)">Sao chép
+                    <p class="promo-description">Nhập mã <strong class="promo-code">GIAM10</strong> để được giảm 20%
+                        cho tất cả đơn hàng từ 200.000đ.</p>
+                    <button class="btn btn-outline-danger btn-sm" onclick="copyCode('GIAM10', this)">Sao chép
                         mã</button>
                 </div>
             </div>
