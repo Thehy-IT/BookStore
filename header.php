@@ -3,13 +3,13 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-// error_reporting(0);
-// ini_set('display_errors', 0);
+error_reporting(0);
+ini_set('display_errors', 0);
 
 // Cấu hình hiển thị lỗi cho môi trường phát triển (development)
-error_reporting(E_ALL); // Báo cáo tất cả các lỗi PHP
-ini_set('display_errors', 1); // Hiển thị lỗi trên màn hình
-ini_set('display_startup_errors', 1); // Hiển thị cả lỗi khởi động của PHP
+// error_reporting(E_ALL); // Báo cáo tất cả các lỗi PHP
+// ini_set('display_errors', 1); // Hiển thị lỗi trên màn hình
+// ini_set('display_startup_errors', 1); // Hiển thị cả lỗi khởi động của PHP
 
 // Khởi tạo biến swal_script rỗng để header không báo lỗi "Undefined variable"
 $swal_script = "";
