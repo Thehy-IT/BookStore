@@ -96,6 +96,10 @@ Hệ thống sử dụng một cơ sở dữ liệu quan hệ bao gồm các b�
      - **Tên đăng nhập:** `admin`
      - **Mật khẩu:** `admin123`
 
+## 📜 Lưu ý về Giấy phép
+Vui lòng đọc kỹ file [LICENSE](./LICENSE) trước khi sử dụng hoặc phân phối lại mã nguồn này.  
+Mọi sản phẩm phái sinh phải ghi rõ nguồn repo gốc: https://github.com/Thehy-IT/BookStore
+
 ---
 
 Cảm ơn bạn đã quan tâm đến dự án BookZ!
