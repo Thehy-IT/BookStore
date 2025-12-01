@@ -1,6 +1,10 @@
 # BookZ - Dự án Website Bán Sách
 
-Chào mừng đến với BookZ! Đây là một dự án website thương mại điện tử được xây dựng để kinh doanh sách trực tuyến, cung cấp một nền tảng đầy đủ tính năng cho cả người dùng và quản trị viên.
+Chào mừng đến với BookZ!  
+👉 [Website đã triển khai](https://bookz.free.nf/)
+
+
+Đây là một dự án website thương mại điện tử được xây dựng để kinh doanh sách trực tuyến, cung cấp một nền tảng đầy đủ tính năng cho cả người dùng và quản trị viên.
 
 ## Giới thiệu
 
